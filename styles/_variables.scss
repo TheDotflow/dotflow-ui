@@ -3,3 +3,11 @@
 
 /* load typhography */
 @import './typhography';
+
+$headerHeight: 100px;
+$sidebarWidth: 270px;
+
+:export {
+  headerHeight: $headerHeight;
+  sidebarWidth: $sidebarWidth;
+}

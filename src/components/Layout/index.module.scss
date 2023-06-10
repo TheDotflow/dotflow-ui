@@ -1,0 +1,25 @@
+@use '/styles/variables' as var;
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100vh;
+}
+
+.content {
+  display: flex;
+  flex-grow: 1;
+}
+
+.sidebar {
+  width: var.$sidebarWidth;
+  background: white;
+}
+
+.main {
+  flex-grow: 1;
+  height: 100%;
+  background: var.$bgPrimary;
+  padding: 32px 80px;
+}

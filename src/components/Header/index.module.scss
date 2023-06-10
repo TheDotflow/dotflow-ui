@@ -1,0 +1,27 @@
+@use '/styles/variables' as var;
+
+.header {
+  display: flex;
+  height: var.$headerHeight;
+  border-bottom: 1px solid var.$borderPrimary;
+}
+
+.logo {
+  display: flex;
+  position: relative;
+  min-width: var.$sidebarWidth;
+  max-width: var.$sidebarWidth;
+  background: white;
+  justify-content: center;
+  align-items: center;
+}
+
+.logo-img {
+  height: 100%;
+  width: 100%;
+}
+
+.menu {
+  flex-grow: 1;
+  background: var.$bgPrimary;
+}

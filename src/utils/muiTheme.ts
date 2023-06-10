@@ -1,4 +1,4 @@
-import { green, orange } from '@mui/material/colors';
+import { orange } from '@mui/material/colors';
 import { createTheme, responsiveFontSizes } from '@mui/material/styles';
 
 /* * need to use module augmentation for the theme to accept the value that just added **/
@@ -10,10 +10,9 @@ declare module '@mui/material/Button' {
 }
 
 let theme = createTheme({
-  //edit this to a color pallete your app
   palette: {
     primary: {
-      main: green[500],
+      main: '#0994FF',
     },
     secondary: {
       main: orange[500],
