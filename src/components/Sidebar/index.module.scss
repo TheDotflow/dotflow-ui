@@ -1,0 +1,29 @@
+@use '/styles/variables' as var;
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 32px;
+}
+
+.menuItem {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  cursor: pointer;
+  padding: 10px 0 10px 64px;
+  font-size: 16px;
+}
+
+.inactive:hover {
+  color: #2E2C34;
+}
+
+.inactive {
+  color: var.$textSecondary;
+}
+
+.active {
+  color: var.$btnPrimary;
+}

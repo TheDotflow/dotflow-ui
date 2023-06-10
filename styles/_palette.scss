@@ -1,9 +1,13 @@
-$primaryColor: black;
 $bgPrimary:#EEF2F7;
 $borderPrimary: #B8C9C9;
+$btnPrimary: #0994FF;
+$textPrimary: black;
+$textSecondary: #515B6F;
 
 :export {
-  primaryColor: $primaryColor;
   bgPrimary: $bgPrimary;
   borderPrimary: $borderPrimary;
+  btnPrimary: $btnPrimary;
+  textPrimary: $textPrimary;
+  textSecondary: $textSecondary;
 }
