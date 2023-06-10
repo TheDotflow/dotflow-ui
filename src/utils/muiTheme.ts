@@ -10,7 +10,6 @@ declare module '@mui/material/Button' {
 }
 
 let theme = createTheme({
-  //edit this to a color pallete your app
   palette: {
     primary: {
       main: '#0994FF',
