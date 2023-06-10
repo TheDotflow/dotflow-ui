@@ -1,5 +1,9 @@
 $primaryColor: black;
+$bgPrimary:#EEF2F7;
+$borderPrimary: #B8C9C9;
 
 :export {
   primaryColor: $primaryColor;
+  bgPrimary: $bgPrimary;
+  borderPrimary: $borderPrimary;
 }
