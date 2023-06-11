@@ -13,6 +13,7 @@ import {
   SubstrateWallet,
   useInkathon,
 } from '@scio-labs/use-inkathon';
+import styles from './index.module.scss';
 
 interface WalletModalProps {
   open: boolean;
@@ -37,13 +38,16 @@ export const WalletModal = (props: WalletModalProps) => {
       <DialogContent>
         <List>
           {allSubstrateWallets.map((wallet, index) => (
-            <ListItemButton
-              key={index}
-              onClick={() => onConnect(wallet)}
-              disabled={!isWalletInstalled(wallet)}
-            >
-              {wallet.name}
-            </ListItemButton>
+            <>
+              <ListItemButton
+                key={index}
+                onClick={() => onConnect(wallet)}
+                disabled={!isWalletInstalled(wallet)}
+              >
+                <img className={styles.logo} src={wallet.logoUrls[0]} width={32} height={32}/>
+                {wallet.name}
+              </ListItemButton>
+            </>
           ))}
         </List>
       </DialogContent>

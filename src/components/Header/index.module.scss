@@ -38,13 +38,15 @@
 }
 
 .listWrapper {
-  background: white;
+  border: 1px solid var.$borderPrimary;
+  border-radius: 100px;
   width: 240px;
 }
 
 .accountsWrapper {
   background: white;
   position: absolute;
+  border-radius: .5em;
   top: 0;
   width: 240px;
 }
