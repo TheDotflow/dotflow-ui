@@ -22,6 +22,38 @@
 }
 
 .menu {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
   flex-grow: 1;
   background: var.$bgPrimary;
+  padding-right: 48px;
+}
+
+.connectWallet {
+  color: #181336;
+  border: 1px solid var.$borderPrimary;
+  border-radius: 100px;
+  font-weight: 500;
+}
+
+.listWrapper {
+  background: white;
+  width: 240px;
+}
+
+.accountsWrapper {
+  background: white;
+  position: absolute;
+  top: 0;
+  width: 240px;
+}
+
+.accountsList {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.accountsList::-webkit-scrollbar {
+  display: none;
 }

@@ -1,12 +1,11 @@
 import { CacheProvider, EmotionCache } from '@emotion/react';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider } from '@mui/material/styles';
+import { UseInkathonProvider, shibuya } from '@scio-labs/use-inkathon';
 import { NextPage } from 'next';
 import { AppProps } from 'next/app';
 import Head from 'next/head';
 import * as React from 'react';
-import { UseInkProvider } from 'useink';
-import { RococoContractsTestnet, ShibuyaTestnet } from 'useink/chains';
 import '../../styles/global.scss';
 
 import createEmotionCache from '@/utils/createEmotionCache';
@@ -35,16 +34,15 @@ export default function MyApp(props: MyAppProps) {
         <title>Dotflow UI</title>
       </Head>
       <ThemeProvider theme={theme}>
-        <UseInkProvider
-          config={{
-            dappName: 'Dotflow UI',
-            chains: [RococoContractsTestnet, ShibuyaTestnet],
-          }}
+        {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
+        <CssBaseline />
+        <UseInkathonProvider
+          appName='DotFlow UI'
+          connectOnInit={false}
+          defaultChain={shibuya}
         >
-          {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
-          <CssBaseline />
           {getLayout(<Component {...pageProps} />)}
-        </UseInkProvider>
+        </UseInkathonProvider>
       </ThemeProvider>
     </CacheProvider>
   );
