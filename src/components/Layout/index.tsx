@@ -1,10 +1,10 @@
+import { Typography } from '@mui/material';
+import { useInkathon } from '@scio-labs/use-inkathon';
 import React, { ReactElement } from 'react';
 
 import styles from './index.module.scss';
 import { Header } from '../Header';
 import { Sidebar } from '../Sidebar';
-import { useInkathon } from '@scio-labs/use-inkathon';
-import { Typography } from '@mui/material';
 
 interface Props {
   children: ReactElement | ReactElement[];

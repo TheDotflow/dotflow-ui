@@ -1,3 +1,4 @@
+import { ExpandMore } from '@mui/icons-material';
 import {
   Button,
   CircularProgress,
@@ -6,24 +7,21 @@ import {
   List,
   ListItemButton,
 } from '@mui/material';
+import { useInkathon } from '@scio-labs/use-inkathon';
 import Image from 'next/image';
 import React, { useState } from 'react';
 
 import Logo from '@/assets/logo.png';
 
 import styles from './index.module.scss';
-import { useInkathon } from '@scio-labs/use-inkathon';
-import { ExpandMore, SpaceBar } from '@mui/icons-material';
 
 export const Header = () => {
-  const [walletModalOpen, openWalletModal] = useState(false);
   const {
     activeAccount,
     connect,
     disconnect,
     accounts,
     isConnecting,
-    isConnected,
     setActiveAccount,
   } = useInkathon();
   const [accountsOpen, openAccounts] = useState(false);

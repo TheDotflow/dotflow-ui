@@ -1,7 +1,7 @@
 import { CacheProvider, EmotionCache } from '@emotion/react';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider } from '@mui/material/styles';
-import { UseInkathonProvider, shibuya } from '@scio-labs/use-inkathon';
+import { shibuya, UseInkathonProvider } from '@scio-labs/use-inkathon';
 import { NextPage } from 'next';
 import { AppProps } from 'next/app';
 import Head from 'next/head';
