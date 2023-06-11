@@ -13,6 +13,8 @@ import {
   SubstrateWallet,
   useInkathon,
 } from '@scio-labs/use-inkathon';
+import Image from 'next/image';
+
 import styles from './index.module.scss';
 
 interface WalletModalProps {
@@ -44,7 +46,7 @@ export const WalletModal = (props: WalletModalProps) => {
                 onClick={() => onConnect(wallet)}
                 disabled={!isWalletInstalled(wallet)}
               >
-                <img className={styles.logo} src={wallet.logoUrls[0]} width={32} height={32}/>
+                <Image className={styles.logo} src={wallet.logoUrls[0]} width={32} height={32} alt=""/>
                 {wallet.name}
               </ListItemButton>
             </>
