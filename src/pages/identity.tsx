@@ -1,14 +1,5 @@
 import AddIcon from '@mui/icons-material/Add';
-import {
-  Alert,
-  Box,
-  Button,
-  Grid,
-  List,
-  ListItemText,
-  Snackbar,
-  Typography,
-} from '@mui/material';
+import { Alert, Box, Button, Grid, Snackbar, Typography } from '@mui/material';
 import {
   contractQuery,
   decodeOutput,
@@ -73,7 +64,7 @@ const IdentityPage = () => {
         'identity'
       );
       if (isError) throw new Error(decodedOutput);
-      setAddresses(output.addresses);
+      setAddresses(output.addresses.map((item: string[]) => item[1]));
     } catch (e) {
       setAddresses([]);
     }
@@ -94,15 +85,6 @@ const IdentityPage = () => {
   return (
     <>
       <div>
-        <Grid container spacing={2} columns={{ xs: 1, sm: 2, md: 3 }}>
-          <Grid item>
-            <AddressCard
-              name='Polkadot'
-              address='0x4235fjjdjqwdjdjeei7888'
-              onCopy={() => setAlertOpen(true)}
-            />
-          </Grid>
-        </Grid>
         <Box
           sx={{
             display: 'flex',
@@ -130,11 +112,18 @@ const IdentityPage = () => {
         ) : (
           <>
             <Typography className='section-header'>{`Wallet Addresses(${addresses.length})`}</Typography>
-            <List>
-              {addresses.map((address, index) => (
-                <ListItemText key={index}>{address}</ListItemText>
-              ))}
-            </List>
+            <Grid container spacing={2} columns={{ xs: 1, sm: 2, md: 3 }}>
+              <Grid item>
+                {addresses.map((address, index) => (
+                  <AddressCard
+                    key={index}
+                    name='Polkadot'
+                    address={address}
+                    onCopy={() => setAlertOpen(true)}
+                  />
+                ))}
+              </Grid>
+            </Grid>
           </>
         )}
       </div>

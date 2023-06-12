@@ -1,6 +1,6 @@
 {
   "source": {
-    "hash": "0x4519cde9bbd7ba76e38623b0b49177787b6df028eb20f09665250998f5c441f6",
+    "hash": "0xec7bbfda2df27d4c7705b48e7397e810eb88cf2a20bcf4073c8764f50ef90c4b",
     "language": "ink! 4.2.0",
     "compiler": "rustc 1.68.0-nightly",
     "build_info": {
@@ -164,7 +164,7 @@
             "label": "address",
             "type": {
               "displayName": [
-                "Address"
+                "NetworkAddress"
               ],
               "type": 3
             }
@@ -203,7 +203,7 @@
             "label": "updated_address",
             "type": {
               "displayName": [
-                "Address"
+                "NetworkAddress"
               ],
               "type": 3
             }
@@ -553,7 +553,7 @@
             "label": "address",
             "type": {
               "displayName": [
-                "Address"
+                "NetworkAddress"
               ],
               "type": 3
             }
@@ -590,7 +590,7 @@
             "label": "address",
             "type": {
               "displayName": [
-                "Address"
+                "NetworkAddress"
               ],
               "type": 3
             }
@@ -1187,7 +1187,7 @@
               {
                 "name": "addresses",
                 "type": 0,
-                "typeName": "Vec<(NetworkId, Address)>"
+                "typeName": "Vec<(NetworkId, NetworkAddress)>"
               }
             ]
           }
