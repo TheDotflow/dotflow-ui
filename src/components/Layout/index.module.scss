@@ -13,7 +13,8 @@
 }
 
 .sidebar {
-  width: var.$sidebarWidth;
+  min-width: var.$sidebarWidth;
+  max-width: var.$sidebarWidth;
   background: white;
 }
 
@@ -21,7 +22,7 @@
   flex-grow: 1;
   height: 100%;
   background: var.$bgPrimary;
-  padding: 16px 80px;
+  padding: 16px 32px;
 }
 
 .warningText {

@@ -1,0 +1,35 @@
+@use '/styles/variables' as var;
+
+.addressCard {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #FFFFFF;
+  border-radius: 4px;
+  color: var.$textSecondary;
+  padding: 12px 10px;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.networkName {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+
+.actionBtn {
+  display: flex;
+  gap: 12px;
+  cursor: pointer;
+  align-items: center;
+}
+
+.actionBtn:active {
+  transform: scale(1.05);
+}
+
+.actionBtn:hover {
+  color: var.$textPrimary;
+}
