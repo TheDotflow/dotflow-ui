@@ -41,6 +41,7 @@
   border: 1px solid var.$borderPrimary;
   border-radius: 100px;
   width: 240px;
+  z-index: 1000;
 }
 
 .accountsWrapper {
@@ -49,6 +50,7 @@
   border-radius: .5em;
   top: 0;
   width: 240px;
+  z-index: 1000;
 }
 
 .accountsList {

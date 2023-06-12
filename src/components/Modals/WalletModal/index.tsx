@@ -40,16 +40,20 @@ export const WalletModal = (props: WalletModalProps) => {
       <DialogContent>
         <List>
           {allSubstrateWallets.map((wallet, index) => (
-            <>
-              <ListItemButton
-                key={index}
-                onClick={() => onConnect(wallet)}
-                disabled={!isWalletInstalled(wallet)}
-              >
-                <Image className={styles.logo} src={wallet.logoUrls[0]} width={32} height={32} alt=""/>
-                {wallet.name}
-              </ListItemButton>
-            </>
+            <ListItemButton
+              key={index}
+              onClick={() => onConnect(wallet)}
+              disabled={!isWalletInstalled(wallet)}
+            >
+              <Image
+                className={styles.logo}
+                src={wallet.logoUrls[0]}
+                width={32}
+                height={32}
+                alt=''
+              />
+              {wallet.name}
+            </ListItemButton>
           ))}
         </List>
       </DialogContent>
