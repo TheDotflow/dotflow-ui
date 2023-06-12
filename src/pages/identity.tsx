@@ -19,6 +19,7 @@ import { useConfirm } from 'material-ui-confirm';
 import { useEffect, useState } from 'react';
 
 import { AddressCard } from '@/components/AddressCard';
+import { AddAddressModal } from '@/components/Modals/AddAddress';
 
 import { useIdentity } from '@/contracts';
 
@@ -277,6 +278,10 @@ const IdentityPage = () => {
           {error}
         </Alert>
       </Snackbar>
+      <AddAddressModal
+        open={newAddress}
+        onClose={() => openNewAddress(false)}
+      />
     </>
   );
 };

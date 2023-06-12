@@ -67,7 +67,7 @@ export const Header = () => {
           ) : (
             <Button
               variant='outlined'
-              className={styles.connectWallet}
+              className='btn-secondary'
               onClick={() => openWalletModal(true)}
               sx={{ gap: '8px', alignItems: 'center' }}
               disabled={isConnecting}
