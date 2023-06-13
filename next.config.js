@@ -2,7 +2,10 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ["github.com"]
+    domains: ['github.com'],
+  },
+  env: {
+    CONTRACT_IDENTITY: process.env.CONTRACT_IDENTITY,
   },
   async redirects() {
     return [

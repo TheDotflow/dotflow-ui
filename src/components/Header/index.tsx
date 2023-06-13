@@ -1,5 +1,12 @@
 import { ExpandMore } from '@mui/icons-material';
-import { Button, Collapse, Divider, List, ListItemButton } from '@mui/material';
+import {
+  Button,
+  CircularProgress,
+  Collapse,
+  Divider,
+  List,
+  ListItemButton,
+} from '@mui/material';
 import { useInkathon } from '@scio-labs/use-inkathon';
 import Image from 'next/image';
 import React, { useState } from 'react';
@@ -10,8 +17,13 @@ import styles from './index.module.scss';
 import { WalletModal } from '../Modals/WalletModal';
 
 export const Header = () => {
-  const { activeAccount, disconnect, accounts, setActiveAccount } =
-    useInkathon();
+  const {
+    activeAccount,
+    disconnect,
+    accounts,
+    setActiveAccount,
+    isConnecting,
+  } = useInkathon();
   const [accountsOpen, openAccounts] = useState(false);
   const [walletModalOpen, openWalletModal] = useState(false);
 
@@ -57,7 +69,10 @@ export const Header = () => {
               variant='outlined'
               className={styles.connectWallet}
               onClick={() => openWalletModal(true)}
+              sx={{ gap: '8px', alignItems: 'center' }}
+              disabled={isConnecting}
             >
+              {isConnecting && <CircularProgress size={'24px'} />}
               Connect Wallet
             </Button>
           )}
