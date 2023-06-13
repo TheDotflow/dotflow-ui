@@ -10,6 +10,7 @@ import {
 } from '@mui/material';
 import {
   contractQuery,
+  contractTx,
   decodeOutput,
   useInkathon,
 } from '@scio-labs/use-inkathon';
@@ -25,56 +26,98 @@ interface NetworkAddress {
 }
 
 const IdentityPage = () => {
-  const { api } = useInkathon();
-  const { contract, identityNo, getNetworkName } = useIdentity();
+  const { api, activeAccount } = useInkathon();
+  const { contract, identityNo, getNetworkName, fetchIdentityNo } =
+    useIdentity();
   const [addresses, setAddresses] = useState<Array<NetworkAddress>>([]);
-  const [alertOpen, setAlertOpen] = useState(false);
+  const [alert, setAlert] = useState('');
+  const [alertOpen, showAlert] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [error, setError] = useState('');
+  const [errorOpen, showError] = useState(false);
 
-  const fetchAddresses = async () => {
-    if (!api || !contract || identityNo === null) {
-      setAddresses([]);
-      return;
-    }
-    try {
-      setLoading(true);
+  const toastError = (errorMsg: string) => {
+    setError(errorMsg);
+    showError(true);
+  };
 
-      const result = await contractQuery(api, '', contract, 'identity', {}, [
-        identityNo,
-      ]);
-      const { output, isError, decodedOutput } = decodeOutput(
-        result,
-        contract,
-        'identity'
-      );
-      if (isError) throw new Error(decodedOutput);
-      const records = output.addresses;
-      const _addresses: Array<NetworkAddress> = [];
-      for (let idx = 0; idx < records.length; ++idx) {
-        const record = records[idx];
-        const networkId = record[0];
-        const address = record[1];
-        const network = (await getNetworkName(networkId)) as string;
-        _addresses.push({
-          network,
-          address,
-        });
-      }
-      setAddresses(_addresses);
-    } catch (e) {
-      console.log(e);
-      setAddresses([]);
-    } finally {
-      setLoading(false);
-    }
+  const toastSuccess = (msg: string) => {
+    setAlert(msg);
+    showAlert(true);
   };
 
   useEffect(() => {
-    void fetchAddresses();
-  }, [identityNo]);
+    const fetchAddresses = async () => {
+      if (!api || !contract || identityNo === null) {
+        setAddresses([]);
+        return;
+      }
+      try {
+        setLoading(true);
 
-  const onCreateIdentity = () => {
-    // TODO:
+        const result = await contractQuery(api, '', contract, 'identity', {}, [
+          identityNo,
+        ]);
+        const { output, isError, decodedOutput } = decodeOutput(
+          result,
+          contract,
+          'identity'
+        );
+        if (isError) throw new Error(decodedOutput);
+        const records = output.addresses;
+        const _addresses: Array<NetworkAddress> = [];
+        for (let idx = 0; idx < records.length; ++idx) {
+          const record = records[idx];
+          const networkId = record[0];
+          const address = record[1]; // FIXME: Decode address here
+          const network = (await getNetworkName(networkId)) as string;
+          _addresses.push({
+            network,
+            address,
+          });
+        }
+        setAddresses(_addresses);
+      } catch (e) {
+        setAddresses([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAddresses();
+  }, [api, contract, identityNo, getNetworkName]);
+
+  const onCreateIdentity = async () => {
+    if (!api || !activeAccount || !contract) {
+      toastError(
+        'Cannot create identity. Please check if you are connected to the network'
+      );
+      return;
+    }
+    setCreating(true);
+    try {
+      await contractTx(
+        api,
+        activeAccount.address,
+        contract,
+        'create_identity',
+        {},
+        []
+      );
+
+      toastSuccess('Successfully created your identity.');
+      fetchIdentityNo();
+    } catch (e: any) {
+      toastError(
+        `Failed to create identity. Error: ${
+          e.errorMessage === 'Error'
+            ? 'Please check your balance.'
+            : e.errorMessage
+        }`
+      );
+    } finally {
+      setCreating(false);
+    }
   };
 
   const onAddAddress = () => {
@@ -94,14 +137,30 @@ const IdentityPage = () => {
         <Typography variant='h4' fontWeight={700}>
           My Identity
         </Typography>
-        <Button
-          variant='contained'
-          className='btn-primary'
-          startIcon={<AddIcon />}
-          onClick={identityNo === null ? onCreateIdentity : onAddAddress}
-        >
-          {identityNo === null ? 'Create Identity' : 'Add New Address'}
-        </Button>
+        {identityNo === null && (
+          <Button
+            variant='contained'
+            className='btn-primary'
+            startIcon={creating ? <></> : <AddIcon />}
+            onClick={onCreateIdentity}
+            disabled={creating}
+            sx={{ gap: !creating ? 0 : '8px' }}
+          >
+            {creating && <CircularProgress size='16px' />}
+            Create Identity
+          </Button>
+        )}
+
+        {identityNo !== null && (
+          <Button
+            variant='contained'
+            className='btn-primary'
+            startIcon={<AddIcon />}
+            onClick={onAddAddress}
+          >
+            Add New Address
+          </Button>
+        )}
       </Box>
       {identityNo === null ? (
         <Typography variant='h5'>
@@ -121,7 +180,10 @@ const IdentityPage = () => {
                   key={index}
                   name={network}
                   address={address}
-                  onCopy={() => setAlertOpen(true)}
+                  onCopy={() => {
+                    setAlert('Address copied to clipboard');
+                    showAlert(true);
+                  }}
                 />
               ))}
             </Grid>
@@ -131,14 +193,29 @@ const IdentityPage = () => {
       <Snackbar
         open={alertOpen}
         autoHideDuration={3000}
-        onClose={() => setAlertOpen(false)}
+        onClose={() => showAlert(false)}
       >
         <Alert
-          onClose={() => setAlertOpen(false)}
+          onClose={() => showAlert(false)}
           severity='success'
           sx={{ width: '100%' }}
+          variant='filled'
         >
-          Address copied to clipboard
+          {alert}
+        </Alert>
+      </Snackbar>
+      <Snackbar
+        open={errorOpen}
+        autoHideDuration={3000}
+        onClose={() => showError(false)}
+      >
+        <Alert
+          onClose={() => showError(false)}
+          severity='error'
+          variant='filled'
+          sx={{ width: '100%' }}
+        >
+          {error}
         </Alert>
       </Snackbar>
     </>

@@ -20,12 +20,16 @@ interface IdentityContract {
   identityNo: number | null;
   contract: ContractPromise | undefined;
   getNetworkName: (_networkId: number | string) => Promise<string | null>;
+  fetchIdentityNo: () => Promise<void>;
 }
 
 const defaultIdentity: IdentityContract = {
   identityNo: null,
   contract: undefined,
   getNetworkName: async () => null,
+  fetchIdentityNo: async () => {
+    /**/
+  },
 };
 
 const IdentityContext = createContext<IdentityContract>(defaultIdentity);
@@ -54,7 +58,8 @@ const IdentityContractProvider = ({ children }: Props) => {
         'identity_of'
       );
       if (isError) throw new Error(decodedOutput);
-      setIdentityNo(Number(output));
+      if (!output) setIdentityNo(null);
+      else setIdentityNo(Number(output));
     } catch (e) {
       setIdentityNo(null);
     }
@@ -90,7 +95,9 @@ const IdentityContractProvider = ({ children }: Props) => {
   };
 
   return (
-    <IdentityContext.Provider value={{ identityNo, contract, getNetworkName }}>
+    <IdentityContext.Provider
+      value={{ identityNo, contract, getNetworkName, fetchIdentityNo }}
+    >
       {children}
     </IdentityContext.Provider>
   );
