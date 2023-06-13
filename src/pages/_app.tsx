@@ -13,6 +13,8 @@ import theme from '@/utils/muiTheme';
 
 import { Layout } from '@/components/Layout';
 
+import { IdentityContractProvider } from '@/contracts';
+
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
 export type NextPageWithLayout<P = unknown, IP = P> = NextPage<P, IP> & {
@@ -41,7 +43,9 @@ export default function MyApp(props: MyAppProps) {
           connectOnInit={false}
           defaultChain={shibuya}
         >
-          {getLayout(<Component {...pageProps} />)}
+          <IdentityContractProvider>
+            {getLayout(<Component {...pageProps} />)}
+          </IdentityContractProvider>
         </UseInkathonProvider>
       </ThemeProvider>
     </CacheProvider>
