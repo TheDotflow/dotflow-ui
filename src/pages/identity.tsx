@@ -1,4 +1,5 @@
 import AddIcon from '@mui/icons-material/Add';
+import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
 import {
   Alert,
   Box,
@@ -14,6 +15,7 @@ import {
   decodeOutput,
   useInkathon,
 } from '@scio-labs/use-inkathon';
+import { useConfirm } from 'material-ui-confirm';
 import { useEffect, useState } from 'react';
 
 import { AddressCard } from '@/components/AddressCard';
@@ -34,8 +36,11 @@ const IdentityPage = () => {
   const [alertOpen, showAlert] = useState(false);
   const [loading, setLoading] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [removing, setRemoving] = useState(false);
   const [error, setError] = useState('');
   const [errorOpen, showError] = useState(false);
+
+  const confirm = useConfirm();
 
   const toastError = (errorMsg: string) => {
     setError(errorMsg);
@@ -120,6 +125,46 @@ const IdentityPage = () => {
     }
   };
 
+  const removeIdentity = async () => {
+    if (!api || !activeAccount || !contract) {
+      toastError(
+        'Cannot remove identity. Please check if you are connected to the network'
+      );
+      return;
+    }
+    setRemoving(true);
+    try {
+      await contractTx(
+        api,
+        activeAccount.address,
+        contract,
+        'remove_identity',
+        {},
+        []
+      );
+
+      toastSuccess('Successfully removed your identity.');
+      fetchIdentityNo();
+    } catch (e: any) {
+      toastError(
+        `Failed to remove identity. Error: ${
+          e.errorMessage === 'Error'
+            ? 'Please check your balance.'
+            : e.errorMessage
+        }`
+      );
+    } finally {
+      setRemoving(false);
+    }
+  };
+
+  const onRemoveIdentity = () => {
+    confirm({
+      description:
+        'This will permanently remove your identity and you will lose all the addresses stored on chain.',
+    }).then(removeIdentity);
+  };
+
   const onAddAddress = () => {
     // TODO:
   };
@@ -137,30 +182,44 @@ const IdentityPage = () => {
         <Typography variant='h4' fontWeight={700}>
           My Identity
         </Typography>
-        {identityNo === null && (
-          <Button
-            variant='contained'
-            className='btn-primary'
-            startIcon={creating ? <></> : <AddIcon />}
-            onClick={onCreateIdentity}
-            disabled={creating}
-            sx={{ gap: !creating ? 0 : '8px' }}
-          >
-            {creating && <CircularProgress size='16px' />}
-            Create Identity
-          </Button>
-        )}
-
-        {identityNo !== null && (
-          <Button
-            variant='contained'
-            className='btn-primary'
-            startIcon={<AddIcon />}
-            onClick={onAddAddress}
-          >
-            Add New Address
-          </Button>
-        )}
+        <Box sx={{ display: 'flex', gap: '16px' }}>
+          {identityNo === null && (
+            <Button
+              variant='contained'
+              className='btn-primary'
+              startIcon={creating ? <></> : <AddIcon />}
+              onClick={onCreateIdentity}
+              disabled={creating}
+              sx={{ gap: !creating ? 0 : '8px' }}
+            >
+              {creating && <CircularProgress size='16px' />}
+              Create Identity
+            </Button>
+          )}
+          {identityNo !== null && (
+            <Button
+              variant='contained'
+              className='btn-primary'
+              startIcon={removing ? <></> : <DeleteRoundedIcon />}
+              onClick={onRemoveIdentity}
+              disabled={removing}
+              sx={{ gap: !removing ? 0 : '8px' }}
+            >
+              {removing && <CircularProgress size='16px' />}
+              Remove Identity
+            </Button>
+          )}
+          {identityNo !== null && (
+            <Button
+              variant='contained'
+              className='btn-primary'
+              startIcon={<AddIcon />}
+              onClick={onAddAddress}
+            >
+              Add New Address
+            </Button>
+          )}
+        </Box>
       </Box>
       {identityNo === null ? (
         <Typography variant='h5'>
