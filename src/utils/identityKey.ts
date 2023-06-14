@@ -1,0 +1,41 @@
+import crypto from "crypto";
+
+class IdentityKey {
+  public static newCipher(identityKey: string, networkId: number): string {
+    const regexPattern = new RegExp(`\\b${networkId}:`, "g");
+    if(regexPattern.test(identityKey)) {
+      throw new Error("There already exists a cipher that is attached to the provided networkId");
+    }
+
+    const cipher = this.generateCipher();
+ 
+    identityKey += `${networkId}:${cipher};`;
+    return identityKey;
+  }
+
+  public static updateCipher(_identityKey: string, _networkId: number): string {
+    // TODO
+
+    return "";
+  }
+
+  public static encryptAddress(_identityKey: string, _networkId: number, _address: string): string {
+    // TODO
+
+    return "";
+  }
+
+  public static decryptAddress(_identityKey: string, _networkId: number, _address: string): string {
+    // TODO
+
+    return "";
+  }
+
+  private static generateCipher = () => {
+    const cipher = crypto.randomBytes(16); // Generate a 128 bit key.
+    const base64Cipher = cipher.toString('base64');
+    return base64Cipher;
+  };
+}
+
+export default IdentityKey;

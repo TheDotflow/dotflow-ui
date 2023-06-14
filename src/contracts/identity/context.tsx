@@ -39,7 +39,7 @@ interface Props {
 }
 
 const IdentityContractProvider = ({ children }: Props) => {
-  const { contract } = useContract(IdentityMetadata, CONTRACT_IDENTITY);
+  const { contract } = useContract(IdentityMetadata);
   const { api, activeAccount } = useInkathon();
   const [identityNo, setIdentityNo] = useState<number | null>(null);
 
