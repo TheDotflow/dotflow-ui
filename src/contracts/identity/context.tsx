@@ -15,9 +15,11 @@ import {
 
 import { IdentityMetadata } from '.';
 import { CONTRACT_IDENTITY } from '..';
+import { IdentityNo, Networks } from '../types';
 
 interface IdentityContract {
   identityNo: number | null;
+  networks: Networks;
   contract: ContractPromise | undefined;
   getNetworkName: (_networkId: number | string) => Promise<string | null>;
   fetchIdentityNo: () => Promise<void>;
@@ -26,6 +28,8 @@ interface IdentityContract {
 const defaultIdentity: IdentityContract = {
   identityNo: null,
   contract: undefined,
+  networks: {},
+
   getNetworkName: async () => null,
   fetchIdentityNo: async () => {
     /**/
@@ -41,7 +45,8 @@ interface Props {
 const IdentityContractProvider = ({ children }: Props) => {
   const { contract } = useContract(IdentityMetadata, CONTRACT_IDENTITY);
   const { api, activeAccount } = useInkathon();
-  const [identityNo, setIdentityNo] = useState<number | null>(null);
+  const [identityNo, setIdentityNo] = useState<IdentityNo>(null);
+  const [networks, setNetworks] = useState({});
 
   const fetchIdentityNo = useCallback(async () => {
     if (!api || !contract || !activeAccount) {
@@ -64,6 +69,39 @@ const IdentityContractProvider = ({ children }: Props) => {
       setIdentityNo(null);
     }
   }, [activeAccount, api, contract]);
+
+  const fetchNetworks = useCallback(async () => {
+    if (!api || !contract) {
+      setNetworks({});
+      return;
+    }
+    try {
+      const result = await contractQuery(
+        api,
+        '',
+        contract,
+        'available_networks',
+        {}
+      );
+      const { output, isError, decodedOutput } = decodeOutput(
+        result,
+        contract,
+        'available_networks'
+      );
+      if (isError) throw new Error(decodedOutput);
+      const _networks: Networks = {};
+      output.map((item: string[]) => {
+        _networks[Number(item[0])] = item[1];
+      });
+      setNetworks(_networks);
+    } catch (e) {
+      setNetworks({});
+    }
+  }, [api, contract]);
+
+  useEffect(() => {
+    void fetchNetworks();
+  }, [api, contract, fetchNetworks]);
 
   useEffect(() => {
     void fetchIdentityNo();
@@ -96,7 +134,13 @@ const IdentityContractProvider = ({ children }: Props) => {
 
   return (
     <IdentityContext.Provider
-      value={{ identityNo, contract, getNetworkName, fetchIdentityNo }}
+      value={{
+        identityNo,
+        contract,
+        getNetworkName,
+        fetchIdentityNo,
+        networks,
+      }}
     >
       {children}
     </IdentityContext.Provider>
