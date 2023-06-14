@@ -61,16 +61,15 @@ const IdentityPage = () => {
             columns={{ xs: 1, sm: 2, md: 3 }}
             sx={{ mt: '12px' }}
           >
-            <Grid item>
-              {addresses.map(({ network, address }, index) => (
+            {addresses.map(({ network, address }, index) => (
+              <Grid item key={index}>
                 <AddressCard
-                  key={index}
                   name={network}
                   address={address}
                   onCopy={() => toastSuccess('Address copied to clipboard')}
                 />
-              ))}
-            </Grid>
+              </Grid>
+            ))}
           </Grid>
         </>
       )}
