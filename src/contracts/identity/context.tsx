@@ -15,24 +15,28 @@ import {
 
 import { IdentityMetadata } from '.';
 import { CONTRACT_IDENTITY } from '..';
-import { IdentityNo, Networks } from '../types';
+import { Address, IdentityNo, NetworkId, Networks } from '../types';
 
 interface IdentityContract {
   identityNo: number | null;
   networks: Networks;
+  addresses: Array<Address>;
   contract: ContractPromise | undefined;
-  getNetworkName: (_networkId: number | string) => Promise<string | null>;
   fetchIdentityNo: () => Promise<void>;
+  fetchAddresses: () => Promise<void>;
 }
 
 const defaultIdentity: IdentityContract = {
   identityNo: null,
-  contract: undefined,
   networks: {},
+  addresses: [],
+  contract: undefined,
 
-  getNetworkName: async () => null,
   fetchIdentityNo: async () => {
     /**/
+  },
+  fetchAddresses: async () => {
+    /* */
   },
 };
 
@@ -46,7 +50,8 @@ const IdentityContractProvider = ({ children }: Props) => {
   const { contract } = useContract(IdentityMetadata, CONTRACT_IDENTITY);
   const { api, activeAccount } = useInkathon();
   const [identityNo, setIdentityNo] = useState<IdentityNo>(null);
-  const [networks, setNetworks] = useState({});
+  const [networks, setNetworks] = useState<Networks>({});
+  const [addresses, setAddresses] = useState<Array<Address>>([]);
 
   const fetchIdentityNo = useCallback(async () => {
     if (!api || !contract || !activeAccount) {
@@ -99,6 +104,39 @@ const IdentityContractProvider = ({ children }: Props) => {
     }
   }, [api, contract]);
 
+  const fetchAddresses = async () => {
+    if (!api || !contract || identityNo === null) {
+      setAddresses([]);
+      return;
+    }
+    try {
+      const result = await contractQuery(api, '', contract, 'identity', {}, [
+        identityNo,
+      ]);
+      const { output, isError, decodedOutput } = decodeOutput(
+        result,
+        contract,
+        'identity'
+      );
+      if (isError) throw new Error(decodedOutput);
+      const records = output.addresses;
+      const _addresses: Array<Address> = [];
+      for (let idx = 0; idx < records.length; ++idx) {
+        const record = records[idx];
+        const networkId: NetworkId = Number(record[0]);
+        const address = record[1]; // FIXME: Decode address here
+        const network = networks[networkId];
+        _addresses.push({
+          network,
+          address,
+        });
+      }
+      setAddresses(_addresses);
+    } catch (e) {
+      setAddresses([]);
+    }
+  };
+
   useEffect(() => {
     void fetchNetworks();
   }, [api, contract, fetchNetworks]);
@@ -107,39 +145,15 @@ const IdentityContractProvider = ({ children }: Props) => {
     void fetchIdentityNo();
   }, [activeAccount, api, contract, fetchIdentityNo]);
 
-  const getNetworkName = async (networkId: number | string) => {
-    if (!api || !contract) {
-      return null;
-    }
-    try {
-      const result = await contractQuery(
-        api,
-        '',
-        contract,
-        'network_name_of',
-        {},
-        [networkId]
-      );
-      const { output, isError, decodedOutput } = decodeOutput(
-        result,
-        contract,
-        'network_name_of'
-      );
-      if (isError) throw new Error(decodedOutput);
-      return output;
-    } catch (e) {
-      return null;
-    }
-  };
-
   return (
     <IdentityContext.Provider
       value={{
-        identityNo,
         contract,
-        getNetworkName,
-        fetchIdentityNo,
+        identityNo,
+        addresses,
         networks,
+        fetchAddresses,
+        fetchIdentityNo,
       }}
     >
       {children}

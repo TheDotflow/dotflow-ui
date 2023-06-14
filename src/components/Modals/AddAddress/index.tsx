@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  CircularProgress,
   Dialog,
   DialogContent,
   DialogTitle,
@@ -10,6 +11,12 @@ import {
   MenuItem,
   TextField,
 } from '@mui/material';
+import { contractTx, useInkathon } from '@scio-labs/use-inkathon';
+import { useState } from 'react';
+
+import { useToast } from '@/contexts/Toast';
+import { useIdentity } from '@/contracts';
+import { NetworkId } from '@/contracts/types';
 
 interface AddAddressModalProps {
   open: boolean;
@@ -17,6 +24,50 @@ interface AddAddressModalProps {
 }
 
 export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
+  const { api, activeAccount } = useInkathon();
+  const { networks, contract } = useIdentity();
+  const { toastError, toastSuccess } = useToast();
+
+  const [networkId, setNetworkId] = useState<NetworkId>(0);
+  const [networkAddress, setNetworkAddress] = useState<string>('');
+  const [working, setWorking] = useState(false);
+
+  const onSubmit = async () => {
+    if (!networkAddress) {
+      toastError('Please input your address');
+      return;
+    }
+    if (!api || !activeAccount || !contract) {
+      toastError(
+        'Cannot add an address. Please check if you are connected to the network'
+      );
+      return;
+    }
+    setWorking(true);
+    try {
+      await contractTx(
+        api,
+        activeAccount.address,
+        contract,
+        'add_address',
+        {},
+        [networkId, networkAddress]
+      );
+
+      toastSuccess('Successfully added your address.');
+    } catch (e: any) {
+      toastError(
+        `Failed to add address. Error: ${
+          e.errorMessage === 'Error'
+            ? 'Please check your balance.'
+            : e.errorMessage
+        }`
+      );
+    } finally {
+      setWorking(false);
+    }
+  };
+
   return (
     <Dialog open={open} onClose={onClose}>
       <Box className='modal-wrapper'>
@@ -25,11 +76,19 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
           <Box className='form-group'>
             <FormControl className='form-item'>
               <FormLabel>List of networks</FormLabel>
-              <TextField label='Select a network' select sx={{ mt: '8px' }}>
-                <MenuItem value='Polkadot'>Polkadot</MenuItem>
-                <MenuItem value='Kusama'>Kusama</MenuItem>
-                <MenuItem value='Moonbeam'>Moonbeam</MenuItem>
-                <MenuItem value='Astar'>Astar</MenuItem>
+              <TextField
+                label='Select a network'
+                select
+                sx={{ mt: '8px' }}
+                required
+                value={networkId}
+                onChange={(e) => setNetworkId(Number(e.target.value))}
+              >
+                {Object.entries(networks).map(([id, network], index) => (
+                  <MenuItem value={id} key={index}>
+                    {network}
+                  </MenuItem>
+                ))}
               </TextField>
             </FormControl>
             <FormControl className='form-item'>
@@ -39,6 +98,8 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
                 inputProps={{
                   maxLength: 64,
                 }}
+                required
+                onChange={(e) => setNetworkAddress(e.target.value)}
               />
               <FormHelperText
                 sx={{
@@ -49,19 +110,28 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
                 }}
               >
                 <span>Maximum 64 characters</span>
-                <span>0/64</span>
+                <span>{`${networkAddress.length || 0}/64`}</span>
               </FormHelperText>
             </FormControl>
           </Box>
+          <Box className='modal-buttons'>
+            <Button
+              className='btn-ok'
+              variant='contained'
+              onClick={onSubmit}
+              sx={{ gap: '8px' }}
+              disabled={working}
+            >
+              {working && (
+                <CircularProgress size='20px' sx={{ color: 'white' }} />
+              )}
+              Submit
+            </Button>
+            <Button onClick={onClose} className='btn-cancel' disabled={working}>
+              Close
+            </Button>
+          </Box>
         </DialogContent>
-        <Box className='modal-buttons'>
-          <Button className='btn-ok' variant='contained'>
-            Submit
-          </Button>
-          <Button onClick={onClose} className='btn-cancel'>
-            Close
-          </Button>
-        </Box>
       </Box>
     </Dialog>
   );

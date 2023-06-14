@@ -6,6 +6,11 @@ export type Network = {
   name: NetworkName;
 }
 
+export type Address = {
+  network: string;
+  address: string;
+}
+
 export type Networks = Record<NetworkId, NetworkName>;
 
 export type IdentityNo = number | null;

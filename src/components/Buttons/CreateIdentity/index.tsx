@@ -13,7 +13,6 @@ export const CreateIdentity = () => {
 
   const [creating, setCreating] = useState(false);
   const onCreateIdentity = async () => {
-    toastSuccess('hhaha');
     if (!api || !activeAccount || !contract) {
       toastError(
         'Cannot create identity. Please check if you are connected to the network'
