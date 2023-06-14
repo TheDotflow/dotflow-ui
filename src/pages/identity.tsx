@@ -1,16 +1,15 @@
 import AddIcon from '@mui/icons-material/Add';
-import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
 import { Box, Button, CircularProgress, Grid, Typography } from '@mui/material';
 import {
   contractQuery,
-  contractTx,
   decodeOutput,
   useInkathon,
 } from '@scio-labs/use-inkathon';
-import { useConfirm } from 'material-ui-confirm';
 import { useEffect, useState } from 'react';
 
 import { AddressCard } from '@/components/AddressCard';
+import { CreateIdentity } from '@/components/Buttons/CreateIdentity';
+import { RemoveIdentity } from '@/components/Buttons/RemoveIdentity';
 
 import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
@@ -21,16 +20,11 @@ interface NetworkAddress {
 }
 
 const IdentityPage = () => {
-  const { api, activeAccount } = useInkathon();
-  const { toastError, toastSuccess } = useToast();
-  const { contract, identityNo, getNetworkName, fetchIdentityNo } =
-    useIdentity();
+  const { api } = useInkathon();
+  const { toastSuccess } = useToast();
+  const { contract, identityNo, getNetworkName } = useIdentity();
   const [addresses, setAddresses] = useState<Array<NetworkAddress>>([]);
   const [loading, setLoading] = useState(false);
-  const [creating, setCreating] = useState(false);
-  const [removing, setRemoving] = useState(false);
-
-  const confirm = useConfirm();
 
   useEffect(() => {
     const fetchAddresses = async () => {
@@ -72,80 +66,6 @@ const IdentityPage = () => {
     fetchAddresses();
   }, [api, contract, identityNo, getNetworkName]);
 
-  const onCreateIdentity = async () => {
-    toastSuccess('hhaha');
-    if (!api || !activeAccount || !contract) {
-      toastError(
-        'Cannot create identity. Please check if you are connected to the network'
-      );
-      return;
-    }
-    setCreating(true);
-    try {
-      await contractTx(
-        api,
-        activeAccount.address,
-        contract,
-        'create_identity',
-        {},
-        []
-      );
-
-      toastSuccess('Successfully created your identity.');
-      fetchIdentityNo();
-    } catch (e: any) {
-      toastError(
-        `Failed to create identity. Error: ${
-          e.errorMessage === 'Error'
-            ? 'Please check your balance.'
-            : e.errorMessage
-        }`
-      );
-    } finally {
-      setCreating(false);
-    }
-  };
-
-  const removeIdentity = async () => {
-    if (!api || !activeAccount || !contract) {
-      toastError(
-        'Cannot remove identity. Please check if you are connected to the network'
-      );
-      return;
-    }
-    setRemoving(true);
-    try {
-      await contractTx(
-        api,
-        activeAccount.address,
-        contract,
-        'remove_identity',
-        {},
-        []
-      );
-
-      toastSuccess('Successfully removed your identity.');
-      fetchIdentityNo();
-    } catch (e: any) {
-      toastError(
-        `Failed to remove identity. Error: ${
-          e.errorMessage === 'Error'
-            ? 'Please check your balance.'
-            : e.errorMessage
-        }`
-      );
-    } finally {
-      setRemoving(false);
-    }
-  };
-
-  const onRemoveIdentity = () => {
-    confirm({
-      description:
-        'This will permanently remove your identity and you will lose all the addresses stored on chain.',
-    }).then(removeIdentity);
-  };
-
   const onAddAddress = () => {
     // TODO:
   };
@@ -164,32 +84,8 @@ const IdentityPage = () => {
           My Identity
         </Typography>
         <Box sx={{ display: 'flex', gap: '16px' }}>
-          {identityNo === null && (
-            <Button
-              variant='contained'
-              className='btn-primary'
-              startIcon={creating ? <></> : <AddIcon />}
-              onClick={onCreateIdentity}
-              disabled={creating}
-              sx={{ gap: !creating ? 0 : '8px' }}
-            >
-              {creating && <CircularProgress size='16px' />}
-              Create Identity
-            </Button>
-          )}
-          {identityNo !== null && (
-            <Button
-              variant='contained'
-              className='btn-primary'
-              startIcon={removing ? <></> : <DeleteRoundedIcon />}
-              onClick={onRemoveIdentity}
-              disabled={removing}
-              sx={{ gap: !removing ? 0 : '8px' }}
-            >
-              {removing && <CircularProgress size='16px' />}
-              Remove Identity
-            </Button>
-          )}
+          {identityNo === null && <CreateIdentity />}
+          {identityNo !== null && <RemoveIdentity />}
           {identityNo !== null && (
             <Button
               variant='contained'
