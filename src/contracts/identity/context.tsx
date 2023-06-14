@@ -104,7 +104,7 @@ const IdentityContractProvider = ({ children }: Props) => {
     }
   }, [api, contract]);
 
-  const fetchAddresses = async () => {
+  const fetchAddresses = useCallback(async () => {
     if (!api || !contract || identityNo === null) {
       setAddresses([]);
       return;
@@ -125,9 +125,8 @@ const IdentityContractProvider = ({ children }: Props) => {
         const record = records[idx];
         const networkId: NetworkId = Number(record[0]);
         const address = record[1]; // FIXME: Decode address here
-        const network = networks[networkId];
         _addresses.push({
-          network,
+          networkId,
           address,
         });
       }
@@ -135,7 +134,11 @@ const IdentityContractProvider = ({ children }: Props) => {
     } catch (e) {
       setAddresses([]);
     }
-  };
+  }, [api, contract, identityNo]);
+
+  useEffect(() => {
+    void fetchAddresses();
+  }, [api, contract, identityNo, fetchAddresses]);
 
   useEffect(() => {
     void fetchNetworks();

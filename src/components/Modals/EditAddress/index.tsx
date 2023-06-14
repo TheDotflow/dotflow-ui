@@ -8,38 +8,43 @@ import {
   FormControl,
   FormHelperText,
   FormLabel,
-  MenuItem,
   TextField,
 } from '@mui/material';
 import { contractTx, useInkathon } from '@scio-labs/use-inkathon';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
 import { NetworkId } from '@/contracts/types';
 
-interface AddAddressModalProps {
+interface EditAddressModalProps {
   open: boolean;
   onClose: () => void;
+  networkId?: NetworkId;
 }
-
-export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
+export const EditAddressModal = ({
+  networkId,
+  open,
+  onClose,
+}: EditAddressModalProps) => {
   const { api, activeAccount } = useInkathon();
-  const { networks, contract } = useIdentity();
+  const { contract } = useIdentity();
   const { toastError, toastSuccess } = useToast();
-
-  const [networkId, setNetworkId] = useState<NetworkId>(0);
-  const [networkAddress, setNetworkAddress] = useState<string>('');
+  const [newAddress, setNewAddress] = useState<string>('');
   const [working, setWorking] = useState(false);
 
-  const onSubmit = async () => {
-    if (!networkAddress || networkAddress.trim().length === 0) {
-      toastError('Please input your address');
+  const onSave = async () => {
+    if (networkId === undefined) {
+      toastError('Invalid network');
+      return;
+    }
+    if (!newAddress || newAddress.trim().length === 0) {
+      toastError('Please input the new address');
       return;
     }
     if (!api || !activeAccount || !contract) {
       toastError(
-        'Cannot add an address. Please check if you are connected to the network'
+        'Cannot update address. Please check if you are connected to the network'
       );
       return;
     }
@@ -49,24 +54,30 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
         api,
         activeAccount.address,
         contract,
-        'add_address',
+        'update_address',
         {},
-        [networkId, networkAddress]
+        [networkId, newAddress]
       );
 
-      toastSuccess('Successfully added your address.');
+      toastSuccess('Successfully updated your address.');
+      setWorking(false);
+      onClose();
     } catch (e: any) {
       toastError(
-        `Failed to add address. Error: ${
+        `Failed to update address. Error: ${
           e.errorMessage === 'Error'
             ? 'Please check your balance.'
             : e.errorMessage
         }`
       );
-    } finally {
       setWorking(false);
     }
   };
+
+  useEffect(() => {
+    setWorking(false);
+    setNewAddress('');
+  }, [open]);
 
   return (
     <Dialog open={open} onClose={onClose}>
@@ -75,31 +86,15 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
         <DialogContent>
           <Box className='form-group'>
             <FormControl className='form-item'>
-              <FormLabel>List of networks</FormLabel>
-              <TextField
-                label='Select a network'
-                select
-                sx={{ mt: '8px' }}
-                required
-                value={networkId}
-                onChange={(e) => setNetworkId(Number(e.target.value))}
-              >
-                {Object.entries(networks).map(([id, network], index) => (
-                  <MenuItem value={id} key={index}>
-                    {network}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </FormControl>
-            <FormControl className='form-item'>
-              <FormLabel>Address</FormLabel>
+              <FormLabel>New Address</FormLabel>
               <TextField
                 placeholder='Enter address'
                 inputProps={{
                   maxLength: 64,
                 }}
                 required
-                onChange={(e) => setNetworkAddress(e.target.value)}
+                value={newAddress}
+                onChange={(e) => setNewAddress(e.target.value)}
               />
               <FormHelperText
                 sx={{
@@ -110,7 +105,7 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
                 }}
               >
                 <span>Maximum 64 characters</span>
-                <span>{`${networkAddress.length || 0}/64`}</span>
+                <span>{`${newAddress.length || 0}/64`}</span>
               </FormHelperText>
             </FormControl>
           </Box>
@@ -118,17 +113,17 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
             <Button
               className='btn-ok'
               variant='contained'
-              onClick={onSubmit}
+              onClick={onSave}
               sx={{ gap: '8px' }}
               disabled={working}
             >
               {working && (
                 <CircularProgress size='20px' sx={{ color: 'white' }} />
               )}
-              Submit
+              Save
             </Button>
             <Button onClick={onClose} className='btn-cancel' disabled={working}>
-              Close
+              Cancel
             </Button>
           </Box>
         </DialogContent>

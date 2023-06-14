@@ -9,14 +9,21 @@ interface AddressCardProps {
   name: string;
   address: string;
   onCopy?: (_address: string | undefined) => void;
+
+  onEdit?: () => void;
 }
 
-export const AddressCard = ({ name, address, onCopy }: AddressCardProps) => {
+export const AddressCard = ({
+  name,
+  address,
+  onCopy,
+  onEdit,
+}: AddressCardProps) => {
   return (
     <Card className={styles.addressCard}>
       <Box className={styles.networkName}>
         {name}
-        <IconButton size='small'>
+        <IconButton size='small' onClick={onEdit}>
           <EditRoundedIcon />
         </IconButton>
       </Box>

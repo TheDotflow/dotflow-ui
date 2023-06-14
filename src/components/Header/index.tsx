@@ -14,7 +14,7 @@ import React, { useState } from 'react';
 import Logo from '@/assets/logo.png';
 
 import styles from './index.module.scss';
-import { WalletModal } from '../Modals/WalletModal';
+import { WalletModal } from '../Modals';
 
 export const Header = () => {
   const {
