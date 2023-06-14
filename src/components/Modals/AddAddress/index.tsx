@@ -55,6 +55,8 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
       );
 
       toastSuccess('Successfully added your address.');
+      setWorking(false);
+      onClose();
     } catch (e: any) {
       toastError(
         `Failed to add address. Error: ${
@@ -63,7 +65,6 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
             : e.errorMessage
         }`
       );
-    } finally {
       setWorking(false);
     }
   };
