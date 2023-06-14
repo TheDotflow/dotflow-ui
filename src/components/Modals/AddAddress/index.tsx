@@ -28,7 +28,7 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
   const { networks, contract } = useIdentity();
   const { toastError, toastSuccess } = useToast();
 
-  const [networkId, setNetworkId] = useState<NetworkId>(0);
+  const [networkId, setNetworkId] = useState<NetworkId | undefined>(undefined);
   const [networkAddress, setNetworkAddress] = useState<string | undefined>();
   const [working, setWorking] = useState(false);
 
@@ -69,7 +69,7 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
   };
 
   useEffect(() => {
-    setNetworkId(0);
+    setNetworkId(undefined);
     setNetworkAddress(undefined);
     setWorking(false);
   }, [open]);
@@ -79,7 +79,7 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
       <Box className='modal-wrapper'>
         <DialogTitle>Add New Address</DialogTitle>
         <DialogContent>
-          <Box className='form-group'>
+          <Box className='form-group' component='form'>
             <FormControl className='form-item'>
               <FormLabel>List of networks</FormLabel>
               <TextField
@@ -105,6 +105,7 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
                   maxLength: 64,
                 }}
                 required
+                error={networkAddress === ''}
                 value={networkAddress || ''}
                 onChange={(e) => setNetworkAddress(e.target.value)}
               />

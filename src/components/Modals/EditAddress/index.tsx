@@ -82,7 +82,7 @@ export const EditAddressModal = ({
   return (
     <Dialog open={open} onClose={onClose}>
       <Box className='modal-wrapper'>
-        <DialogTitle>Add New Address</DialogTitle>
+        <DialogTitle>Edit Address</DialogTitle>
         <DialogContent>
           <Box className='form-group'>
             <FormControl className='form-item'>
