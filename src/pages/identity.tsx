@@ -1,14 +1,6 @@
 import AddIcon from '@mui/icons-material/Add';
 import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
-import {
-  Alert,
-  Box,
-  Button,
-  CircularProgress,
-  Grid,
-  Snackbar,
-  Typography,
-} from '@mui/material';
+import { Box, Button, CircularProgress, Grid, Typography } from '@mui/material';
 import {
   contractQuery,
   contractTx,
@@ -19,8 +11,8 @@ import { useConfirm } from 'material-ui-confirm';
 import { useEffect, useState } from 'react';
 
 import { AddressCard } from '@/components/AddressCard';
-import { AddAddressModal } from '@/components/Modals/AddAddress';
 
+import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
 
 interface NetworkAddress {
@@ -30,28 +22,15 @@ interface NetworkAddress {
 
 const IdentityPage = () => {
   const { api, activeAccount } = useInkathon();
+  const { toastError, toastSuccess } = useToast();
   const { contract, identityNo, getNetworkName, fetchIdentityNo } =
     useIdentity();
   const [addresses, setAddresses] = useState<Array<NetworkAddress>>([]);
-  const [alert, setAlert] = useState('');
-  const [alertOpen, showAlert] = useState(false);
   const [loading, setLoading] = useState(false);
   const [creating, setCreating] = useState(false);
   const [removing, setRemoving] = useState(false);
-  const [error, setError] = useState('');
-  const [errorOpen, showError] = useState(false);
 
   const confirm = useConfirm();
-
-  const toastError = (errorMsg: string) => {
-    setError(errorMsg);
-    showError(true);
-  };
-
-  const toastSuccess = (msg: string) => {
-    setAlert(msg);
-    showAlert(true);
-  };
 
   useEffect(() => {
     const fetchAddresses = async () => {
@@ -94,6 +73,7 @@ const IdentityPage = () => {
   }, [api, contract, identityNo, getNetworkName]);
 
   const onCreateIdentity = async () => {
+    toastSuccess('hhaha');
     if (!api || !activeAccount || !contract) {
       toastError(
         'Cannot create identity. Please check if you are connected to the network'
@@ -240,48 +220,13 @@ const IdentityPage = () => {
                   key={index}
                   name={network}
                   address={address}
-                  onCopy={() => {
-                    setAlert('Address copied to clipboard');
-                    showAlert(true);
-                  }}
+                  onCopy={() => toastSuccess('Address copied to clipboard')}
                 />
               ))}
             </Grid>
           </Grid>
         </>
       )}
-      <Snackbar
-        open={alertOpen}
-        autoHideDuration={3000}
-        onClose={() => showAlert(false)}
-      >
-        <Alert
-          onClose={() => showAlert(false)}
-          severity='success'
-          sx={{ width: '100%' }}
-          variant='filled'
-        >
-          {alert}
-        </Alert>
-      </Snackbar>
-      <Snackbar
-        open={errorOpen}
-        autoHideDuration={3000}
-        onClose={() => showError(false)}
-      >
-        <Alert
-          onClose={() => showError(false)}
-          severity='error'
-          variant='filled'
-          sx={{ width: '100%' }}
-        >
-          {error}
-        </Alert>
-      </Snackbar>
-      <AddAddressModal
-        open={newAddress}
-        onClose={() => openNewAddress(false)}
-      />
     </>
   );
 };

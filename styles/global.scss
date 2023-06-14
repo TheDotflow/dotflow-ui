@@ -60,7 +60,7 @@
 }
 
 .MuiDialogContent-root {
-  padding: 0;
+  padding: 16px;
 }
 
 .MuiDialogActions-root {
@@ -100,4 +100,12 @@
   border-radius: 4px;
   width: 100%;
   border: 1px solid $borderPrimary;
+}
+
+.loading-spinner {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
 }

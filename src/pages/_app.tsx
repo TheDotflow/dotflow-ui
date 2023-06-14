@@ -14,6 +14,7 @@ import theme from '@/utils/muiTheme';
 
 import { Layout } from '@/components/Layout';
 
+import { ToastProvider } from '@/contexts/Toast';
 import { IdentityContractProvider } from '@/contracts';
 
 // Client-side cache, shared for the whole session of the user in the browser.
@@ -45,9 +46,11 @@ export default function MyApp(props: MyAppProps) {
           defaultChain={shibuya}
         >
           <IdentityContractProvider>
-            <ConfirmProvider>
-              {getLayout(<Component {...pageProps} />)}
-            </ConfirmProvider>
+            <ToastProvider>
+              <ConfirmProvider>
+                {getLayout(<Component {...pageProps} />)}
+              </ConfirmProvider>
+            </ToastProvider>
           </IdentityContractProvider>
         </UseInkathonProvider>
       </ThemeProvider>
