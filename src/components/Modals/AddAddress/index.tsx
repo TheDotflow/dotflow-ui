@@ -12,7 +12,7 @@ import {
   TextField,
 } from '@mui/material';
 import { contractTx, useInkathon } from '@scio-labs/use-inkathon';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
@@ -29,7 +29,7 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
   const { toastError, toastSuccess } = useToast();
 
   const [networkId, setNetworkId] = useState<NetworkId>(0);
-  const [networkAddress, setNetworkAddress] = useState<string>('');
+  const [networkAddress, setNetworkAddress] = useState<string | undefined>();
   const [working, setWorking] = useState(false);
 
   const onSubmit = async () => {
@@ -68,6 +68,12 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
     }
   };
 
+  useEffect(() => {
+    setNetworkId(0);
+    setNetworkAddress(undefined);
+    setWorking(false);
+  }, [open]);
+
   return (
     <Dialog open={open} onClose={onClose}>
       <Box className='modal-wrapper'>
@@ -99,6 +105,7 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
                   maxLength: 64,
                 }}
                 required
+                value={networkAddress || ''}
                 onChange={(e) => setNetworkAddress(e.target.value)}
               />
               <FormHelperText
@@ -110,7 +117,7 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
                 }}
               >
                 <span>Maximum 64 characters</span>
-                <span>{`${networkAddress.length || 0}/64`}</span>
+                <span>{`${(networkAddress || '').length}/64`}</span>
               </FormHelperText>
             </FormControl>
           </Box>
