@@ -13,10 +13,20 @@ class IdentityKey {
     return identityKey;
   }
 
-  public static updateCipher(_identityKey: string, _networkId: number): string {
-    // TODO
+  public static updateCipher(identityKey: string, networkId: number): string {
+    const startIndex = identityKey.indexOf(`${networkId}:`);
 
-    return "";
+    if(startIndex >= 0) {
+      const newCipher = this.generateCipher();
+
+      const endIndex = identityKey.indexOf(";", startIndex);
+      identityKey = 
+        identityKey.substring(0, startIndex + networkId.toString().length + 1) + newCipher + identityKey.substring(endIndex);
+    }else {
+      throw new Error("Cannot find networkId");
+    }
+
+    return identityKey;
   }
 
   public static encryptAddress(_identityKey: string, _networkId: number, _address: string): string {
@@ -29,6 +39,17 @@ class IdentityKey {
     // TODO
 
     return "";
+  }
+
+  public static readNetworkCipher(identityKey: string, networkId: number): string { 
+    const startIndex = identityKey.indexOf(`${networkId}:`);
+
+    if(startIndex >= 0) {
+      const endIndex = identityKey.indexOf(";", startIndex);
+      return identityKey.substring(startIndex + networkId.toString().length + 1, endIndex-1);
+    }else {
+      throw new Error("Cannot find networkId");
+    }
   }
 
   private static generateCipher = () => {
