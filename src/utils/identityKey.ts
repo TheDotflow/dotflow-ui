@@ -1,5 +1,5 @@
-import crypto from "crypto";
 import aesjs from "aes-js";
+import crypto from "crypto";
 
 class IdentityKey {
   public static newCipher(identityKey: string, networkId: number): string {
