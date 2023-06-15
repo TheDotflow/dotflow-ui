@@ -5,16 +5,19 @@ import { useState } from 'react';
 import { AddressCard } from '@/components/AddressCard';
 import { CreateIdentity } from '@/components/Buttons/CreateIdentity';
 import { RemoveIdentity } from '@/components/Buttons/RemoveIdentity';
-import { AddAddressModal } from '@/components/Modals/AddAddress';
+import { AddAddressModal, EditAddressModal } from '@/components/Modals';
 
 import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
 
 const IdentityPage = () => {
   const { toastSuccess } = useToast();
-  const { identityNo, addresses, fetchAddresses } = useIdentity();
+  const { identityNo, addresses, fetchAddresses, networks } = useIdentity();
 
   const [newAddrModal, openAddAddr] = useState(false);
+
+  const [networkId, setNetworkId] = useState<number | undefined>(undefined);
+  const [editModalOpen, openEditModal] = useState(false);
 
   const onAddAddress = () => {
     openAddAddr(true);
@@ -61,12 +64,16 @@ const IdentityPage = () => {
             columns={{ xs: 1, sm: 2, md: 3 }}
             sx={{ mt: '12px' }}
           >
-            {addresses.map(({ network, address }, index) => (
+            {addresses.map(({ networkId, address }, index) => (
               <Grid item key={index}>
                 <AddressCard
-                  name={network}
+                  name={networks[networkId]}
                   address={address}
                   onCopy={() => toastSuccess('Address copied to clipboard')}
+                  onEdit={() => {
+                    setNetworkId(networkId);
+                    openEditModal(true);
+                  }}
                 />
               </Grid>
             ))}
@@ -79,6 +86,14 @@ const IdentityPage = () => {
           openAddAddr(false);
           fetchAddresses();
         }}
+      />
+      <EditAddressModal
+        open={editModalOpen}
+        onClose={() => {
+          openEditModal(false);
+          fetchAddresses();
+        }}
+        networkId={networkId}
       />
     </>
   );

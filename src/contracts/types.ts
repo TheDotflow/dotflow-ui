@@ -7,7 +7,7 @@ export type Network = {
 }
 
 export type Address = {
-  network: string;
+  networkId: NetworkId;
   address: string;
 }
 
