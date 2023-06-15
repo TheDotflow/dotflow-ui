@@ -7,12 +7,10 @@ import { CreateIdentity } from '@/components/Buttons/CreateIdentity';
 import { RemoveIdentity } from '@/components/Buttons/RemoveIdentity';
 import { AddAddressModal, EditAddressModal } from '@/components/Modals';
 
-import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
 
 const IdentityPage = () => {
-  const { toastSuccess } = useToast();
-  const { identityNo, addresses, fetchAddresses, networks } = useIdentity();
+  const { identityNo, addresses, fetchAddresses } = useIdentity();
 
   const [newAddrModal, openAddAddr] = useState(false);
 
@@ -64,14 +62,12 @@ const IdentityPage = () => {
             columns={{ xs: 1, sm: 2, md: 3 }}
             sx={{ mt: '12px' }}
           >
-            {addresses.map(({ networkId, address }, index) => (
+            {addresses.map((item, index) => (
               <Grid item key={index}>
                 <AddressCard
-                  name={networks[networkId]}
-                  address={address}
-                  onCopy={() => toastSuccess('Address copied to clipboard')}
+                  data={item}
                   onEdit={() => {
-                    setNetworkId(networkId);
+                    setNetworkId(item.networkId);
                     openEditModal(true);
                   }}
                 />
