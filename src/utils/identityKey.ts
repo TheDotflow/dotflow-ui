@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import aesjs from "aes-js";
 
 class IdentityKey {
   public static newCipher(identityKey: string, networkId: number): string {
@@ -29,19 +30,27 @@ class IdentityKey {
     return identityKey;
   }
 
-  public static encryptAddress(_identityKey: string, _networkId: number, _address: string): string {
-    // TODO
+  public static encryptAddress(identityKey: string, networkId: number, address: string): string {
+    const cipherBase64 = this.getNetworkCipher(identityKey, networkId);
+    const cipher = Buffer.from(cipherBase64, "base64");
 
-    return "";
+    const aesCtr = new aesjs.ModeOfOperation.ctr(cipher);
+    const encryptedAddress = aesCtr.encrypt(Buffer.from(address, "utf-8"));
+ 
+    return Buffer.from(encryptedAddress).toString("base64");
   }
 
-  public static decryptAddress(_identityKey: string, _networkId: number, _address: string): string {
-    // TODO
+  public static decryptAddress(identityKey: string, networkId: number, address: string): string {
+    const cipherBase64 = this.getNetworkCipher(identityKey, networkId);
+    const cipher = Buffer.from(cipherBase64, "base64");
 
-    return "";
+    const aesCtr = new aesjs.ModeOfOperation.ctr(cipher);
+    const decryptedAddress = aesCtr.decrypt(Buffer.from(address, "base64"));
+ 
+    return Buffer.from(decryptedAddress.buffer).toString();
   }
 
-  public static readNetworkCipher(identityKey: string, networkId: number): string { 
+  public static getNetworkCipher(identityKey: string, networkId: number): string { 
     const startIndex = identityKey.indexOf(`${networkId}:`);
 
     if(startIndex >= 0) {

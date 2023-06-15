@@ -21,8 +21,8 @@ describe("IdentityKey",() => {
     containsNetworkAndCipher(identityKey, moonbeamNetworkId);
 
     // Ciphers are randomly generated so the two ciphers cannot be the same.
-    const polkadotCipher = IdentityKey.readNetworkCipher(identityKey, polkadotNetworkId);
-    const moonbeamCipher = IdentityKey.readNetworkCipher(identityKey, moonbeamNetworkId);
+    const polkadotCipher = IdentityKey.getNetworkCipher(identityKey, polkadotNetworkId);
+    const moonbeamCipher = IdentityKey.getNetworkCipher(identityKey, moonbeamNetworkId);
 
     expect(polkadotCipher).not.toBe(moonbeamCipher);
 
@@ -43,20 +43,35 @@ describe("IdentityKey",() => {
     containsNetworkAndCipher(identityKey, polkadotNetworkId);
     containsNetworkAndCipher(identityKey, moonbeamNetworkId);
 
-    const polkadotCipher = IdentityKey.readNetworkCipher(identityKey, polkadotNetworkId);
-    const moonbeamCipher = IdentityKey.readNetworkCipher(identityKey, moonbeamNetworkId);
+    const polkadotCipher = IdentityKey.getNetworkCipher(identityKey, polkadotNetworkId);
+    const moonbeamCipher = IdentityKey.getNetworkCipher(identityKey, moonbeamNetworkId);
 
     identityKey = IdentityKey.updateCipher(identityKey, moonbeamNetworkId);    
-    const newMoonbeamCipher = IdentityKey.readNetworkCipher(identityKey, moonbeamNetworkId);
+    const newMoonbeamCipher = IdentityKey.getNetworkCipher(identityKey, moonbeamNetworkId);
 
     // The moonbeam network cipher should be updated.
     expect(moonbeamCipher).not.toBe(newMoonbeamCipher);
 
     // The polkadot cipher shouldn't be affected. 
-    expect(IdentityKey.readNetworkCipher(identityKey, polkadotNetworkId)).toBe(polkadotCipher);
+    expect(IdentityKey.getNetworkCipher(identityKey, polkadotNetworkId)).toBe(polkadotCipher);
 
     // Cannot update a cipher of a network that does not exist.
     expect(() => IdentityKey.updateCipher(identityKey, 42)).toThrow("Cannot find networkId");
+  });
+
+  test("Encryption and decryption works", () => {
+    let identityKey = "";
+
+    const polkadotNetworkId = 0;
+    identityKey = IdentityKey.newCipher(identityKey, polkadotNetworkId);
+
+    containsNetworkAndCipher(identityKey, polkadotNetworkId);
+
+    const polkadotAddress = "126X27SbhrV19mBFawys3ovkyBS87SGfYwtwa8J2FjHrtbmA";
+    const encryptedAddress = IdentityKey.encryptAddress(identityKey, polkadotNetworkId, polkadotAddress);
+    const decryptedAddress = IdentityKey.decryptAddress(identityKey, polkadotNetworkId, encryptedAddress);
+
+    expect(polkadotAddress).toBe(decryptedAddress);
   });
 });
 
@@ -64,7 +79,7 @@ const containsNetworkAndCipher = (identityKey: string, networkId: number) => {
   const containsNetwork = new RegExp(`\\b${networkId}:`, "g");
   expect(containsNetwork.test(identityKey)).toBe(true);
 
-  const networkCipher = IdentityKey.readNetworkCipher(identityKey, networkId);
+  const networkCipher = IdentityKey.getNetworkCipher(identityKey, networkId);
   expect(cipherSize(networkCipher)).toBe(16);
 }
 
