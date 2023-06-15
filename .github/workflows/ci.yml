@@ -21,6 +21,20 @@ jobs:
       - run: yarn install
       - run: 'CI=false yarn build'
       - run: yarn lint
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x]
+    steps:
+      - uses: actions/checkout@v3.1.0
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: yarn install
+      - run: 'CI=false yarn build'
+      - run: yarn test
 
   all:
     needs: [build]
