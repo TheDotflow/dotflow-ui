@@ -148,6 +148,14 @@ const IdentityContractProvider = ({ children }: Props) => {
     void fetchIdentityNo();
   }, [activeAccount, api, contract, fetchIdentityNo]);
 
+  useEffect(() => {
+    void fetchNetworks();
+  }, [api, contract, fetchNetworks]);
+
+  useEffect(() => {
+    void fetchIdentityNo();
+  }, [activeAccount, api, contract, fetchIdentityNo]);
+
   return (
     <IdentityContext.Provider
       value={{
