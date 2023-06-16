@@ -2,6 +2,8 @@ import AddIcon from '@mui/icons-material/Add';
 import { Box, Button, Grid, Typography } from '@mui/material';
 import { useState } from 'react';
 
+import IdentityKey from '@/utils/identityKey';
+
 import { AddressCard } from '@/components/AddressCard';
 import { CreateIdentity } from '@/components/Buttons/CreateIdentity';
 import { RemoveIdentity } from '@/components/Buttons/RemoveIdentity';
@@ -20,6 +22,20 @@ const IdentityPage = () => {
   const onAddAddress = () => {
     openAddAddr(true);
   };
+
+  const decryptAddress = (address: string, networkId: number): string => {
+    let identityKey = "";
+    if (localStorage.getItem("identity-key")) {
+      identityKey = localStorage.getItem("identity-key");
+    }
+
+    let decryptedAddress = address;
+    if (IdentityKey.containsNetworkId(identityKey, networkId)) {
+      decryptedAddress = IdentityKey.decryptAddress(identityKey, networkId, address);
+    }
+
+    return decryptedAddress;
+  }
 
   return (
     <>
@@ -65,7 +81,7 @@ const IdentityPage = () => {
             {addresses.map((item, index) => (
               <Grid item key={index}>
                 <AddressCard
-                  data={item}
+                  data={{address: decryptAddress(item.address, item.networkId), networkId: item.networkId}}
                   onEdit={() => {
                     setNetworkId(item.networkId);
                     openEditModal(true);

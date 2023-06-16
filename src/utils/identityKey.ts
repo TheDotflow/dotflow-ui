@@ -61,6 +61,12 @@ class IdentityKey {
     }
   }
 
+  public static containsNetworkId(identityKey: string, networkId: number): boolean {
+    const startIndex = identityKey.indexOf(`${networkId}:`);
+
+    return startIndex >= 0? true : false;
+  }
+
   private static generateCipher = () => {
     const cipher = crypto.randomBytes(16); // Generate a 128 bit key.
     const base64Cipher = cipher.toString('base64');
