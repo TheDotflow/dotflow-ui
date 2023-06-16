@@ -51,10 +51,7 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
     }
     setWorking(true);
 
-    let identityKey = "";
-    if (localStorage.getItem("identity-key")) {
-      identityKey = localStorage.getItem("identity-key");
-    }
+    let identityKey = localStorage.getItem("identity-key") ||  "";
 
     if (!IdentityKey.containsNetworkId(identityKey, networkId)) {
       identityKey = IdentityKey.newCipher(identityKey, networkId);

@@ -13,6 +13,8 @@ import {
 import { contractTx, useInkathon } from '@scio-labs/use-inkathon';
 import { useEffect, useState } from 'react';
 
+import IdentityKey from '@/utils/identityKey';
+
 import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
 import { NetworkId } from '@/contracts/types';
@@ -49,6 +51,16 @@ export const EditAddressModal = ({
       return;
     }
     setWorking(true);
+
+    let identityKey = localStorage.getItem("identity-key") ||  "";
+
+    if (!IdentityKey.containsNetworkId(identityKey, networkId)) {
+      identityKey = IdentityKey.newCipher(identityKey, networkId);
+      localStorage.setItem("identity-key", identityKey);
+    }
+
+    const encryptedAddress = IdentityKey.encryptAddress(identityKey, networkId, newAddress);
+
     try {
       await contractTx(
         api,
@@ -56,7 +68,7 @@ export const EditAddressModal = ({
         contract,
         'update_address',
         {},
-        [networkId, newAddress]
+        [networkId, encryptedAddress]
       );
 
       toastSuccess('Successfully updated your address.');

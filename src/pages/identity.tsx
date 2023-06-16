@@ -24,10 +24,7 @@ const IdentityPage = () => {
   };
 
   const decryptAddress = (address: string, networkId: number): string => {
-    let identityKey = "";
-    if (localStorage.getItem("identity-key")) {
-      identityKey = localStorage.getItem("identity-key");
-    }
+    const identityKey = localStorage.getItem("identity-key") || "";
 
     let decryptedAddress = address;
     if (IdentityKey.containsNetworkId(identityKey, networkId)) {
