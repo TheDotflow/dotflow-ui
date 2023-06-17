@@ -8,6 +8,8 @@ import { useConfirm } from 'material-ui-confirm';
 import { useState } from 'react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 
+import { clipAddress } from '@/utils';
+
 import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
 import { Address, NetworkId } from '@/contracts/types';
@@ -63,13 +65,15 @@ export const AddressCard = ({ data, onEdit }: AddressCardProps) => {
   return (
     <Card className={styles.addressCard}>
       <Box className={styles.networkName}>
-        <Typography sx={{ fontWeight: 600 }}>{networks[networkId]}</Typography>
+        <Typography sx={{ fontWeight: 600 }}>
+          {networks[networkId].name}
+        </Typography>
         <IconButton size='small' onClick={onEdit}>
           <EditRoundedIcon />
         </IconButton>
       </Box>
       <Box>
-        <Typography>{address}</Typography>
+        <Typography>{clipAddress(address)}</Typography>
       </Box>
       <Box
         sx={{

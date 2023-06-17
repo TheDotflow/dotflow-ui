@@ -1,7 +1,7 @@
+import { LoadingButton } from '@mui/lab';
 import {
   Box,
   Button,
-  CircularProgress,
   Dialog,
   DialogContent,
   DialogTitle,
@@ -11,8 +11,11 @@ import {
   MenuItem,
   TextField,
 } from '@mui/material';
+import { validateAddress } from '@polkadot/util-crypto';
 import { contractTx, useInkathon } from '@scio-labs/use-inkathon';
 import { useEffect, useState } from 'react';
+
+import IdentityKey from '@/utils/identityKey';
 
 import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
@@ -28,7 +31,7 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
   const { networks, contract } = useIdentity();
   const { toastError, toastSuccess } = useToast();
 
-  const [networkId, setNetworkId] = useState<NetworkId | undefined>(undefined);
+  const [networkId, setNetworkId] = useState<NetworkId | undefined>();
   const [networkAddress, setNetworkAddress] = useState<string | undefined>();
   const [working, setWorking] = useState(false);
 
@@ -37,6 +40,18 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
       toastError('Please input your address');
       return;
     }
+    if (networkId == undefined) {
+      toastError('Please specify the network');
+      return;
+    }
+
+    try {
+      validateAddress(networkAddress, true, networks[networkId].ss58Prefix);
+    } catch {
+      toastError('Invalid address');
+      return;
+    }
+
     if (!api || !activeAccount || !contract) {
       toastError(
         'Cannot add an address. Please check if you are connected to the network'
@@ -44,6 +59,20 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
       return;
     }
     setWorking(true);
+
+    let identityKey = localStorage.getItem('identity-key') || '';
+
+    if (!IdentityKey.containsNetworkId(identityKey, networkId)) {
+      identityKey = IdentityKey.newCipher(identityKey, networkId);
+      localStorage.setItem('identity-key', identityKey);
+    }
+
+    const encryptedAddress = IdentityKey.encryptAddress(
+      identityKey,
+      networkId,
+      networkAddress
+    );
+
     try {
       await contractTx(
         api,
@@ -51,7 +80,7 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
         contract,
         'add_address',
         {},
-        [networkId, networkAddress]
+        [networkId, encryptedAddress]
       );
 
       toastSuccess('Successfully added your address.');
@@ -93,7 +122,7 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
               >
                 {Object.entries(networks).map(([id, network], index) => (
                   <MenuItem value={id} key={index}>
-                    {network}
+                    {network.name}
                   </MenuItem>
                 ))}
               </TextField>
@@ -106,8 +135,8 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
                   maxLength: 64,
                 }}
                 required
+                value={networkAddress}
                 error={networkAddress === ''}
-                value={networkAddress || ''}
                 onChange={(e) => setNetworkAddress(e.target.value)}
               />
               <FormHelperText
@@ -124,18 +153,14 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
             </FormControl>
           </Box>
           <Box className='modal-buttons'>
-            <Button
+            <LoadingButton
               className='btn-ok'
               variant='contained'
               onClick={onSubmit}
-              sx={{ gap: '8px' }}
-              disabled={working}
+              loading={working}
             >
-              {working && (
-                <CircularProgress size='20px' sx={{ color: 'white' }} />
-              )}
               Submit
-            </Button>
+            </LoadingButton>
             <Button onClick={onClose} className='btn-cancel' disabled={working}>
               Close
             </Button>

@@ -1,7 +1,7 @@
+import { LoadingButton } from '@mui/lab';
 import {
   Box,
   Button,
-  CircularProgress,
   Dialog,
   DialogContent,
   DialogTitle,
@@ -10,8 +10,11 @@ import {
   FormLabel,
   TextField,
 } from '@mui/material';
+import { validateAddress } from '@polkadot/util-crypto';
 import { contractTx, useInkathon } from '@scio-labs/use-inkathon';
 import { useEffect, useState } from 'react';
+
+import IdentityKey from '@/utils/identityKey';
 
 import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
@@ -28,7 +31,7 @@ export const EditAddressModal = ({
   onClose,
 }: EditAddressModalProps) => {
   const { api, activeAccount } = useInkathon();
-  const { contract } = useIdentity();
+  const { contract, networks } = useIdentity();
   const { toastError, toastSuccess } = useToast();
   const [newAddress, setNewAddress] = useState<string>('');
   const [working, setWorking] = useState(false);
@@ -42,6 +45,13 @@ export const EditAddressModal = ({
       toastError('Please input the new address');
       return;
     }
+    try {
+      validateAddress(newAddress, true, networks[networkId].ss58Prefix);
+    } catch {
+      toastError('Invalid address');
+      return;
+    }
+
     if (!api || !activeAccount || !contract) {
       toastError(
         'Cannot update address. Please check if you are connected to the network'
@@ -49,6 +59,20 @@ export const EditAddressModal = ({
       return;
     }
     setWorking(true);
+
+    let identityKey = localStorage.getItem('identity-key') || '';
+
+    if (!IdentityKey.containsNetworkId(identityKey, networkId)) {
+      identityKey = IdentityKey.newCipher(identityKey, networkId);
+      localStorage.setItem('identity-key', identityKey);
+    }
+
+    const encryptedAddress = IdentityKey.encryptAddress(
+      identityKey,
+      networkId,
+      newAddress
+    );
+
     try {
       await contractTx(
         api,
@@ -56,7 +80,7 @@ export const EditAddressModal = ({
         contract,
         'update_address',
         {},
-        [networkId, newAddress]
+        [networkId, encryptedAddress]
       );
 
       toastSuccess('Successfully updated your address.');
@@ -110,18 +134,14 @@ export const EditAddressModal = ({
             </FormControl>
           </Box>
           <Box className='modal-buttons'>
-            <Button
+            <LoadingButton
               className='btn-ok'
               variant='contained'
               onClick={onSave}
-              sx={{ gap: '8px' }}
-              disabled={working}
+              loading={working}
             >
-              {working && (
-                <CircularProgress size='20px' sx={{ color: 'white' }} />
-              )}
               Save
-            </Button>
+            </LoadingButton>
             <Button onClick={onClose} className='btn-cancel' disabled={working}>
               Cancel
             </Button>

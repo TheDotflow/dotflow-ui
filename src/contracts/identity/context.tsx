@@ -95,8 +95,12 @@ const IdentityContractProvider = ({ children }: Props) => {
       );
       if (isError) throw new Error(decodedOutput);
       const _networks: Networks = {};
-      output.map((item: string[]) => {
-        _networks[Number(item[0])] = item[1];
+      output.map((item: any) => {
+        const { name, ss58Prefix } = item[1];
+        _networks[Number(item[0])] = {
+          name,
+          ss58Prefix: Number(ss58Prefix.replace(',', '')),
+        };
       });
       setNetworks(_networks);
     } catch (e) {
