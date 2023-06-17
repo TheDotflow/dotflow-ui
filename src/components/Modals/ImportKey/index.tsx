@@ -21,6 +21,7 @@ export const ImportKeyModal = ({ open, onClose }: ImportKeyModalProps) => {
 
   const onImport = () => {
     localStorage.setItem(LOCAL_STORAGE_KEY, identityKey);
+    onClose();
   };
 
   return (
