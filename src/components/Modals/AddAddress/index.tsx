@@ -1,7 +1,7 @@
+import { LoadingButton } from '@mui/lab';
 import {
   Box,
   Button,
-  CircularProgress,
   Dialog,
   DialogContent,
   DialogTitle,
@@ -153,18 +153,14 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
             </FormControl>
           </Box>
           <Box className='modal-buttons'>
-            <Button
+            <LoadingButton
               className='btn-ok'
               variant='contained'
               onClick={onSubmit}
-              sx={{ gap: '8px' }}
-              disabled={working}
+              loading={working}
             >
-              {working && (
-                <CircularProgress size='20px' sx={{ color: 'white' }} />
-              )}
               Submit
-            </Button>
+            </LoadingButton>
             <Button onClick={onClose} className='btn-cancel' disabled={working}>
               Close
             </Button>

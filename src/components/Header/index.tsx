@@ -1,12 +1,6 @@
 import { ExpandMore } from '@mui/icons-material';
-import {
-  Button,
-  CircularProgress,
-  Collapse,
-  Divider,
-  List,
-  ListItemButton,
-} from '@mui/material';
+import { LoadingButton } from '@mui/lab';
+import { Collapse, Divider, List, ListItemButton } from '@mui/material';
 import { useInkathon } from '@scio-labs/use-inkathon';
 import Image from 'next/image';
 import React, { useState } from 'react';
@@ -65,16 +59,14 @@ export const Header = () => {
               </Collapse>
             </List>
           ) : (
-            <Button
+            <LoadingButton
               variant='outlined'
               className='btn-secondary'
               onClick={() => openWalletModal(true)}
-              sx={{ gap: '8px', alignItems: 'center' }}
-              disabled={isConnecting}
+              loading={isConnecting}
             >
-              {isConnecting && <CircularProgress size={'24px'} />}
               Connect Wallet
-            </Button>
+            </LoadingButton>
           )}
         </div>
       </div>

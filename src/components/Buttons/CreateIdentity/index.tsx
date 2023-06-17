@@ -1,5 +1,5 @@
 import AddIcon from '@mui/icons-material/Add';
-import { Button, CircularProgress } from '@mui/material';
+import LoadingButton from '@mui/lab/LoadingButton';
 import { contractTx, useInkathon } from '@scio-labs/use-inkathon';
 import { useState } from 'react';
 
@@ -45,16 +45,15 @@ export const CreateIdentity = () => {
     }
   };
   return (
-    <Button
+    <LoadingButton
       variant='contained'
       className='btn-primary'
-      startIcon={creating ? <></> : <AddIcon />}
+      startIcon={<AddIcon />}
       onClick={onCreateIdentity}
-      disabled={creating}
-      sx={{ gap: !creating ? 0 : '8px' }}
+      loading={creating}
+      loadingPosition='start'
     >
-      {creating && <CircularProgress size='16px' />}
       Create Identity
-    </Button>
+    </LoadingButton>
   );
 };

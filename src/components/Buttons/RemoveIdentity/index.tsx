@@ -1,5 +1,5 @@
 import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
-import { Button, CircularProgress } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
 import { contractTx, useInkathon } from '@scio-labs/use-inkathon';
 import { useConfirm } from 'material-ui-confirm';
 import { useState } from 'react';
@@ -57,16 +57,15 @@ export const RemoveIdentity = () => {
   };
 
   return (
-    <Button
+    <LoadingButton
       variant='contained'
       className='btn-primary'
-      startIcon={removing ? <></> : <DeleteRoundedIcon />}
+      startIcon={<DeleteRoundedIcon />}
       onClick={onRemoveIdentity}
-      disabled={removing}
-      sx={{ gap: !removing ? 0 : '8px' }}
+      loading={removing}
+      loadingPosition='start'
     >
-      {removing && <CircularProgress size='16px' />}
       Remove Identity
-    </Button>
+    </LoadingButton>
   );
 };
