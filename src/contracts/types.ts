@@ -1,9 +1,13 @@
 export type NetworkId = number;
-export type NetworkName = string;
+
+export type NetworkInfo = {
+  name: string;
+  ss58Prefix: number;
+}
 
 export type Network = {
   id: NetworkId;
-  name: NetworkName;
+  name: NetworkInfo;
 }
 
 export type Address = {
@@ -11,6 +15,6 @@ export type Address = {
   address: string;
 }
 
-export type Networks = Record<NetworkId, NetworkName>;
+export type Networks = Record<NetworkId, NetworkInfo>;
 
 export type IdentityNo = number | null;

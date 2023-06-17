@@ -10,6 +10,7 @@ import {
   FormLabel,
   TextField,
 } from '@mui/material';
+import { validateAddress } from '@polkadot/util-crypto';
 import { contractTx, useInkathon } from '@scio-labs/use-inkathon';
 import { useEffect, useState } from 'react';
 
@@ -30,7 +31,7 @@ export const EditAddressModal = ({
   onClose,
 }: EditAddressModalProps) => {
   const { api, activeAccount } = useInkathon();
-  const { contract } = useIdentity();
+  const { contract, networks } = useIdentity();
   const { toastError, toastSuccess } = useToast();
   const [newAddress, setNewAddress] = useState<string>('');
   const [working, setWorking] = useState(false);
@@ -44,6 +45,13 @@ export const EditAddressModal = ({
       toastError('Please input the new address');
       return;
     }
+    try {
+      validateAddress(newAddress, true, networks[networkId].ss58Prefix);
+    } catch {
+      toastError('Invalid address');
+      return;
+    }
+
     if (!api || !activeAccount || !contract) {
       toastError(
         'Cannot update address. Please check if you are connected to the network'
@@ -52,14 +60,18 @@ export const EditAddressModal = ({
     }
     setWorking(true);
 
-    let identityKey = localStorage.getItem("identity-key") ||  "";
+    let identityKey = localStorage.getItem('identity-key') || '';
 
     if (!IdentityKey.containsNetworkId(identityKey, networkId)) {
       identityKey = IdentityKey.newCipher(identityKey, networkId);
-      localStorage.setItem("identity-key", identityKey);
+      localStorage.setItem('identity-key', identityKey);
     }
 
-    const encryptedAddress = IdentityKey.encryptAddress(identityKey, networkId, newAddress);
+    const encryptedAddress = IdentityKey.encryptAddress(
+      identityKey,
+      networkId,
+      newAddress
+    );
 
     try {
       await contractTx(

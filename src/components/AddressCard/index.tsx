@@ -63,7 +63,9 @@ export const AddressCard = ({ data, onEdit }: AddressCardProps) => {
   return (
     <Card className={styles.addressCard}>
       <Box className={styles.networkName}>
-        <Typography sx={{ fontWeight: 600 }}>{networks[networkId]}</Typography>
+        <Typography sx={{ fontWeight: 600 }}>
+          {networks[networkId].name}
+        </Typography>
         <IconButton size='small' onClick={onEdit}>
           <EditRoundedIcon />
         </IconButton>

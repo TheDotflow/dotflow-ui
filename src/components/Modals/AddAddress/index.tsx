@@ -11,6 +11,7 @@ import {
   MenuItem,
   TextField,
 } from '@mui/material';
+import { validateAddress } from '@polkadot/util-crypto';
 import { contractTx, useInkathon } from '@scio-labs/use-inkathon';
 import { useEffect, useState } from 'react';
 
@@ -30,7 +31,7 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
   const { networks, contract } = useIdentity();
   const { toastError, toastSuccess } = useToast();
 
-  const [networkId, setNetworkId] = useState<NetworkId | undefined>(undefined);
+  const [networkId, setNetworkId] = useState<NetworkId | undefined>();
   const [networkAddress, setNetworkAddress] = useState<string | undefined>();
   const [working, setWorking] = useState(false);
 
@@ -43,6 +44,14 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
       toastError('Please specify the network');
       return;
     }
+
+    try {
+      validateAddress(networkAddress, true, networks[networkId].ss58Prefix);
+    } catch {
+      toastError('Invalid address');
+      return;
+    }
+
     if (!api || !activeAccount || !contract) {
       toastError(
         'Cannot add an address. Please check if you are connected to the network'
@@ -51,14 +60,18 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
     }
     setWorking(true);
 
-    let identityKey = localStorage.getItem("identity-key") ||  "";
+    let identityKey = localStorage.getItem('identity-key') || '';
 
     if (!IdentityKey.containsNetworkId(identityKey, networkId)) {
       identityKey = IdentityKey.newCipher(identityKey, networkId);
-      localStorage.setItem("identity-key", identityKey);
+      localStorage.setItem('identity-key', identityKey);
     }
 
-    const encryptedAddress = IdentityKey.encryptAddress(identityKey, networkId, networkAddress)
+    const encryptedAddress = IdentityKey.encryptAddress(
+      identityKey,
+      networkId,
+      networkAddress
+    );
 
     try {
       await contractTx(
@@ -109,7 +122,7 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
               >
                 {Object.entries(networks).map(([id, network], index) => (
                   <MenuItem value={id} key={index}>
-                    {network}
+                    {network.name}
                   </MenuItem>
                 ))}
               </TextField>
@@ -122,8 +135,8 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
                   maxLength: 64,
                 }}
                 required
+                value={networkAddress}
                 error={networkAddress === ''}
-                value={networkAddress || ''}
                 onChange={(e) => setNetworkAddress(e.target.value)}
               />
               <FormHelperText
