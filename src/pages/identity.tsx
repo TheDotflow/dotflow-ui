@@ -7,6 +7,7 @@ import { CreateIdentity } from '@/components/Buttons/CreateIdentity';
 import { RemoveIdentity } from '@/components/Buttons/RemoveIdentity';
 import { AddAddressModal, EditAddressModal } from '@/components/Modals';
 import { ImportKeyModal } from '@/components/Modals/ImportKey';
+import { ShareIdentityModal } from '@/components/Modals/ShareIdentity';
 
 import { useIdentity } from '@/contracts';
 
@@ -18,14 +19,7 @@ const IdentityPage = () => {
   const [networkId, setNetworkId] = useState<number | undefined>(undefined);
   const [editModalOpen, openEditModal] = useState(false);
   const [importModalOpen, openImportModal] = useState(false);
-
-  const onAddAddress = () => {
-    openAddAddr(true);
-  };
-
-  const onImportKey = () => {
-    openImportModal(true);
-  };
+  const [shareModalOpen, openShareModal] = useState(false);
 
   return (
     <>
@@ -48,7 +42,7 @@ const IdentityPage = () => {
               <Button
                 variant='contained'
                 className='btn-primary'
-                onClick={onImportKey}
+                onClick={() => openImportModal(true)}
               >
                 Import Identity Key
               </Button>
@@ -56,8 +50,15 @@ const IdentityPage = () => {
               <Button
                 variant='contained'
                 className='btn-primary'
+                onClick={() => openShareModal(true)}
+              >
+                Share Identity
+              </Button>
+              <Button
+                variant='contained'
+                className='btn-primary'
                 startIcon={<AddIcon />}
-                onClick={onAddAddress}
+                onClick={() => openAddAddr(true)}
               >
                 Add New Address
               </Button>
@@ -113,6 +114,10 @@ const IdentityPage = () => {
       <ImportKeyModal
         open={importModalOpen}
         onClose={() => openImportModal(false)}
+      />
+      <ShareIdentityModal
+        open={shareModalOpen}
+        onClose={() => openShareModal(false)}
       />
     </>
   );
