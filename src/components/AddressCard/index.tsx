@@ -9,7 +9,9 @@ import { useState } from 'react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 
 import { clipAddress } from '@/utils';
+import IdentityKey from '@/utils/identityKey';
 
+import { LOCAL_STORAGE_KEY } from '@/consts';
 import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
 import { Address, NetworkId } from '@/contracts/types';
@@ -62,6 +64,21 @@ export const AddressCard = ({ data, onEdit }: AddressCardProps) => {
     setWorking(false);
   };
 
+  const decryptAddress = (address: string, networkId: number): string => {
+    const identityKey = localStorage.getItem(LOCAL_STORAGE_KEY) || '';
+
+    let decryptedAddress = address;
+    if (IdentityKey.containsNetworkId(identityKey, networkId)) {
+      decryptedAddress = IdentityKey.decryptAddress(
+        identityKey,
+        networkId,
+        address
+      );
+    }
+
+    return decryptedAddress;
+  };
+
   return (
     <Card className={styles.addressCard}>
       <Box className={styles.networkName}>
@@ -73,7 +90,9 @@ export const AddressCard = ({ data, onEdit }: AddressCardProps) => {
         </IconButton>
       </Box>
       <Box>
-        <Typography>{clipAddress(address)}</Typography>
+        <Typography>
+          {clipAddress(decryptAddress(address, networkId))}
+        </Typography>
       </Box>
       <Box
         sx={{
