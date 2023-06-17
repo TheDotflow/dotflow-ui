@@ -11,8 +11,12 @@ import {
   IconButton,
   Typography,
 } from '@mui/material';
+import { useEffect, useState } from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
 
+import IdentityKey from '@/utils/identityKey';
+
+import { LOCAL_STORAGE_KEY } from '@/consts';
 import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
 
@@ -29,6 +33,33 @@ export const ShareIdentityModal = ({
 }: ShareIdentityModalProps) => {
   const { identityNo, addresses, networks } = useIdentity();
   const { toastSuccess } = useToast();
+  const [checks, setChecks] = useState<Record<number, boolean>>({});
+  const [sharedKey, setSharedKey] = useState('');
+
+  useEffect(() => {
+    const selectedNetworks = Object.entries(checks)
+      .filter((item) => item[1])
+      .map((item) => Number(item[0]));
+
+    let _sharedKey = '';
+
+    selectedNetworks.forEach((networkId) => {
+      let identityKey = localStorage.getItem(LOCAL_STORAGE_KEY) || '';
+
+      if (!IdentityKey.containsNetworkId(identityKey, networkId)) {
+        identityKey = IdentityKey.newCipher(identityKey, networkId);
+        localStorage.setItem(LOCAL_STORAGE_KEY, identityKey);
+      }
+      _sharedKey += `${networkId}:${IdentityKey.getNetworkCipher(
+        identityKey,
+        networkId
+      )};`;
+    });
+    setSharedKey(_sharedKey);
+  }, [checks]);
+
+  useEffect(() => setChecks({}), [open]);
+
   return identityNo === null ? (
     <></>
   ) : (
@@ -47,12 +78,21 @@ export const ShareIdentityModal = ({
               </IconButton>
             </CopyToClipboard>
           </Box>
-          <Grid container columns={3} sx={{ pt: '12px', pb: '24px' }}>
+          <Grid container sx={{ pt: '12px', pb: '24px' }}>
             {addresses.map(({ networkId }, index) => (
-              <Grid item key={index}>
+              <Grid item key={index} sx={{ flexGrow: 1 }}>
                 <FormControlLabel
                   label={networks[networkId].name}
-                  control={<Checkbox />}
+                  control={
+                    <Checkbox
+                      onChange={(e) =>
+                        setChecks({
+                          ...checks,
+                          [networkId]: e.target.checked,
+                        })
+                      }
+                    />
+                  }
                 />
               </Grid>
             ))}
@@ -62,7 +102,7 @@ export const ShareIdentityModal = ({
               Copy Identity Key
             </Typography>
             <CopyToClipboard
-              text={identityNo.toString()}
+              text={sharedKey}
               onCopy={() => toastSuccess('Identity key copied to clipboard.')}
             >
               <IconButton>

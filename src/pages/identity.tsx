@@ -73,12 +73,7 @@ const IdentityPage = () => {
       ) : (
         <>
           <Typography className='section-header'>{`Wallet Addresses(${addresses.length})`}</Typography>
-          <Grid
-            container
-            spacing={2}
-            columns={{ xs: 1, sm: 2, md: 3 }}
-            sx={{ mt: '12px' }}
-          >
+          <Grid container spacing={2} sx={{ mt: '12px' }}>
             {addresses.map(({ address, networkId }, index) => (
               <Grid item key={index}>
                 <AddressCard
