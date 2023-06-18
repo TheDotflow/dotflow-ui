@@ -11,10 +11,10 @@ import {
   MenuItem,
   TextField,
 } from '@mui/material';
-import { validateAddress } from '@polkadot/util-crypto';
 import { contractTx, useInkathon } from '@scio-labs/use-inkathon';
 import { useEffect, useState } from 'react';
 
+import { isValidAddress } from '@/utils';
 import IdentityKey from '@/utils/identityKey';
 
 import { LOCAL_STORAGE_KEY } from '@/consts';
@@ -46,9 +46,7 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
       return;
     }
 
-    try {
-      validateAddress(networkAddress, true, networks[networkId].ss58Prefix);
-    } catch {
+    if (!isValidAddress(networkAddress, networks[networkId].ss58Prefix)) {
       toastError('Invalid address');
       return;
     }

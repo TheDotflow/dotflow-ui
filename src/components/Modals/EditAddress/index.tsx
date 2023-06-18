@@ -10,10 +10,10 @@ import {
   FormLabel,
   TextField,
 } from '@mui/material';
-import { validateAddress } from '@polkadot/util-crypto';
 import { contractTx, useInkathon } from '@scio-labs/use-inkathon';
 import { useEffect, useState } from 'react';
 
+import { isValidAddress } from '@/utils';
 import IdentityKey from '@/utils/identityKey';
 
 import { LOCAL_STORAGE_KEY } from '@/consts';
@@ -46,9 +46,8 @@ export const EditAddressModal = ({
       toastError('Please input the new address');
       return;
     }
-    try {
-      validateAddress(newAddress, true, networks[networkId].ss58Prefix);
-    } catch {
+
+    if (!isValidAddress(newAddress, networks[networkId].ss58Prefix)) {
       toastError('Invalid address');
       return;
     }
