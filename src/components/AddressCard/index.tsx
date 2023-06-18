@@ -1,7 +1,6 @@
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
-import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined';
 import { Box, Card, IconButton, Typography } from '@mui/material';
 import { contractTx, useInkathon } from '@scio-labs/use-inkathon';
 import { useConfirm } from 'material-ui-confirm';
@@ -79,6 +78,8 @@ export const AddressCard = ({ data, onEdit }: AddressCardProps) => {
     return decryptedAddress;
   };
 
+  const addressDecrypted = decryptAddress(address, networkId);
+
   return (
     <Card className={styles.addressCard}>
       <Box className={styles.networkName}>
@@ -90,9 +91,7 @@ export const AddressCard = ({ data, onEdit }: AddressCardProps) => {
         </IconButton>
       </Box>
       <Box>
-        <Typography>
-          {clipAddress(decryptAddress(address, networkId))}
-        </Typography>
+        <Typography>{clipAddress(addressDecrypted)}</Typography>
       </Box>
       <Box
         sx={{
@@ -102,7 +101,7 @@ export const AddressCard = ({ data, onEdit }: AddressCardProps) => {
         }}
       >
         <CopyToClipboard
-          text={address}
+          text={addressDecrypted}
           onCopy={() => toastSuccess('Address copied to clipboard.')}
         >
           <Box className={styles.actionBtn}>
@@ -110,10 +109,6 @@ export const AddressCard = ({ data, onEdit }: AddressCardProps) => {
             <Typography>Copy Address</Typography>
           </Box>
         </CopyToClipboard>
-        <Box className={styles.actionBtn}>
-          <ShareOutlinedIcon />
-          <Typography>Share Address</Typography>
-        </Box>
         <IconButton
           onClick={() => {
             confirm({
