@@ -32,7 +32,7 @@ export const ShareIdentityModal = ({
   onClose,
 }: ShareIdentityModalProps) => {
   const { identityNo, addresses, networks } = useIdentity();
-  const { toastSuccess } = useToast();
+  const { toastError, toastSuccess } = useToast();
   const [checks, setChecks] = useState<Record<number, boolean>>({});
   const [sharedKey, setSharedKey] = useState('');
 
@@ -41,21 +41,18 @@ export const ShareIdentityModal = ({
       .filter((item) => item[1])
       .map((item) => Number(item[0]));
 
-    let _sharedKey = '';
+    const identityKey = localStorage.getItem(LOCAL_STORAGE_KEY) || '';
 
-    selectedNetworks.forEach((networkId) => {
-      let identityKey = localStorage.getItem(LOCAL_STORAGE_KEY) || '';
+    try {
+      const sharedKey = IdentityKey.getSharedKey(identityKey, selectedNetworks);
 
-      if (!IdentityKey.containsNetworkId(identityKey, networkId)) {
-        identityKey = IdentityKey.newCipher(identityKey, networkId);
-        localStorage.setItem(LOCAL_STORAGE_KEY, identityKey);
-      }
-      _sharedKey += `${networkId}:${IdentityKey.getNetworkCipher(
-        identityKey,
-        networkId
-      )};`;
-    });
-    setSharedKey(_sharedKey);
+      setSharedKey(sharedKey);
+    }catch(e: any) {
+      toastError(
+        `Failed to get the identity key. Error: ${
+          e.message}`
+      )
+    }
   }, [checks]);
 
   useEffect(() => setChecks({}), [open]);

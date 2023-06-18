@@ -61,6 +61,22 @@ class IdentityKey {
     }
   }
 
+  public static getSharedKey(identityKey: string, selectedNetworks: number[]): string { 
+    let sharedKey = "";
+    selectedNetworks.forEach((networkId) => {
+      if (!IdentityKey.containsNetworkId(identityKey, networkId)) {
+        identityKey = IdentityKey.newCipher(identityKey, networkId);
+        throw new Error(`Cipher for network #${networkId} not found`);
+      }
+      sharedKey += `${networkId}:${IdentityKey.getNetworkCipher(
+        identityKey,
+        networkId
+      )};`;
+    });
+
+    return sharedKey;
+  }
+
   public static containsNetworkId(identityKey: string, networkId: number): boolean {
     const startIndex = identityKey.indexOf(`${networkId}:`);
 
