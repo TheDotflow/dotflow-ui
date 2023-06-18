@@ -21,6 +21,11 @@ interface AddressCardProps {
   onEdit?: () => void;
 }
 
+type DecryptionResult = {
+  success: boolean,
+  value: string
+};
+
 export const AddressCard = ({ data, onEdit }: AddressCardProps) => {
   const confirm = useConfirm();
   const { api, activeAccount } = useInkathon();
@@ -63,7 +68,7 @@ export const AddressCard = ({ data, onEdit }: AddressCardProps) => {
     setWorking(false);
   };
 
-  const decryptAddress = (address: string, networkId: number): string => {
+  const decryptAddress = (address: string, networkId: number): DecryptionResult => {
     const identityKey = localStorage.getItem(LOCAL_STORAGE_KEY) || '';
 
     let decryptedAddress = address;
@@ -73,9 +78,17 @@ export const AddressCard = ({ data, onEdit }: AddressCardProps) => {
         networkId,
         address
       );
+
+      return {
+        success: true,
+        value: decryptedAddress        
+      };
     }
 
-    return decryptedAddress;
+    return {
+      success: false,
+      value: ''
+    };
   };
 
   const addressDecrypted = decryptAddress(address, networkId);
@@ -91,17 +104,24 @@ export const AddressCard = ({ data, onEdit }: AddressCardProps) => {
         </IconButton>
       </Box>
       <Box>
-        <Typography>{clipAddress(addressDecrypted)}</Typography>
+        <Typography>
+        {addressDecrypted.success?
+          clipAddress(addressDecrypted.value)
+          :
+          'Decryption failed'
+        }
+        </Typography>
       </Box>
       <Box
         sx={{
           gap: '32px',
           display: 'flex',
+          justifyContent: 'space-between',
           marginRight: 0,
         }}
       >
         <CopyToClipboard
-          text={addressDecrypted}
+          text={addressDecrypted.value}
           onCopy={() => toastSuccess('Address copied to clipboard.')}
         >
           <Box className={styles.actionBtn}>

@@ -143,7 +143,7 @@ export const EditAddressModal = ({
             </FormControl>
             <FormControl>
               <FormControlLabel
-                label={'Regenerate key'}
+                label='Restrict access to individuals who previously had access to the old address'
                 control={
                   <Checkbox
                     value={regenerate}
