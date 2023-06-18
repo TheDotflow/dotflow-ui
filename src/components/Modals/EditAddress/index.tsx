@@ -2,10 +2,12 @@ import { LoadingButton } from '@mui/lab';
 import {
   Box,
   Button,
+  Checkbox,
   Dialog,
   DialogContent,
   DialogTitle,
   FormControl,
+  FormControlLabel,
   FormHelperText,
   FormLabel,
   TextField,
@@ -36,6 +38,7 @@ export const EditAddressModal = ({
   const { toastError, toastSuccess } = useToast();
   const [newAddress, setNewAddress] = useState<string>('');
   const [working, setWorking] = useState(false);
+  const [regenerate, setRegenerate] = useState(false);
 
   const onSave = async () => {
     if (networkId === undefined) {
@@ -67,6 +70,9 @@ export const EditAddressModal = ({
       localStorage.setItem(LOCAL_STORAGE_KEY, identityKey);
     }
 
+    if (regenerate)
+      identityKey = IdentityKey.updateCipher(identityKey, networkId);
+
     const encryptedAddress = IdentityKey.encryptAddress(
       identityKey,
       networkId,
@@ -82,6 +88,8 @@ export const EditAddressModal = ({
         {},
         [networkId, encryptedAddress]
       );
+      // Update the identity key when the user has updated his on-chain data
+      localStorage.setItem(LOCAL_STORAGE_KEY, identityKey);
 
       toastSuccess('Successfully updated your address.');
       setWorking(false);
@@ -101,6 +109,7 @@ export const EditAddressModal = ({
   useEffect(() => {
     setWorking(false);
     setNewAddress('');
+    setRegenerate(false);
   }, [open]);
 
   return (
@@ -131,6 +140,17 @@ export const EditAddressModal = ({
                 <span>Maximum 64 characters</span>
                 <span>{`${newAddress.length || 0}/64`}</span>
               </FormHelperText>
+            </FormControl>
+            <FormControl>
+              <FormControlLabel
+                label={'Regenerate key'}
+                control={
+                  <Checkbox
+                    value={regenerate}
+                    onChange={(e) => setRegenerate(e.target.checked)}
+                  />
+                }
+              />
             </FormControl>
           </Box>
           <Box className='modal-buttons'>
