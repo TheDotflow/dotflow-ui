@@ -2,12 +2,11 @@ import AddIcon from '@mui/icons-material/Add';
 import { Box, Button, Grid, Typography } from '@mui/material';
 import { useState } from 'react';
 
-import IdentityKey from '@/utils/identityKey';
-
 import { AddressCard } from '@/components/AddressCard';
 import { CreateIdentity } from '@/components/Buttons/CreateIdentity';
 import { RemoveIdentity } from '@/components/Buttons/RemoveIdentity';
 import { AddAddressModal, EditAddressModal } from '@/components/Modals';
+import { ImportKeyModal } from '@/components/Modals/ImportKey';
 
 import { useIdentity } from '@/contracts';
 
@@ -18,21 +17,15 @@ const IdentityPage = () => {
 
   const [networkId, setNetworkId] = useState<number | undefined>(undefined);
   const [editModalOpen, openEditModal] = useState(false);
+  const [importModalOpen, openImportModal] = useState(false);
 
   const onAddAddress = () => {
     openAddAddr(true);
   };
 
-  const decryptAddress = (address: string, networkId: number): string => {
-    const identityKey = localStorage.getItem("identity-key") || "";
-
-    let decryptedAddress = address;
-    if (IdentityKey.containsNetworkId(identityKey, networkId)) {
-      decryptedAddress = IdentityKey.decryptAddress(identityKey, networkId, address);
-    }
-
-    return decryptedAddress;
-  }
+  const onImportKey = () => {
+    openImportModal(true);
+  };
 
   return (
     <>
@@ -48,17 +41,27 @@ const IdentityPage = () => {
           My Identity
         </Typography>
         <Box sx={{ display: 'flex', gap: '16px' }}>
-          {identityNo === null && <CreateIdentity />}
-          {identityNo !== null && <RemoveIdentity />}
-          {identityNo !== null && (
-            <Button
-              variant='contained'
-              className='btn-primary'
-              startIcon={<AddIcon />}
-              onClick={onAddAddress}
-            >
-              Add New Address
-            </Button>
+          {identityNo === null ? (
+            <CreateIdentity />
+          ) : (
+            <>
+              <Button
+                variant='contained'
+                className='btn-primary'
+                onClick={onImportKey}
+              >
+                Import Identity Key
+              </Button>
+              <RemoveIdentity />
+              <Button
+                variant='contained'
+                className='btn-primary'
+                startIcon={<AddIcon />}
+                onClick={onAddAddress}
+              >
+                Add New Address
+              </Button>
+            </>
           )}
         </Box>
       </Box>
@@ -75,12 +78,15 @@ const IdentityPage = () => {
             columns={{ xs: 1, sm: 2, md: 3 }}
             sx={{ mt: '12px' }}
           >
-            {addresses.map((item, index) => (
+            {addresses.map(({ address, networkId }, index) => (
               <Grid item key={index}>
                 <AddressCard
-                  data={{address: decryptAddress(item.address, item.networkId), networkId: item.networkId}}
+                  data={{
+                    address,
+                    networkId,
+                  }}
                   onEdit={() => {
-                    setNetworkId(item.networkId);
+                    setNetworkId(networkId);
                     openEditModal(true);
                   }}
                 />
@@ -103,6 +109,10 @@ const IdentityPage = () => {
           fetchAddresses();
         }}
         networkId={networkId}
+      />
+      <ImportKeyModal
+        open={importModalOpen}
+        onClose={() => openImportModal(false)}
       />
     </>
   );

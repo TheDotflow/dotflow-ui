@@ -17,6 +17,7 @@ import { useEffect, useState } from 'react';
 
 import IdentityKey from '@/utils/identityKey';
 
+import { LOCAL_STORAGE_KEY } from '@/consts';
 import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
 import { NetworkId } from '@/contracts/types';
@@ -60,11 +61,11 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
     }
     setWorking(true);
 
-    let identityKey = localStorage.getItem('identity-key') || '';
+    let identityKey = localStorage.getItem(LOCAL_STORAGE_KEY) || '';
 
     if (!IdentityKey.containsNetworkId(identityKey, networkId)) {
       identityKey = IdentityKey.newCipher(identityKey, networkId);
-      localStorage.setItem('identity-key', identityKey);
+      localStorage.setItem(LOCAL_STORAGE_KEY, identityKey);
     }
 
     const encryptedAddress = IdentityKey.encryptAddress(
