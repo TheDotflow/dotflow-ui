@@ -1,7 +1,7 @@
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
-import { Box, Card, IconButton, Typography } from '@mui/material';
+import { Box, Card, CircularProgress, IconButton, Typography } from '@mui/material';
 import { contractTx, useInkathon } from '@scio-labs/use-inkathon';
 import { useConfirm } from 'material-ui-confirm';
 import { useState } from 'react';
@@ -138,7 +138,7 @@ export const AddressCard = ({ data, onEdit }: AddressCardProps) => {
           }}
           disabled={working}
         >
-          <DeleteOutlineOutlinedIcon />
+          {working ? <CircularProgress size={24} /> : <DeleteOutlineOutlinedIcon />}
         </IconButton>
       </Box>
     </Card>
