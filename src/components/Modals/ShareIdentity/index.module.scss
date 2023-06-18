@@ -1,0 +1,16 @@
+@use '/styles/variables' as var;
+
+.identityNo {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+.copyIdentityKey {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 16px;
+}

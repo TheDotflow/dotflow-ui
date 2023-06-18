@@ -1,4 +1,6 @@
 import AddIcon from '@mui/icons-material/Add';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import ShareIcon from "@mui/icons-material/Share";
 import { Box, Button, Grid, Typography } from '@mui/material';
 import { useState } from 'react';
 
@@ -7,6 +9,7 @@ import { CreateIdentity } from '@/components/Buttons/CreateIdentity';
 import { RemoveIdentity } from '@/components/Buttons/RemoveIdentity';
 import { AddAddressModal, EditAddressModal } from '@/components/Modals';
 import { ImportKeyModal } from '@/components/Modals/ImportKey';
+import { ShareIdentityModal } from '@/components/Modals/ShareIdentity';
 
 import { useIdentity } from '@/contracts';
 
@@ -18,14 +21,7 @@ const IdentityPage = () => {
   const [networkId, setNetworkId] = useState<number | undefined>(undefined);
   const [editModalOpen, openEditModal] = useState(false);
   const [importModalOpen, openImportModal] = useState(false);
-
-  const onAddAddress = () => {
-    openAddAddr(true);
-  };
-
-  const onImportKey = () => {
-    openImportModal(true);
-  };
+  const [shareModalOpen, openShareModal] = useState(false);
 
   return (
     <>
@@ -46,18 +42,27 @@ const IdentityPage = () => {
           ) : (
             <>
               <Button
-                variant='contained'
-                className='btn-primary'
-                onClick={onImportKey}
+                startIcon={<ArrowDownwardIcon/>}
+                variant='outlined'
+                className='btn btn-outline-primary'
+                onClick={() => openImportModal(true)}
               >
                 Import Identity Key
+              </Button>
+              <Button
+                startIcon={<ShareIcon/>}
+                variant='outlined'
+                className='btn btn-outline-primary'
+                onClick={() => openShareModal(true)}
+              >
+                Share Identity
               </Button>
               <RemoveIdentity />
               <Button
                 variant='contained'
                 className='btn-primary'
                 startIcon={<AddIcon />}
-                onClick={onAddAddress}
+                onClick={() => openAddAddr(true)}
               >
                 Add New Address
               </Button>
@@ -72,12 +77,7 @@ const IdentityPage = () => {
       ) : (
         <>
           <Typography className='section-header'>{`Wallet Addresses(${addresses.length})`}</Typography>
-          <Grid
-            container
-            spacing={2}
-            columns={{ xs: 1, sm: 2, md: 3 }}
-            sx={{ mt: '12px' }}
-          >
+          <Grid container spacing={2} sx={{ mt: '12px' }}>
             {addresses.map(({ address, networkId }, index) => (
               <Grid item key={index}>
                 <AddressCard
@@ -113,6 +113,10 @@ const IdentityPage = () => {
       <ImportKeyModal
         open={importModalOpen}
         onClose={() => openImportModal(false)}
+      />
+      <ShareIdentityModal
+        open={shareModalOpen}
+        onClose={() => openShareModal(false)}
       />
     </>
   );
