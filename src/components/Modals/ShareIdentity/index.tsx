@@ -78,7 +78,10 @@ export const ShareIdentityModal = ({
               </IconButton>
             </CopyToClipboard>
           </Box>
-          <Grid container sx={{ pt: '12px', pb: '24px' }}>
+          <Typography mt='2em'>
+            Specify the networks that the receiver of the identity key will be able to access:
+          </Typography>
+          <Grid container sx={{ pt: '12px', pb: '24px' }} mb='1em'>
             {addresses.map(({ networkId }, index) => (
               <Grid item key={index} sx={{ flexGrow: 1 }}>
                 <FormControlLabel
