@@ -1,8 +1,7 @@
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
-import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined';
-import { Box, Card, IconButton, Typography } from '@mui/material';
+import { Box, Card, CircularProgress, IconButton, Typography } from '@mui/material';
 import { contractTx, useInkathon } from '@scio-labs/use-inkathon';
 import { useConfirm } from 'material-ui-confirm';
 import { useState } from 'react';
@@ -21,6 +20,11 @@ interface AddressCardProps {
   data: Address;
   onEdit?: () => void;
 }
+
+type DecryptionResult = {
+  success: boolean,
+  value: string
+};
 
 export const AddressCard = ({ data, onEdit }: AddressCardProps) => {
   const confirm = useConfirm();
@@ -64,7 +68,7 @@ export const AddressCard = ({ data, onEdit }: AddressCardProps) => {
     setWorking(false);
   };
 
-  const decryptAddress = (address: string, networkId: number): string => {
+  const decryptAddress = (address: string, networkId: number): DecryptionResult => {
     const identityKey = localStorage.getItem(LOCAL_STORAGE_KEY) || '';
 
     let decryptedAddress = address;
@@ -74,10 +78,20 @@ export const AddressCard = ({ data, onEdit }: AddressCardProps) => {
         networkId,
         address
       );
+
+      return {
+        success: true,
+        value: decryptedAddress        
+      };
     }
 
-    return decryptedAddress;
+    return {
+      success: false,
+      value: ''
+    };
   };
+
+  const addressDecrypted = decryptAddress(address, networkId);
 
   return (
     <Card className={styles.addressCard}>
@@ -91,18 +105,23 @@ export const AddressCard = ({ data, onEdit }: AddressCardProps) => {
       </Box>
       <Box>
         <Typography>
-          {clipAddress(decryptAddress(address, networkId))}
+        {addressDecrypted.success?
+          clipAddress(addressDecrypted.value)
+          :
+          'Decryption failed'
+        }
         </Typography>
       </Box>
       <Box
         sx={{
           gap: '32px',
           display: 'flex',
+          justifyContent: 'space-between',
           marginRight: 0,
         }}
       >
         <CopyToClipboard
-          text={address}
+          text={addressDecrypted.value}
           onCopy={() => toastSuccess('Address copied to clipboard.')}
         >
           <Box className={styles.actionBtn}>
@@ -110,10 +129,6 @@ export const AddressCard = ({ data, onEdit }: AddressCardProps) => {
             <Typography>Copy Address</Typography>
           </Box>
         </CopyToClipboard>
-        <Box className={styles.actionBtn}>
-          <ShareOutlinedIcon />
-          <Typography>Share Address</Typography>
-        </Box>
         <IconButton
           onClick={() => {
             confirm({
@@ -123,7 +138,7 @@ export const AddressCard = ({ data, onEdit }: AddressCardProps) => {
           }}
           disabled={working}
         >
-          <DeleteOutlineOutlinedIcon />
+          {working ? <CircularProgress size={24} /> : <DeleteOutlineOutlinedIcon />}
         </IconButton>
       </Box>
     </Card>
