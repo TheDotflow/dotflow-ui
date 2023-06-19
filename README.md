@@ -1,4 +1,5 @@
-# dotflow-ui
+<h1 align="center">dotflow-ui</h1>
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Project details can be found [here](https://github.com/TheDotflow/dotflow-ink#readme)
@@ -16,3 +17,5 @@ Project details can be found [here](https://github.com/TheDotflow/dotflow-ink#re
 2. `yarn install`
 3. `yarn dev`
 4. Go to `http://localhost:3000` to interact with the webapp
+5. To run the unit tests: `yarn test`
+
