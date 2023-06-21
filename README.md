@@ -13,9 +13,14 @@ Project details can be found [here](https://github.com/TheDotflow/dotflow-ink#re
 
 ### Set up development environment
 
-1.  Install [NodeJs](https://nodejs.org/en/download)
-2. `yarn install`
-3. `yarn dev`
-4. Go to `http://localhost:3000` to interact with the webapp
-5. To run the unit tests: `yarn test`
+Before running the webapp locally it is required to first deploy the contract and set the required `CONTRACT_IDENTITY` environment variable to the address of the deployed identity contract.
 
+You can use the same address for the environment variable that is used in the `Dockerfile`.
+
+For details regarding the contract deployment go to this [page](https://github.com/TheDotflow/dotflow-ink#deployment)
+
+1.  Install [NodeJs](https://nodejs.org/en/download)
+2.  `yarn install`
+3.  `yarn dev`
+4.  Go to `http://localhost:3000` to interact with the webapp
+5.  To run the unit tests: `yarn test`
