@@ -6,6 +6,7 @@ const nextConfig = {
   },
   env: {
     CONTRACT_IDENTITY: process.env.CONTRACT_IDENTITY,
+    CONTRACT_ADDRESS_BOOK: process.env.CONTRACT_ADDRESS_BOOK,
   },
   async redirects() {
     return [
