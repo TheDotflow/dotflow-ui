@@ -1,12 +1,11 @@
 import AddIcon from '@mui/icons-material/Add';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import ShareIcon from "@mui/icons-material/Share";
+import ShareIcon from '@mui/icons-material/Share';
 import { Box, Button, Grid, Typography } from '@mui/material';
 import { useState } from 'react';
 
 import { AddressCard } from '@/components/AddressCard';
-import { CreateIdentity } from '@/components/Buttons/CreateIdentity';
-import { RemoveIdentity } from '@/components/Buttons/RemoveIdentity';
+import { CreateIdentity, RemoveIdentity } from '@/components/Buttons';
 import { AddAddressModal, EditAddressModal } from '@/components/Modals';
 import { ImportKeyModal } from '@/components/Modals/ImportKey';
 import { ShareIdentityModal } from '@/components/Modals/ShareIdentity';
@@ -42,7 +41,7 @@ const IdentityPage = () => {
           ) : (
             <>
               <Button
-                startIcon={<ArrowDownwardIcon/>}
+                startIcon={<ArrowDownwardIcon />}
                 variant='outlined'
                 className='btn btn-outline-primary'
                 onClick={() => openImportModal(true)}
@@ -50,7 +49,7 @@ const IdentityPage = () => {
                 Import Identity Key
               </Button>
               <Button
-                startIcon={<ShareIcon/>}
+                startIcon={<ShareIcon />}
                 variant='outlined'
                 className='btn btn-outline-primary'
                 onClick={() => openShareModal(true)}

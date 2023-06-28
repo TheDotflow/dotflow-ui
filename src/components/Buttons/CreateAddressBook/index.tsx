@@ -1,21 +1,22 @@
 import AddIcon from '@mui/icons-material/Add';
-import LoadingButton from '@mui/lab/LoadingButton';
+import { LoadingButton } from '@mui/lab';
 import { contractTx, useInkathon } from '@scio-labs/use-inkathon';
 import { useState } from 'react';
 
 import { useToast } from '@/contexts/Toast';
-import { useIdentity } from '@/contracts';
+import { useAddressBook } from '@/contracts/addressbook/context';
 
-export const CreateIdentity = () => {
+export const CreateAddressBook = () => {
   const { api, activeAccount } = useInkathon();
   const { toastError, toastSuccess } = useToast();
-  const { contract, fetchIdentityNo } = useIdentity();
+  const { contract, fetchInfo } = useAddressBook();
 
   const [creating, setCreating] = useState(false);
-  const onCreateIdentity = async () => {
+
+  const onCreateAddressBook = async () => {
     if (!api || !activeAccount || !contract) {
       toastError(
-        'Cannot create identity. Please check if you are connected to the network.'
+        'Cannot create address book. Please check if you are connected to the network.'
       );
       return;
     }
@@ -25,16 +26,15 @@ export const CreateIdentity = () => {
         api,
         activeAccount.address,
         contract,
-        'create_identity',
+        'create_address_book',
         {},
         []
       );
-
-      toastSuccess('Successfully created your identity.');
-      fetchIdentityNo();
+      toastSuccess('Successfully created your address book.');
+      fetchInfo();
     } catch (e: any) {
       toastError(
-        `Failed to create identity. Error: ${
+        `Failed to create address book. Error: ${
           e.errorMessage === 'Error'
             ? 'Please check your balance.'
             : e.errorMessage
@@ -44,16 +44,17 @@ export const CreateIdentity = () => {
       setCreating(false);
     }
   };
+
   return (
     <LoadingButton
       variant='contained'
       className='btn-primary'
       startIcon={<AddIcon />}
-      onClick={onCreateIdentity}
       loading={creating}
       loadingPosition='start'
+      onClick={onCreateAddressBook}
     >
-      Create Identity
+      Create Address Book
     </LoadingButton>
   );
 };
