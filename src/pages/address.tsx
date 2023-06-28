@@ -54,7 +54,12 @@ const AddressBookPage = () => {
           <Grid container spacing={2} sx={{ mt: '12px' }}>
             {identities.map((item, index) => (
               <Grid item key={index}>
-                <IdentityCard data={item} onEdit={() => console.log(index)} />
+                <IdentityCard
+                  data={item}
+                  onEdit={() => {
+                    /** TODO: update nickname */
+                  }}
+                />
               </Grid>
             ))}
           </Grid>
