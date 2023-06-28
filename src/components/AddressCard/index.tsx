@@ -1,7 +1,13 @@
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
-import { Box, Card, CircularProgress, IconButton, Typography } from '@mui/material';
+import {
+  Box,
+  Card,
+  CircularProgress,
+  IconButton,
+  Typography,
+} from '@mui/material';
 import { contractTx, useInkathon } from '@scio-labs/use-inkathon';
 import { useConfirm } from 'material-ui-confirm';
 import { useState } from 'react';
@@ -9,8 +15,8 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 
 import { clipAddress } from '@/utils';
 import IdentityKey from '@/utils/identityKey';
+import KeyStore from '@/utils/keyStore';
 
-import { LOCAL_STORAGE_KEY } from '@/consts';
 import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
 import { Address, NetworkId } from '@/contracts/types';
@@ -22,15 +28,15 @@ interface AddressCardProps {
 }
 
 type DecryptionResult = {
-  success: boolean,
-  value: string
+  success: boolean;
+  value: string;
 };
 
 export const AddressCard = ({ data, onEdit }: AddressCardProps) => {
   const confirm = useConfirm();
   const { api, activeAccount } = useInkathon();
   const { toastSuccess, toastError } = useToast();
-  const { networks, contract, fetchAddresses } = useIdentity();
+  const { identityNo, networks, contract, fetchAddresses } = useIdentity();
 
   const [working, setWorking] = useState(false);
 
@@ -68,8 +74,13 @@ export const AddressCard = ({ data, onEdit }: AddressCardProps) => {
     setWorking(false);
   };
 
-  const decryptAddress = (address: string, networkId: number): DecryptionResult => {
-    const identityKey = localStorage.getItem(LOCAL_STORAGE_KEY) || '';
+  const decryptAddress = (
+    address: string,
+    networkId: number
+  ): DecryptionResult => {
+    if (identityNo === null) return { success: false, value: '' };
+
+    const identityKey = KeyStore.readIdentityKey(identityNo) || '';
 
     let decryptedAddress = address;
     if (IdentityKey.containsNetworkId(identityKey, networkId)) {
@@ -81,13 +92,13 @@ export const AddressCard = ({ data, onEdit }: AddressCardProps) => {
 
       return {
         success: true,
-        value: decryptedAddress        
+        value: decryptedAddress,
       };
     }
 
     return {
       success: false,
-      value: ''
+      value: '',
     };
   };
 
@@ -105,11 +116,9 @@ export const AddressCard = ({ data, onEdit }: AddressCardProps) => {
       </Box>
       <Box>
         <Typography>
-        {addressDecrypted.success?
-          clipAddress(addressDecrypted.value)
-          :
-          'Decryption failed'
-        }
+          {addressDecrypted.success
+            ? clipAddress(addressDecrypted.value)
+            : 'Decryption failed'}
         </Typography>
       </Box>
       <Box
@@ -138,7 +147,11 @@ export const AddressCard = ({ data, onEdit }: AddressCardProps) => {
           }}
           disabled={working}
         >
-          {working ? <CircularProgress size={24} /> : <DeleteOutlineOutlinedIcon />}
+          {working ? (
+            <CircularProgress size={24} />
+          ) : (
+            <DeleteOutlineOutlinedIcon />
+          )}
         </IconButton>
       </Box>
     </Card>

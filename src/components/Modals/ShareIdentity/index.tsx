@@ -15,8 +15,8 @@ import { useEffect, useState } from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
 
 import IdentityKey from '@/utils/identityKey';
+import KeyStore from '@/utils/keyStore';
 
-import { LOCAL_STORAGE_KEY } from '@/consts';
 import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
 
@@ -37,23 +37,21 @@ export const ShareIdentityModal = ({
   const [sharedKey, setSharedKey] = useState('');
 
   useEffect(() => {
+    if (identityNo === null) return;
+
     const selectedNetworks = Object.entries(checks)
       .filter((item) => item[1])
       .map((item) => Number(item[0]));
 
-    const identityKey = localStorage.getItem(LOCAL_STORAGE_KEY) || '';
+    const identityKey = KeyStore.readIdentityKey(identityNo) || '';
 
     try {
       const sharedKey = IdentityKey.getSharedKey(identityKey, selectedNetworks);
-
       setSharedKey(sharedKey);
-    }catch(e: any) {
-      toastError(
-        `Failed to get the identity key. Error: ${
-          e.message}`
-      )
+    } catch (e: any) {
+      toastError(`Failed to get the identity key. Error: ${e.message}`);
     }
-  }, [checks]);
+  }, [checks, identityNo, toastError]);
 
   useEffect(() => setChecks({}), [open]);
 
@@ -76,7 +74,8 @@ export const ShareIdentityModal = ({
             </CopyToClipboard>
           </Box>
           <Typography mt='2em'>
-            Specify the networks that the receiver of the identity key will be able to access:
+            Specify the networks that the receiver of the identity key will be
+            able to access:
           </Typography>
           <Grid container sx={{ pt: '12px', pb: '24px' }} mb='1em'>
             {addresses.map(({ networkId }, index) => (
