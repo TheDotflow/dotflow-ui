@@ -4,8 +4,8 @@ import ShareIcon from '@mui/icons-material/Share';
 import { Box, Button, Grid, Typography } from '@mui/material';
 import { useState } from 'react';
 
-import { AddressCard } from '@/components/AddressCard';
 import { CreateIdentity, RemoveIdentity } from '@/components/Buttons';
+import { AddressCard } from '@/components/Cards';
 import { AddAddressModal, EditAddressModal } from '@/components/Modals';
 import { ImportKeyModal } from '@/components/Modals/ImportKey';
 import { ShareIdentityModal } from '@/components/Modals/ShareIdentity';

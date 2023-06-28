@@ -121,14 +121,7 @@ export const AddressCard = ({ data, onEdit }: AddressCardProps) => {
             : 'Decryption failed'}
         </Typography>
       </Box>
-      <Box
-        sx={{
-          gap: '32px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          marginRight: 0,
-        }}
-      >
+      <Box className={styles.buttonsContainer}>
         <CopyToClipboard
           text={addressDecrypted.value}
           onCopy={() => toastSuccess('Address copied to clipboard.')}

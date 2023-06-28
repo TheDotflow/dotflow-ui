@@ -21,6 +21,7 @@ interface AddressBookContract {
   identities: IdentityRecord[];
   hasAddressBook: boolean;
   fetchInfo: () => Promise<void>;
+  fetchIdentities: () => Promise<void>;
   contract: ContractPromise | undefined;
 }
 
@@ -29,7 +30,10 @@ const defaultAddressBook: AddressBookContract = {
   hasAddressBook: false,
   contract: undefined,
   fetchInfo: async () => {
-    /** Check whether the user has an address book or not */
+    /** Check whether the user has an address book or not. */
+  },
+  fetchIdentities: async () => {
+    /** Fetch the identities stored in the address book. */
   },
 };
 
@@ -94,11 +98,18 @@ const AddressBookContractProvider = ({ children }: Props) => {
       if (isError) throw new Error(decodedOutput);
       if (!output) setIdentities([]);
       else {
-        // TODO:
-        setIdentities(output);
+        setIdentities(
+          output.map(
+            ([identityNo, nickName]: string[]) =>
+              ({
+                identityNo: Number(identityNo.replace(',', '')),
+                nickName,
+              } as IdentityRecord)
+          )
+        );
       }
     } catch (e) {
-      setHasAddressBook(false);
+      setIdentities([]);
     }
   }, [activeAccount, api, contract]);
 
@@ -109,7 +120,13 @@ const AddressBookContractProvider = ({ children }: Props) => {
 
   return (
     <AddressBookContext.Provider
-      value={{ hasAddressBook, identities, fetchInfo, contract }}
+      value={{
+        hasAddressBook,
+        identities,
+        fetchInfo,
+        fetchIdentities,
+        contract,
+      }}
     >
       {children}
     </AddressBookContext.Provider>
