@@ -8,9 +8,12 @@ import {
   FormLabel,
   TextField,
 } from '@mui/material';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
-import { LOCAL_STORAGE_KEY } from '@/consts';
+import KeyStore from '@/utils/keyStore';
+
+import { useToast } from '@/contexts/Toast';
+import { useIdentity } from '@/contracts';
 
 interface ImportKeyModalProps {
   open: boolean;
@@ -18,11 +21,19 @@ interface ImportKeyModalProps {
 }
 export const ImportKeyModal = ({ open, onClose }: ImportKeyModalProps) => {
   const [identityKey, setIdentityKey] = useState<string>('');
+  const { identityNo } = useIdentity();
+  const { toastError } = useToast();
 
   const onImport = () => {
-    localStorage.setItem(LOCAL_STORAGE_KEY, identityKey);
+    if (identityNo === null) {
+      toastError("You don't have an identity yet.");
+      return;
+    }
+    KeyStore.updateIdentityKey(identityNo, identityKey);
     onClose();
   };
+
+  useEffect(() => setIdentityKey(''), [open]);
 
   return (
     <Dialog open={open} onClose={onClose}>
@@ -34,9 +45,6 @@ export const ImportKeyModal = ({ open, onClose }: ImportKeyModalProps) => {
               <FormLabel>Identity Key</FormLabel>
               <TextField
                 placeholder='Enter identity key'
-                inputProps={{
-                  maxLength: 64,
-                }}
                 required
                 value={identityKey}
                 onChange={(e) => setIdentityKey(e.target.value)}
