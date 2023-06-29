@@ -2,6 +2,7 @@
   "name": "dotflow-ui",
   "private": true,
   "scripts": {
+    "compile": "typechain-compiler --toolchain nightly-2023-01-04",
     "dev": "next dev",
     "start": "next start",
     "build": "next build",
@@ -35,6 +36,8 @@
     "sharp": "^0.32.1"
   },
   "devDependencies": {
+    "@727-ventures/typechain-compiler": "^0.5.18",
+    "@727-ventures/typechain-types": "^1.1.0",
     "@babel/core": "^7.16.7",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^14.0.0",

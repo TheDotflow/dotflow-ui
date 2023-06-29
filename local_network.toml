@@ -1,0 +1,33 @@
+[relaychain]
+default_command = "../bin/polkadot-v0.9.37"
+default_args = [ "-lparachain=debug" ]
+
+chain = "rococo-local"
+  # relaychain nodes are by default validators
+  [[relaychain.nodes]]
+  name = "alice"
+
+  [[relaychain.nodes]]
+  name = "bob"
+
+  [[relaychain.nodes]]
+  name = "charlie"
+
+  [[relaychain.nodes]]
+  name = "dave"
+
+[[parachains]]
+id = 1000
+cumulus_based = true
+
+  [parachains.collator]
+  name = "parachain-A-1000-collator-01"
+  command = "../bin/parachain-template-node-v0.9.37"
+
+[[parachains]]
+id = 1001
+cumulus_based = true
+
+  [parachains.collator]
+  name = "parachain-B-1001-collator-01"
+  command = "../bin/parachain-template-node-v0.9.37"

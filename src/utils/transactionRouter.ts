@@ -1,38 +1,53 @@
+import { KeyringPair } from "@polkadot/keyring/types";
+import IdentityContract from "../../types/contracts/identity";
+
 class TransactionRouter {
   public static sendTokens(
-    sender: string,
-    originChain: string, 
+    api: any,
+    contract: IdentityContract,
+    sender: KeyringPair,
+    originNetwork: number, 
     receiver: string, 
-    destinationChain: string, 
-    token: string, 
+    destinationNetwork: number, 
+    token: string,
     amount: number
   ): any {
-    if(originChain == destinationChain && sender == receiver) {
+    if(originNetwork == destinationNetwork && sender.address == receiver) {
       throw new Error("Cannot send tokens to yourself");
     }
-
-    if(originChain == destinationChain) {
-      this.sendOnSameBlockchain(sender, receiver, originChain, token, amount);
+    if(originNetwork == destinationNetwork) {
+      this.sendOnSameBlockchain(api, contract, sender, receiver, originNetwork, token, amount);
     }else {
-      this.sendViaXcm(sender, originChain, receiver, destinationChain, token, amount);
+      this.sendViaXcm(sender, originNetwork, receiver, destinationNetwork, token, amount);
     }
   }
 
-  private static sendOnSameBlockchain(
-    sender: string, 
+  private static async sendOnSameBlockchain(
+    api: any,
+    contract: IdentityContract,
+    sender: KeyringPair, 
     receiver: string, 
-    chain: string, 
+    network: number,
     token: string, 
     amount: number
-  ): any {
-    
+  ): Promise<void> {
+    // Just a simple transfer.
+    const chainInfo = await api.registry.getChainProperties()
+    const receiverAddress = await contract.query.transactionDestination(receiver, network);
+
+    const nativeToken = chainInfo.tokenSymbol.toString()? chainInfo.tokenSymbol.toString().toLowerCase() : "unit";
+
+    console.log(receiverAddress);
+    if(token == nativeToken) {
+    }else {
+    }
   }
 
   private static sendViaXcm(
-    sender: string,
-    originChain: string, 
+    sender: KeyringPair,
+    originNetwork: number, 
     receiver: string, 
-    destinationChain: string, 
+    destinationNetwork: number, 
     token: string, 
     amount: number
   ) {
