@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 import { CreateAddressBook, RemoveAddressBook } from '@/components/Buttons';
 import { IdentityCard } from '@/components/Cards';
-import { AddIdentityModal } from '@/components/Modals/AddIdentity';
+import { AddIdentityModal } from '@/components/Modals';
 
 import { useAddressBook } from '@/contracts/addressbook/context';
 
