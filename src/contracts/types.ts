@@ -20,6 +20,6 @@ export type Networks = Record<NetworkId, NetworkInfo>;
 export type IdentityNo = number | null;
 
 export type IdentityRecord = {
-  nickname: null | string;
+  nickName: null | string;
   identityNo: number;
 }

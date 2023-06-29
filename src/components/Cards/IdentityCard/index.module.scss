@@ -1,6 +1,6 @@
 @use '/styles/variables' as var;
 
-.addressCard {
+.identityCard {
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -13,10 +13,16 @@
   line-height: 1.6;
 }
 
-.networkName {
-  display: flex;
+.identityName {
+  display:flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .actionBtn {

@@ -34,6 +34,12 @@ class KeyStore {
     Object.assign(keyObj, { [identityNo]: key });
     this.updateKeyStore(keyObj);
   }
+
+  public static removeIdentityKey(identityNo: number) {
+    const keyObj: IKeyStore = this.readKeyStore();
+    delete keyObj[identityNo];
+    this.updateKeyStore(keyObj);
+  }
 }
 
 export default KeyStore;
