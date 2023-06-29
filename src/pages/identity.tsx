@@ -6,9 +6,12 @@ import { useState } from 'react';
 
 import { CreateIdentity, RemoveIdentity } from '@/components/Buttons';
 import { AddressCard } from '@/components/Cards';
-import { AddAddressModal, EditAddressModal } from '@/components/Modals';
-import { ImportKeyModal } from '@/components/Modals/ImportKey';
-import { ShareIdentityModal } from '@/components/Modals/ShareIdentity';
+import {
+  AddAddressModal,
+  EditAddressModal,
+  ImportKeyModal,
+  ShareIdentityModal,
+} from '@/components/Modals';
 
 import { useIdentity } from '@/contracts';
 

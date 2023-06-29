@@ -4,15 +4,14 @@ import { useState } from 'react';
 
 import { CreateAddressBook, RemoveAddressBook } from '@/components/Buttons';
 import { IdentityCard } from '@/components/Cards';
-import { AddIdentityModal } from '@/components/Modals/AddIdentity';
-import { ImportKeyModal } from '@/components/Modals/ImportKey';
+import { AddIdentityModal, EditNicknameModal } from '@/components/Modals';
 
 import { useAddressBook } from '@/contracts/addressbook/context';
 
 const AddressBookPage = () => {
   const [identityModalOpen, showIdentityModal] = useState(false);
-  const [keyModalOpen, openKeyModal] = useState(false);
-  const [identityNo, setIdentityNo] = useState<number>(0);
+  const [editModalOpen, openEditModal] = useState(false);
+  const [identityNo, setIdentityNo] = useState<number | undefined>();
 
   const { hasAddressBook, identities } = useAddressBook();
 
@@ -61,7 +60,8 @@ const AddressBookPage = () => {
                 <IdentityCard
                   data={item}
                   onEdit={() => {
-                    /** TODO: update nickname */
+                    setIdentityNo(item.identityNo);
+                    openEditModal(true);
                   }}
                   onImportKey={() => {
                     setIdentityNo(item.identityNo);
@@ -76,6 +76,11 @@ const AddressBookPage = () => {
       <AddIdentityModal
         open={identityModalOpen}
         onClose={() => showIdentityModal(false)}
+      />
+      <EditNicknameModal
+        open={editModalOpen}
+        onClose={() => openEditModal(false)}
+        identityNo={identityNo as number}
       />
       <ImportKeyModal
         open={keyModalOpen}
