@@ -63,6 +63,10 @@ const AddressBookPage = () => {
                     setIdentityNo(item.identityNo);
                     openEditModal(true);
                   }}
+                  onImportKey={() => {
+                    setIdentityNo(item.identityNo);
+                    openKeyModal(true);
+                  }}
                 />
               </Grid>
             ))}
@@ -77,6 +81,11 @@ const AddressBookPage = () => {
         open={editModalOpen}
         onClose={() => openEditModal(false)}
         identityNo={identityNo as number}
+      />
+      <ImportKeyModal
+        open={keyModalOpen}
+        onClose={() => openKeyModal(false)}
+        identityNo={identityNo}
       />
     </>
   );

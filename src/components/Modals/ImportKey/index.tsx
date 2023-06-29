@@ -8,29 +8,40 @@ import {
   FormLabel,
   TextField,
 } from '@mui/material';
+import { useConfirm } from 'material-ui-confirm';
 import { useEffect, useState } from 'react';
 
 import KeyStore from '@/utils/keyStore';
 
 import { useToast } from '@/contexts/Toast';
-import { useIdentity } from '@/contracts';
 
 interface ImportKeyModalProps {
   open: boolean;
   onClose: () => void;
+  identityNo: number | null;
 }
-export const ImportKeyModal = ({ open, onClose }: ImportKeyModalProps) => {
+export const ImportKeyModal = ({
+  open,
+  onClose,
+  identityNo,
+}: ImportKeyModalProps) => {
   const [identityKey, setIdentityKey] = useState<string>('');
-  const { identityNo } = useIdentity();
-  const { toastError } = useToast();
+  const { toastError, toastSuccess } = useToast();
+  const confirm = useConfirm();
 
   const onImport = () => {
     if (identityNo === null) {
       toastError("You don't have an identity yet.");
       return;
     }
-    KeyStore.updateIdentityKey(identityNo, identityKey);
-    onClose();
+    confirm({
+      description:
+        'This operation updates the identity key and you might lose access to your addresses.',
+    }).then(() => {
+      KeyStore.updateIdentityKey(identityNo, identityKey);
+      toastSuccess('Successfully imported identity key.');
+      onClose();
+    });
   };
 
   useEffect(() => setIdentityKey(''), [open]);

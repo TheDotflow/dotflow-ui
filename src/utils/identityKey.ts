@@ -31,20 +31,20 @@ class IdentityKey {
   }
 
   public static encryptAddress(identityKey: string, networkId: number, address: string): string {
-    const cipherBase64 = this.getNetworkCipher(identityKey, networkId);
-    const cipher = Buffer.from(cipherBase64, "base64");
+    const cipher = this.getNetworkCipher(identityKey, networkId);
+    const cipherBase64 = Buffer.from(cipher, "base64");
 
-    const aesCtr = new aesjs.ModeOfOperation.ctr(cipher);
+    const aesCtr = new aesjs.ModeOfOperation.ctr(cipherBase64);
     const encryptedAddress = aesCtr.encrypt(Buffer.from(address, "utf-8"));
 
     return Buffer.from(encryptedAddress).toString("base64");
   }
 
   public static decryptAddress(identityKey: string, networkId: number, address: string): string {
-    const cipherBase64 = this.getNetworkCipher(identityKey, networkId);
-    const cipher = Buffer.from(cipherBase64, "base64");
+    const cipher = this.getNetworkCipher(identityKey, networkId);
+    const cipherBase64 = Buffer.from(cipher, "base64");
 
-    const aesCtr = new aesjs.ModeOfOperation.ctr(cipher);
+    const aesCtr = new aesjs.ModeOfOperation.ctr(cipherBase64);
     const decryptedAddress = aesCtr.decrypt(Buffer.from(address, "base64"));
 
     return Buffer.from(decryptedAddress.buffer).toString();
