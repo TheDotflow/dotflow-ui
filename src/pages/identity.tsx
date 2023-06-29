@@ -112,6 +112,7 @@ const IdentityPage = () => {
       <ImportKeyModal
         open={importModalOpen}
         onClose={() => openImportModal(false)}
+        identityNo={identityNo}
       />
       <ShareIdentityModal
         open={shareModalOpen}
