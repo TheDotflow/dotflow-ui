@@ -16,8 +16,8 @@ import { useEffect, useState } from 'react';
 
 import { isValidAddress } from '@/utils';
 import IdentityKey from '@/utils/identityKey';
+import KeyStore from '@/utils/keyStore';
 
-import { LOCAL_STORAGE_KEY } from '@/consts';
 import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
 import { NetworkId } from '@/contracts/types';
@@ -29,7 +29,7 @@ interface AddAddressModalProps {
 
 export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
   const { api, activeAccount } = useInkathon();
-  const { networks, contract } = useIdentity();
+  const { identityNo, networks, contract } = useIdentity();
   const { toastError, toastSuccess } = useToast();
 
   const [networkId, setNetworkId] = useState<NetworkId | undefined>();
@@ -37,6 +37,10 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
   const [working, setWorking] = useState(false);
 
   const onSubmit = async () => {
+    if (identityNo === null) {
+      toastError("You don't have an identity yet.");
+      return;
+    }
     if (!networkAddress || networkAddress.trim().length === 0) {
       toastError('Please input your address');
       return;
@@ -59,11 +63,11 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
     }
     setWorking(true);
 
-    let identityKey = localStorage.getItem(LOCAL_STORAGE_KEY) || '';
+    let identityKey = KeyStore.readIdentityKey(identityNo) || '';
 
     if (!IdentityKey.containsNetworkId(identityKey, networkId)) {
       identityKey = IdentityKey.newCipher(identityKey, networkId);
-      localStorage.setItem(LOCAL_STORAGE_KEY, identityKey);
+      KeyStore.updateIdentityKey(identityNo, identityKey);
     }
 
     const encryptedAddress = IdentityKey.encryptAddress(

@@ -17,8 +17,8 @@ import { useEffect, useState } from 'react';
 
 import { isValidAddress } from '@/utils';
 import IdentityKey from '@/utils/identityKey';
+import KeyStore from '@/utils/keyStore';
 
-import { LOCAL_STORAGE_KEY } from '@/consts';
 import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
 import { NetworkId } from '@/contracts/types';
@@ -34,13 +34,17 @@ export const EditAddressModal = ({
   onClose,
 }: EditAddressModalProps) => {
   const { api, activeAccount } = useInkathon();
-  const { contract, networks } = useIdentity();
+  const { contract, identityNo, networks } = useIdentity();
   const { toastError, toastSuccess } = useToast();
   const [newAddress, setNewAddress] = useState<string>('');
   const [working, setWorking] = useState(false);
   const [regenerate, setRegenerate] = useState(false);
 
   const onSave = async () => {
+    if (identityNo === null) {
+      toastError("You don't have an identity yet.");
+      return;
+    }
     if (networkId === undefined) {
       toastError('Invalid network');
       return;
@@ -63,11 +67,11 @@ export const EditAddressModal = ({
     }
     setWorking(true);
 
-    let identityKey = localStorage.getItem(LOCAL_STORAGE_KEY) || '';
+    let identityKey = KeyStore.readIdentityKey(identityNo) || '';
 
     if (!IdentityKey.containsNetworkId(identityKey, networkId)) {
       identityKey = IdentityKey.newCipher(identityKey, networkId);
-      localStorage.setItem(LOCAL_STORAGE_KEY, identityKey);
+      KeyStore.updateIdentityKey(identityNo, identityKey);
     }
 
     if (regenerate)
@@ -89,7 +93,7 @@ export const EditAddressModal = ({
         [networkId, encryptedAddress]
       );
       // Update the identity key when the user has updated his on-chain data
-      localStorage.setItem(LOCAL_STORAGE_KEY, identityKey);
+      KeyStore.updateIdentityKey(identityNo, identityKey);
 
       toastSuccess('Successfully updated your address.');
       setWorking(false);
