@@ -1,6 +1,7 @@
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
+import KeyOutlinedIcon from '@mui/icons-material/KeyOutlined';
 import {
   Box,
   Card,
@@ -24,11 +25,13 @@ import styles from './index.module.scss';
 interface IdentityCardProps {
   data: IdentityRecord;
   onEdit: () => void;
+  onImportKey: () => void;
 }
 
 export const IdentityCard = ({
   data: { identityNo, nickName },
   onEdit,
+  onImportKey,
 }: IdentityCardProps) => {
   const confirm = useConfirm();
   const [working, setWorking] = useState(false);
@@ -91,21 +94,26 @@ export const IdentityCard = ({
             <Typography>Copy Identity No</Typography>
           </Box>
         </CopyToClipboard>
-        <IconButton
-          onClick={() => {
-            confirm({
-              description:
-                'This will remove the identity from your address book and cannot be undone.',
-            }).then(() => removeIdentity(identityNo));
-          }}
-          disabled={working}
-        >
-          {working ? (
-            <CircularProgress size={24} />
-          ) : (
-            <DeleteOutlineOutlinedIcon />
-          )}
-        </IconButton>
+        <Box>
+          <IconButton onClick={onImportKey}>
+            <KeyOutlinedIcon />
+          </IconButton>
+          <IconButton
+            onClick={() => {
+              confirm({
+                description:
+                  'This will remove the identity from your address book and cannot be undone.',
+              }).then(() => removeIdentity(identityNo));
+            }}
+            disabled={working}
+          >
+            {working ? (
+              <CircularProgress size={24} />
+            ) : (
+              <DeleteOutlineOutlinedIcon />
+            )}
+          </IconButton>
+        </Box>
       </Box>
     </Card>
   );
