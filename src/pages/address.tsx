@@ -4,12 +4,15 @@ import { useState } from 'react';
 
 import { CreateAddressBook, RemoveAddressBook } from '@/components/Buttons';
 import { IdentityCard } from '@/components/Cards';
-import { AddIdentityModal } from '@/components/Modals';
+import { AddIdentityModal, EditNicknameModal } from '@/components/Modals';
 
 import { useAddressBook } from '@/contracts/addressbook/context';
 
 const AddressBookPage = () => {
   const [identityModalOpen, showIdentityModal] = useState(false);
+  const [editModalOpen, openEditModal] = useState(false);
+  const [identityNo, setIdentityNo] = useState<number | undefined>();
+
   const { hasAddressBook, identities } = useAddressBook();
 
   return (
@@ -57,7 +60,8 @@ const AddressBookPage = () => {
                 <IdentityCard
                   data={item}
                   onEdit={() => {
-                    /** TODO: update nickname */
+                    setIdentityNo(item.identityNo);
+                    openEditModal(true);
                   }}
                 />
               </Grid>
@@ -68,6 +72,11 @@ const AddressBookPage = () => {
       <AddIdentityModal
         open={identityModalOpen}
         onClose={() => showIdentityModal(false)}
+      />
+      <EditNicknameModal
+        open={editModalOpen}
+        onClose={() => openEditModal(false)}
+        identityNo={identityNo as number}
       />
     </>
   );
