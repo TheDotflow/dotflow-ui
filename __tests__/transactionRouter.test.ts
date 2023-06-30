@@ -32,7 +32,6 @@ describe("TransactionRouter",() => {
     const sender = alice;
     const receiver = alice;
     expect(() => TransactionRouter.sendTokens(
-      api,
       identityContract,
       sender,
       0, // origin network
@@ -48,7 +47,6 @@ describe("TransactionRouter",() => {
     const receiver = bob;
 
     TransactionRouter.sendTokens(
-      api,
       identityContract,
       sender,
       0, // origin network
