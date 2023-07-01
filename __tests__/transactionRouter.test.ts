@@ -42,7 +42,7 @@ describe("TransactionRouter",() => {
       identityContract,
       sender,
       0, // origin network
-      receiver.address,
+      receiver.addressRaw,
       0, // destination network
       {}, // multi asset
       1000
@@ -54,20 +54,20 @@ describe("TransactionRouter",() => {
     const receiver = bob;
 
     // First lets add a network.
-    await addNetwork(identityContract, alice, { rpcUrl: "ws://127.0.0.1:9944", accountType: AccountType.accountId32 });
+    await addNetwork(identityContract, alice, { rpcUrl: "ws://127.0.0.1:50941", accountType: AccountType.accountId32 });
 
     await TransactionRouter.sendTokens(
       identityContract,
       sender,
       0, // origin network
-      receiver.address,
+      receiver.addressRaw,
       0, // destination network
       // MultiAsset:
       {
-        parents: 0,
-        interior: "Here"
+        interior: "Here",
+        parents: 0
       },
-      1000
+      1 * Math.pow(10, 12)
     );
   });
 });

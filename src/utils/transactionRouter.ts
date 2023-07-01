@@ -7,12 +7,12 @@ class TransactionRouter {
     contract: IdentityContract,
     sender: KeyringPair,
     originNetwork: number,
-    receiver: string,
+    receiver: Uint8Array,
     destinationNetwork: number,
     token: any,
     amount: number
   ): Promise<any> {
-    if (originNetwork == destinationNetwork && sender.address == receiver) {
+    if (originNetwork == destinationNetwork && sender.addressRaw == receiver) {
       throw new Error("Cannot send tokens to yourself");
     }
 
@@ -21,7 +21,7 @@ class TransactionRouter {
       const wsProvider = new WsProvider(rpcUrl);
       const api = await ApiPromise.create({ provider: wsProvider });
 
-      this.sendOnSameBlockchain(
+      await this.sendOnSameBlockchain(
         api,
         contract,
         sender,
@@ -31,7 +31,7 @@ class TransactionRouter {
         amount
       );
     } else {
-      this.sendViaXcm(
+      await this.sendViaXcm(
         sender,
         originNetwork,
         receiver,
@@ -46,12 +46,13 @@ class TransactionRouter {
     api: ApiPromise,
     contract: IdentityContract,
     sender: KeyringPair,
-    receiver: string,
+    receiver: Uint8Array,
     network: number,
     token: any,
     amount: number
   ): Promise<void> {
     // Just a simple transfer.
+
     const chainInfo = await api.registry.getChainProperties();
     if (!chainInfo) {
       throw new Error("Failed to get chain info");
@@ -62,9 +63,9 @@ class TransactionRouter {
     let xcmExecute;
 
     if (api.tx.xcmPallet) {
-      xcmExecute = api.tx.xcmPallet.execute(xcm);
+      xcmExecute = api.tx.xcmPallet.execute(xcm, 0);
     } else if (api.tx.polkadotXcm) {
-      xcmExecute = api.tx.polkadotXcm.execute(xcm);
+      xcmExecute = api.tx.polkadotXcm.execute(xcm, 0);
     } else {
       throw new Error("The blockchain does not support XCM");
     }
@@ -77,30 +78,31 @@ class TransactionRouter {
   private static sendViaXcm(
     sender: KeyringPair,
     originNetwork: number,
-    receiver: string,
+    receiver: Uint8Array,
     destinationNetwork: number,
     token: string,
     amount: number
   ) {}
 
   private static xcmTransferAssetMessage(
-    receiverAddress: string,
+    receiverAddress: Uint8Array,
     multiAsset: any,
     amount: number
   ): any {
     const xcmMessage = {
-      V2: {
-        TransferAsset: [
-          // Asset:
-          {
-            Concrete: multiAsset,
-            Fungible: {
-              Fungible: amount,
-            },
-          },
-          // Beneficiary:
-          {
-            parents: 0,
+      V2: [{
+        TransferAsset: {
+          assets: [
+            {
+              fun: {
+                Fungible: amount
+              },
+              id: {
+                Concrete: multiAsset
+              }
+            }
+          ],
+          beneficiary: {
             interior: {
               X1: {
                 // TODO: Don't hardcode the account type.
@@ -108,11 +110,12 @@ class TransactionRouter {
                   network: "Any",
                   id: receiverAddress,
                 },
-              },
+              }
             },
-          },
-        ],
-      },
+            parents: 0
+          }
+        },
+      }]
     };
     return xcmMessage;
   }
