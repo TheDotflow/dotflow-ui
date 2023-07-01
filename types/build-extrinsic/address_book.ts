@@ -102,4 +102,14 @@ export default class Methods {
 		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "identitiesOf", [account], __options);
 	}
 
+	/**
+	 * hasAddressBook
+	 *
+	*/
+	"hasAddressBook" (
+		__options: GasLimit,
+	){
+		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "hasAddressBook", [], __options);
+	}
+
 }

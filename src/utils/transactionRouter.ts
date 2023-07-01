@@ -17,7 +17,7 @@ class TransactionRouter {
     }
 
     if (originNetwork == destinationNetwork) {
-      const rpcUrl = (await contract.query.networkInfoOf(originNetwork)).rpcUrl;
+      const rpcUrl = (await contract.query.networkInfoOf(originNetwork)).value.ok?.rpcUrl;
       const wsProvider = new WsProvider(rpcUrl);
       const api = await ApiPromise.create({ provider: wsProvider });
 
@@ -57,12 +57,7 @@ class TransactionRouter {
       throw new Error("Failed to get chain info");
     }
 
-    const receiverAddress = await contract.query.transactionDestination(
-      receiver,
-      network
-    );
-
-    const xcm = this.xcmTransferAssetMessage(receiverAddress, token, amount);
+    const xcm = this.xcmTransferAssetMessage(receiver, token, amount);
 
     let xcmExecute;
 

@@ -189,17 +189,17 @@ export default class Methods {
 	* updateNetwork
 	*
 	* @param { (number | string | BN) } networkId,
-	* @param { (number | string | BN) | null } newPrefix,
-	* @param { string | null } newName,
+	* @param { string | null } newRpcUrl,
+	* @param { ArgumentTypes.AccountType | null } newAddressType,
 	* @returns { Result<Result<null, ReturnTypes.Error>, ReturnTypes.LangError> }
 	*/
 	"updateNetwork" (
 		networkId: (number | string | BN),
-		newPrefix: (number | string | BN) | null,
-		newName: string | null,
+		newRpcUrl: string | null,
+		newAddressType: ArgumentTypes.AccountType | null,
 		__options ? : GasLimit,
 	): Promise< QueryReturnType< Result<Result<null, ReturnTypes.Error>, ReturnTypes.LangError> > >{
-		return queryOkJSON( this.__apiPromise, this.__nativeContract, this.__callerAddress, "updateNetwork", [networkId, newPrefix, newName], __options , (result) => { return handleReturnType(result, getTypeDescription(31, DATA_TYPE_DESCRIPTIONS)); });
+		return queryOkJSON( this.__apiPromise, this.__nativeContract, this.__callerAddress, "updateNetwork", [networkId, newRpcUrl, newAddressType], __options , (result) => { return handleReturnType(result, getTypeDescription(31, DATA_TYPE_DESCRIPTIONS)); });
 	}
 
 	/**

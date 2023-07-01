@@ -209,19 +209,19 @@ export default class Methods {
 	* updateNetwork
 	*
 	* @param { (number | string | BN) } networkId,
-	* @param { (number | string | BN) | null } newPrefix,
-	* @param { string | null } newName,
+	* @param { string | null } newRpcUrl,
+	* @param { ArgumentTypes.AccountType | null } newAddressType,
 	* @returns { void }
 	*/
 	"updateNetwork" (
 		networkId: (number | string | BN),
-		newPrefix: (number | string | BN) | null,
-		newName: string | null,
+		newRpcUrl: string | null,
+		newAddressType: ArgumentTypes.AccountType | null,
 		__options: GasLimit,
 	){
 		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "updateNetwork", (events: EventRecord) => {
 			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
-		}, [networkId, newPrefix, newName], __options);
+		}, [networkId, newRpcUrl, newAddressType], __options);
 	}
 
 	/**

@@ -3,6 +3,7 @@ import { ApiPromise, Keyring, WsProvider } from '@polkadot/api';
 import { KeyringPair } from "@polkadot/keyring/types";
 import IdentityContractFactory from "../types/constructors/identity";
 import IdentityContract from "../types/contracts/identity";
+import { AccountType, NetworkInfo } from "../types/types-arguments/identity";
 
 const wsProvider = new WsProvider("ws://127.0.0.1:9944");
 const keyring = new Keyring({ type: 'sr25519' });
@@ -28,32 +29,70 @@ describe("TransactionRouter",() => {
     );
   });
 
-  test("Can't send tokens to yourself", () => {
+  it("Can't send tokens to yourself", async () => {
     const sender = alice;
     const receiver = alice;
-    expect(() => TransactionRouter.sendTokens(
+
+    // First lets add a network and create an identity.
+
+    await addNetwork(identityContract, alice, { rpcUrl: "ws://127.0.0.1:9944", accountType: AccountType.accountId32 });
+    //const receiverIdentityNo = await createIdentityWithData(identityContract, receiver);
+
+    await expect(TransactionRouter.sendTokens(
       identityContract,
       sender,
       0, // origin network
       receiver.address,
       0, // destination network
-      "dot",
+      {}, // multi asset
       1000
-    )).toThrow("Cannot send tokens to yourself");
+    )).rejects.toThrow("Cannot send tokens to yourself");
   });
 
-  test("Sending native asset on the same network works", () => {
+  it("Sending native asset on the same network works", async () => {
     const sender = alice;
     const receiver = bob;
 
-    TransactionRouter.sendTokens(
+    // First lets add a network.
+    await addNetwork(identityContract, alice, { rpcUrl: "ws://127.0.0.1:9944", accountType: AccountType.accountId32 });
+
+    await TransactionRouter.sendTokens(
       identityContract,
       sender,
       0, // origin network
       receiver.address,
       0, // destination network
-      "unit",
+      // MultiAsset:
+      {
+        parents: 0,
+        interior: "Here"
+      },
       1000
     );
-  })
+  });
 });
+
+const addNetwork = async (contract: IdentityContract, signer: KeyringPair, network: NetworkInfo): Promise<void> => {
+  const _addNetworkResult = await contract
+    .withSigner(signer)
+    .tx.addNetwork(network);
+}
+
+const createIdentityWithData = async (contract: IdentityContract, signer: KeyringPair): Promise<number> => {
+  const _createIdentityResult = (await contract
+    .withSigner(signer)
+    .tx.createIdentity());
+  
+  const identityNo = (await contract
+    .withSigner(signer)
+    .query.identityOf(signer.address)).value.ok;
+  
+  if(identityNo != null) {
+    const _addAddressResult = (await contract
+      .withSigner(signer)
+      .tx.addAddress(0, signer.address));
+
+    return identityNo;
+  }
+  throw new Error("Failed to get identity no");
+}

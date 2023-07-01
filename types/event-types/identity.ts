@@ -29,14 +29,14 @@ export interface IdentityRemoved {
 
 export interface NetworkAdded {
 	networkId: number;
-	name: string;
-	ss58Prefix: number;
+	rpcUrl: string;
+	accountType: ReturnTypes.AccountType;
 }
 
 export interface NetworkUpdated {
 	networkId: number;
-	name: string;
-	ss58Prefix: number;
+	rpcUrl: string;
+	accountType: ReturnTypes.AccountType;
 }
 
 export interface NetworkRemoved {

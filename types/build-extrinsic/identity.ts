@@ -168,16 +168,16 @@ export default class Methods {
 	 * updateNetwork
 	 *
 	 * @param { (number | string | BN) } networkId,
-	 * @param { (number | string | BN) | null } newPrefix,
-	 * @param { string | null } newName,
+	 * @param { string | null } newRpcUrl,
+	 * @param { ArgumentTypes.AccountType | null } newAddressType,
 	*/
 	"updateNetwork" (
 		networkId: (number | string | BN),
-		newPrefix: (number | string | BN) | null,
-		newName: string | null,
+		newRpcUrl: string | null,
+		newAddressType: ArgumentTypes.AccountType | null,
 		__options: GasLimit,
 	){
-		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "updateNetwork", [networkId, newPrefix, newName], __options);
+		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "updateNetwork", [networkId, newRpcUrl, newAddressType], __options);
 	}
 
 	/**

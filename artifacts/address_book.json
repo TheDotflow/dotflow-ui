@@ -1,6 +1,6 @@
 {
   "source": {
-    "hash": "0x3431a6709ea0c169392e84dd06a948c6e0b33c5f567568122f316677a001bb21",
+    "hash": "0xf3351b91ee1e761f370e3e86fc1b6489a2e275ca59944958300a8def008ca8e2",
     "language": "ink! 4.2.0",
     "compiler": "rustc 1.68.0-nightly",
     "build_info": {
@@ -37,7 +37,7 @@
         "default": false,
         "docs": [
           "Constructor",
-          "Instantiate with the address of `Identity` contract"
+          "Instantiate with the address of `Identity` contract."
         ],
         "label": "new",
         "payable": false,
@@ -63,7 +63,7 @@
         "displayName": [
           "Balance"
         ],
-        "type": 16
+        "type": 18
       },
       "blockNumber": {
         "displayName": [
@@ -75,20 +75,20 @@
         "displayName": [
           "ChainExtension"
         ],
-        "type": 19
+        "type": 21
       },
       "hash": {
         "displayName": [
           "Hash"
         ],
-        "type": 17
+        "type": 19
       },
       "maxEventTopics": 4,
       "timestamp": {
         "displayName": [
           "Timestamp"
         ],
-        "type": 18
+        "type": 20
       }
     },
     "events": [
@@ -206,6 +206,34 @@
         ],
         "docs": [],
         "label": "NickNameUpdated"
+      },
+      {
+        "args": [
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "owner",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 5
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "identity",
+            "type": {
+              "displayName": [
+                "IdentityNo"
+              ],
+              "type": 2
+            }
+          }
+        ],
+        "docs": [],
+        "label": "IdentityRemoved"
       }
     ],
     "lang_error": {
@@ -331,7 +359,7 @@
             "ink",
             "MessageResult"
           ],
-          "type": 8
+          "type": 12
         },
         "selector": "0x08026740"
       },
@@ -399,6 +427,24 @@
           "type": 15
         },
         "selector": "0x29daba02"
+      },
+      {
+        "args": [],
+        "default": false,
+        "docs": [
+          " Returns whether the user has created an address book or not"
+        ],
+        "label": "has_address_book",
+        "mutates": false,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 16
+        },
+        "selector": "0xc468ded4"
       }
     ]
   },
@@ -837,12 +883,62 @@
       "id": 16,
       "type": {
         "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 17
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 10
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 17
+          },
+          {
+            "name": "E",
+            "type": 10
+          }
+        ],
+        "path": [
+          "Result"
+        ]
+      }
+    },
+    {
+      "id": 17,
+      "type": {
+        "def": {
+          "primitive": "bool"
+        }
+      }
+    },
+    {
+      "id": 18,
+      "type": {
+        "def": {
           "primitive": "u128"
         }
       }
     },
     {
-      "id": 17,
+      "id": 19,
       "type": {
         "def": {
           "composite": {
@@ -862,7 +958,7 @@
       }
     },
     {
-      "id": 18,
+      "id": 20,
       "type": {
         "def": {
           "primitive": "u64"
@@ -870,7 +966,7 @@
       }
     },
     {
-      "id": 19,
+      "id": 21,
       "type": {
         "def": {
           "variant": {}

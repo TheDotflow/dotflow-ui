@@ -20,3 +20,8 @@ export interface NickNameUpdated {
 	newNickname: string | null;
 }
 
+export interface IdentityRemoved {
+	owner: ReturnTypes.AccountId;
+	identity: number;
+}
+

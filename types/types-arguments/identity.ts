@@ -7,8 +7,13 @@ export enum LangError {
 }
 
 export type NetworkInfo = {
-	name: string,
-	ss58Prefix: (number | string | BN)
+	rpcUrl: string,
+	accountType: AccountType
+}
+
+export enum AccountType {
+	accountId32 = 'AccountId32',
+	accountKey20 = 'AccountKey20'
 }
 
 export type IdentityInfo = {
@@ -22,6 +27,7 @@ export enum Error {
 	invalidNetwork = 'InvalidNetwork',
 	addressSizeExceeded = 'AddressSizeExceeded',
 	networkNameTooLong = 'NetworkNameTooLong',
+	networkRpcUrlTooLong = 'NetworkRpcUrlTooLong',
 	alreadyIdentityOwner = 'AlreadyIdentityOwner'
 }
 

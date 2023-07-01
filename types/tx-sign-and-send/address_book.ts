@@ -124,4 +124,16 @@ export default class Methods {
 		}, [account], __options);
 	}
 
+	/**
+	* hasAddressBook
+	*
+	*/
+	"hasAddressBook" (
+		__options ? : GasLimit,
+	){
+		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "hasAddressBook", (events: EventRecord) => {
+			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
+		}, [], __options);
+	}
+
 }

@@ -136,4 +136,15 @@ export default class Methods {
 		return queryOkJSON( this.__apiPromise, this.__nativeContract, this.__callerAddress, "identitiesOf", [account], __options, (result) => { return handleReturnType(result, getTypeDescription(15, DATA_TYPE_DESCRIPTIONS)); });
 	}
 
+	/**
+	* hasAddressBook
+	*
+	* @returns { Result<boolean, ReturnTypes.LangError> }
+	*/
+	"hasAddressBook" (
+		__options: GasLimit,
+	): Promise< QueryReturnType< Result<boolean, ReturnTypes.LangError> > >{
+		return queryOkJSON( this.__apiPromise, this.__nativeContract, this.__callerAddress, "hasAddressBook", [], __options, (result) => { return handleReturnType(result, getTypeDescription(16, DATA_TYPE_DESCRIPTIONS)); });
+	}
+
 }
