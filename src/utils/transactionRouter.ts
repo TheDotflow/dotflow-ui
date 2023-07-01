@@ -1,5 +1,6 @@
 import { ApiPromise, WsProvider } from "@polkadot/api";
 import { KeyringPair } from "@polkadot/keyring/types";
+import { AccountType } from "../../types/types-arguments/identity";
 import IdentityContract from "../../types/contracts/identity";
 
 class TransactionRouter {
@@ -8,6 +9,7 @@ class TransactionRouter {
     sender: KeyringPair,
     originNetwork: number,
     receiver: Uint8Array,
+    receiverAccountType: AccountType,
     destinationNetwork: number,
     token: any,
     amount: number
@@ -26,6 +28,7 @@ class TransactionRouter {
         contract,
         sender,
         receiver,
+        receiverAccountType,
         originNetwork,
         token,
         amount
@@ -47,6 +50,7 @@ class TransactionRouter {
     contract: IdentityContract,
     sender: KeyringPair,
     receiver: Uint8Array,
+    receiverAccountType: AccountType,
     network: number,
     token: any,
     amount: number
@@ -58,7 +62,7 @@ class TransactionRouter {
       throw new Error("Failed to get chain info");
     }
 
-    const xcm = this.xcmTransferAssetMessage(receiver, token, amount);
+    const xcm = this.xcmTransferAssetMessage(receiver, receiverAccountType, token, amount);
 
     let xcmExecute;
 
@@ -72,6 +76,7 @@ class TransactionRouter {
 
     const hash = await xcmExecute.signAndSend(sender);
 
+    // TODO Remove the log:
     console.log("Transfer sent with hash", hash.toHex());
   }
 
@@ -86,9 +91,27 @@ class TransactionRouter {
 
   private static xcmTransferAssetMessage(
     receiverAddress: Uint8Array,
+    receiverAccountType: AccountType,
     multiAsset: any,
     amount: number
   ): any {
+    let receiverAccount;
+    if(receiverAccountType == AccountType.accountId32) {
+      receiverAccount = {
+        AccountId32: {
+          network: "Any",
+          id: receiverAddress,
+        }
+      };
+    }else if(receiverAccountType == AccountType.accountKey20){
+      receiverAccount = {
+        AccountKey20: {
+          network: "Any",
+          id: receiverAddress,
+        }
+      };
+    }
+
     const xcmMessage = {
       V2: [{
         TransferAsset: {
@@ -104,13 +127,7 @@ class TransactionRouter {
           ],
           beneficiary: {
             interior: {
-              X1: {
-                // TODO: Don't hardcode the account type.
-                AccountId32: {
-                  network: "Any",
-                  id: receiverAddress,
-                },
-              }
+              X1: receiverAccount
             },
             parents: 0
           }

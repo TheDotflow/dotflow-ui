@@ -43,6 +43,7 @@ describe("TransactionRouter",() => {
       sender,
       0, // origin network
       receiver.addressRaw,
+      AccountType.accountId32,
       0, // destination network
       {}, // multi asset
       1000
@@ -61,6 +62,7 @@ describe("TransactionRouter",() => {
       sender,
       0, // origin network
       receiver.addressRaw,
+      AccountType.accountId32,
       0, // destination network
       // MultiAsset:
       {
