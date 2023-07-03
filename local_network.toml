@@ -22,8 +22,10 @@ id = 1000
 cumulus_based = true
 
   [parachains.collator]
-  name = "parachain-A-1000-collator-01"
-  command = "../bin/parachain-template-node-v0.9.37"
+  ws_port = 4243
+  name = "statemine-collator-01"
+  command = "../bin/polkadot-parachain"
+  args = ["--log=xcm=trace,pallet-assets=trace"]
 
 [[parachains]]
 id = 1001
