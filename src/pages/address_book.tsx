@@ -4,14 +4,19 @@ import { useState } from 'react';
 
 import { CreateAddressBook, RemoveAddressBook } from '@/components/Buttons';
 import { IdentityCard } from '@/components/Cards';
-import { AddIdentityModal, EditNicknameModal } from '@/components/Modals';
+import {
+  AddIdentityModal,
+  EditNicknameModal,
+  ImportKeyModal,
+} from '@/components/Modals';
 
 import { useAddressBook } from '@/contracts/addressbook/context';
 
 const AddressBookPage = () => {
   const [identityModalOpen, showIdentityModal] = useState(false);
   const [editModalOpen, openEditModal] = useState(false);
-  const [identityNo, setIdentityNo] = useState<number | undefined>();
+  const [identityNo, setIdentityNo] = useState<number>(0);
+  const [keyModalOpen, openKeyModal] = useState(false);
 
   const { hasAddressBook, identities } = useAddressBook();
 
