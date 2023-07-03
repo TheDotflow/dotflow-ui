@@ -2,7 +2,7 @@ import AssetRegistry from "../src/utils/assetRegistry";
 
 describe("AssetRegistry", () => {
   test("Getting assets of Polkadot works", async () => {
-    const assets = await AssetRegistry.getAssetsOnBlockchain("polkadot");
+    const assets = await AssetRegistry.getAssetsOnBlockchain("polkadot", "polkadot");
 
     expect(assets).toStrictEqual([
       {
@@ -24,8 +24,31 @@ describe("AssetRegistry", () => {
     ]);
   });
 
+  test("Getting assets of Kusama works", async () => {
+    const assets = await AssetRegistry.getAssetsOnBlockchain("kusama", "kusama");
+
+    expect(assets).toStrictEqual([
+      {
+        asset: {
+          Token: "KSM",
+        },
+        name: "KSM",
+        symbol: "KSM",
+        decimals: 12,
+        xcmInteriorKey: [
+          {
+            network: "kusama",
+          },
+          "here",
+        ],
+        inferred: true,
+        confidence: 0,
+      },
+    ]);
+  });
+
   test("Getting assets on Acala works", async () => {
-    const assets = await AssetRegistry.getAssetsOnBlockchain("acala");
+    const assets = await AssetRegistry.getAssetsOnBlockchain("polkadot", "acala");
 
     expect(assets).toStrictEqual([
       {

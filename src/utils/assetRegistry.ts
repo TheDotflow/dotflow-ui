@@ -13,11 +13,17 @@ type Asset = {
 const xcmGAR = "https://cdn.jsdelivr.net/gh/colorfulnotion/xcm-global-registry/metadata/xcmgar_url.json";
 
 class AssetRegistry {
-  public static async getAssetsOnBlockchain(chain: string): Promise<Asset[]> {
+  public static async getAssetsOnBlockchain(network: "polkadot" | "kusama", chain: string): Promise<Asset[]> {
     const blockchains = (await axios.get(xcmGAR)).data;
 
-    // TODO: Don't hardcode the polkadot network.
-    const blockchain = blockchains.assets.polkadot.find((b:any) => b.id.toLowerCase() == chain.toLowerCase());
+    let blockchain;
+
+    if(network == "polkadot") {
+      blockchain = blockchains.assets.polkadot.find((b:any) => b.id.toLowerCase() == chain.toLowerCase());
+    }else if(network == "kusama") {
+      blockchain = blockchains.assets.kusama.find((b:any) => b.id.toLowerCase() == chain.toLowerCase());
+    }
+
     if(!blockchain) {
       throw new Error("Blockchain not found");
     }
