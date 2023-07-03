@@ -5,7 +5,7 @@ type Asset = {
   name: string,
   symbol: string,
   decimals: number,
-  xcmInteriorKey?: string,
+  xcmInteriorKey?: any,
   inferred: boolean,
   confidence: number
 };
@@ -16,7 +16,8 @@ class AssetRegistry {
   public static async getAssetsOnBlockchain(chain: string): Promise<Asset[]> {
     const blockchains = (await axios.get(xcmGAR)).data;
 
-    const blockchain = blockchains.find((b:any) => b.id == chain);
+    // TODO: Don't hardcode the polkadot network.
+    const blockchain = blockchains.assets.polkadot.find((b:any) => b.id.toLowerCase() == chain.toLowerCase());
     if(!blockchain) {
       throw new Error("Blockchain not found");
     }
@@ -24,6 +25,12 @@ class AssetRegistry {
     const assetsUrl = blockchain.url;
 
     const assets: Asset[] = (await axios.get(assetsUrl)).data;
+    assets.map((asset) => {
+      if(asset.xcmInteriorKey) {
+        asset.xcmInteriorKey = JSON.parse(asset.xcmInteriorKey);
+        console.log(asset.xcmInteriorKey);
+      }
+    });
 
     return assets;
   }
