@@ -25,11 +25,9 @@ class TransactionRouter {
 
       await this.sendOnSameBlockchain(
         api,
-        contract,
         sender,
         receiver,
         receiverAccountType,
-        originNetwork,
         token,
         amount
       );
@@ -47,11 +45,9 @@ class TransactionRouter {
 
   private static async sendOnSameBlockchain(
     api: ApiPromise,
-    contract: IdentityContract,
     sender: KeyringPair,
     receiver: Uint8Array,
     receiverAccountType: AccountType,
-    network: number,
     token: any,
     amount: number
   ): Promise<void> {
@@ -67,9 +63,10 @@ class TransactionRouter {
     let xcmExecute;
 
     if (api.tx.xcmPallet) {
-      xcmExecute = api.tx.xcmPallet.execute(xcm, 0);
+      // TODO: don't hardcode the max weight.
+      xcmExecute = api.tx.xcmPallet.execute(xcm, 3000000000);
     } else if (api.tx.polkadotXcm) {
-      xcmExecute = api.tx.polkadotXcm.execute(xcm, 0);
+      xcmExecute = api.tx.polkadotXcm.execute(xcm, 3000000000);
     } else {
       throw new Error("The blockchain does not support XCM");
     }

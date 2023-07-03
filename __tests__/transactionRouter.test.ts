@@ -36,7 +36,6 @@ describe("TransactionRouter",() => {
     // First lets add a network and create an identity.
 
     await addNetwork(identityContract, alice, { rpcUrl: "ws://127.0.0.1:9944", accountType: AccountType.accountId32 });
-    //const receiverIdentityNo = await createIdentityWithData(identityContract, receiver);
 
     await expect(TransactionRouter.sendTokens(
       identityContract,
@@ -54,8 +53,16 @@ describe("TransactionRouter",() => {
     const sender = alice;
     const receiver = bob;
 
+    const rococoApi = await ApiPromise.create({ provider: wsProvider });
+
+    // @ts-ignore
+    var { data: balance } = await rococoApi.query.system.account(receiver.address);
+    const receiverBalance = parseInt(balance.free.toHuman().replace(/,/g, ''));
+
     // First lets add a network.
-    await addNetwork(identityContract, alice, { rpcUrl: "ws://127.0.0.1:50941", accountType: AccountType.accountId32 });
+    await addNetwork(identityContract, alice, { rpcUrl: "ws://127.0.0.1:62735", accountType: AccountType.accountId32 });
+
+    const amount = Math.pow(10, 12);
 
     await TransactionRouter.sendTokens(
       identityContract,
@@ -69,32 +76,19 @@ describe("TransactionRouter",() => {
         interior: "Here",
         parents: 0
       },
-      1 * Math.pow(10, 12)
+      amount
     );
-  });
+
+    // @ts-ignore
+    var { data: balance } = await rococoApi.query.system.account(receiver.address);
+    const newReceiverBalance = parseInt(balance.free.toHuman().replace(/,/g, ''));
+
+    expect(newReceiverBalance).toBe(receiverBalance + amount);
+  }, 10000);
 });
 
 const addNetwork = async (contract: IdentityContract, signer: KeyringPair, network: NetworkInfo): Promise<void> => {
   const _addNetworkResult = await contract
     .withSigner(signer)
     .tx.addNetwork(network);
-}
-
-const createIdentityWithData = async (contract: IdentityContract, signer: KeyringPair): Promise<number> => {
-  const _createIdentityResult = (await contract
-    .withSigner(signer)
-    .tx.createIdentity());
-  
-  const identityNo = (await contract
-    .withSigner(signer)
-    .query.identityOf(signer.address)).value.ok;
-  
-  if(identityNo != null) {
-    const _addAddressResult = (await contract
-      .withSigner(signer)
-      .tx.addAddress(0, signer.address));
-
-    return identityNo;
-  }
-  throw new Error("Failed to get identity no");
 }
