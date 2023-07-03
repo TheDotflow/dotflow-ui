@@ -37,7 +37,7 @@ export const Sidebar = () => {
     },
     {
       label: 'Address Book',
-      route: '/address',
+      route: '/address_book',
       icon: <ContactsIcon />,
     },
     {
