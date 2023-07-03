@@ -1,5 +1,5 @@
 [relaychain]
-default_command = "../bin/polkadot-v0.9.37"
+default_command = "./bin/polkadot-v0.9.37"
 default_args = [ "-lparachain=debug" ]
 
 chain = "rococo-local"
@@ -24,5 +24,5 @@ cumulus_based = true
   [parachains.collator]
   ws_port = 4243
   name = "statemine-collator-01"
-  command = "../bin/polkadot-parachain"
+  command = "./bin/polkadot-parachain"
   args = ["--log=xcm=trace,pallet-assets=trace"]

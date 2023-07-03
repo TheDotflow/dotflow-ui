@@ -38,3 +38,6 @@ package-lock.json
 
 # typescript
 *.tsbuildinfo
+
+# zombienet
+bin/
