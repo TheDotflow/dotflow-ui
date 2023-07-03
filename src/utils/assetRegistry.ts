@@ -34,7 +34,6 @@ class AssetRegistry {
     assets.map((asset) => {
       if(asset.xcmInteriorKey) {
         asset.xcmInteriorKey = JSON.parse(asset.xcmInteriorKey);
-        console.log(asset.xcmInteriorKey);
       }
     });
 
