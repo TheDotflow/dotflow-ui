@@ -5,6 +5,7 @@ default_args = [ "-lparachain=debug" ]
 chain = "rococo-local"
   # relaychain nodes are by default validators
   [[relaychain.nodes]]
+  ws_port = 4242
   name = "alice"
 
   [[relaychain.nodes]]

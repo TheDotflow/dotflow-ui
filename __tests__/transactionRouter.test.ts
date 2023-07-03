@@ -35,7 +35,7 @@ describe("TransactionRouter",() => {
 
     // First lets add a network and create an identity.
 
-    await addNetwork(identityContract, alice, { rpcUrl: "ws://127.0.0.1:9944", accountType: AccountType.accountId32 });
+    await addNetwork(identityContract, alice, { rpcUrl: "ws://127.0.0.1:4242", accountType: AccountType.accountId32 });
 
     await expect(TransactionRouter.sendTokens(
       identityContract,
@@ -60,7 +60,7 @@ describe("TransactionRouter",() => {
     const receiverBalance = parseInt(balance.free.toHuman().replace(/,/g, ''));
 
     // First lets add a network.
-    await addNetwork(identityContract, alice, { rpcUrl: "ws://127.0.0.1:62735", accountType: AccountType.accountId32 });
+    await addNetwork(identityContract, alice, { rpcUrl: "ws://127.0.0.1:4242", accountType: AccountType.accountId32 });
 
     const amount = Math.pow(10, 12);
 
