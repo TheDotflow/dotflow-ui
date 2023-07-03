@@ -26,11 +26,3 @@ cumulus_based = true
   name = "statemine-collator-01"
   command = "../bin/polkadot-parachain"
   args = ["--log=xcm=trace,pallet-assets=trace"]
-
-[[parachains]]
-id = 1001
-cumulus_based = true
-
-  [parachains.collator]
-  name = "parachain-B-1001-collator-01"
-  command = "../bin/parachain-template-node-v0.9.37"
