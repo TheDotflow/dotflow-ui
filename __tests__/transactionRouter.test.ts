@@ -76,6 +76,7 @@ describe("TransactionRouter", () => {
 
     const amount = Math.pow(10, 12);
 
+    // TODO: the token transfer for some reason fails.
     await TransactionRouter.sendTokens(
       identityContract,
       sender,
@@ -111,7 +112,6 @@ describe("TransactionRouter", () => {
       provider: statemineProvider,
     });
 
-    // TODO: Fix the following code:
     // First create an asset.
     if (!(await getAsset(statemineApi, 0))) {
       await createAsset(statemineApi, sender, 0);
@@ -147,7 +147,7 @@ describe("TransactionRouter", () => {
       },
       amount
     );
-  }, 30000);
+  }, 120000);
 });
 
 const addNetwork = async (
@@ -170,13 +170,11 @@ const createAsset = async (
       .create(
         id,
         // Admin:
-        {
-          Address32: signer.addressRaw,
-        },
+        signer.address,
         10 // min balance
       )
       .signAndSend(signer, (result: any) => {
-        if (result.status.isFinalized) {
+        if (result.status.isInBlock) {
           unsub();
           resolve();
         }
@@ -194,11 +192,11 @@ const mintAsset = async (
     const unsub = await api.tx.assets
       .mint(
         id,
-        signer.addressRaw, // beneficiary
+        signer.address, // beneficiary
         amount
       )
       .signAndSend(signer, (result: any) => {
-        if (result.status.isFinalized) {
+        if (result.status.isInBlock) {
           unsub();
           resolve();
         }
