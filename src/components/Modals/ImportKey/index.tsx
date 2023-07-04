@@ -8,21 +8,43 @@ import {
   FormLabel,
   TextField,
 } from '@mui/material';
-import { useState } from 'react';
+import { useConfirm } from 'material-ui-confirm';
+import { useEffect, useState } from 'react';
 
-import { LOCAL_STORAGE_KEY } from '@/consts';
+import KeyStore from '@/utils/keyStore';
+
+import { useToast } from '@/contexts/Toast';
 
 interface ImportKeyModalProps {
   open: boolean;
   onClose: () => void;
+  identityNo: number | null;
 }
-export const ImportKeyModal = ({ open, onClose }: ImportKeyModalProps) => {
+export const ImportKeyModal = ({
+  open,
+  onClose,
+  identityNo,
+}: ImportKeyModalProps) => {
   const [identityKey, setIdentityKey] = useState<string>('');
+  const { toastError, toastSuccess } = useToast();
+  const confirm = useConfirm();
 
   const onImport = () => {
-    localStorage.setItem(LOCAL_STORAGE_KEY, identityKey);
-    onClose();
+    if (identityNo === null) {
+      toastError("You don't have an identity yet.");
+      return;
+    }
+    confirm({
+      description:
+        'This operation updates the identity key and you might lose access to your addresses.',
+    }).then(() => {
+      KeyStore.updateIdentityKey(identityNo, identityKey);
+      toastSuccess('Successfully imported identity key.');
+      onClose();
+    });
   };
+
+  useEffect(() => setIdentityKey(''), [open]);
 
   return (
     <Dialog open={open} onClose={onClose}>
@@ -34,9 +56,6 @@ export const ImportKeyModal = ({ open, onClose }: ImportKeyModalProps) => {
               <FormLabel>Identity Key</FormLabel>
               <TextField
                 placeholder='Enter identity key'
-                inputProps={{
-                  maxLength: 64,
-                }}
                 required
                 value={identityKey}
                 onChange={(e) => setIdentityKey(e.target.value)}

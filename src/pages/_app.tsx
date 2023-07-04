@@ -16,6 +16,7 @@ import { Layout } from '@/components/Layout';
 
 import { ToastProvider } from '@/contexts/Toast';
 import { IdentityContractProvider } from '@/contracts';
+import { AddressBookContractProvider } from '@/contracts/addressbook/context';
 
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
@@ -46,11 +47,13 @@ export default function MyApp(props: MyAppProps) {
           defaultChain={shibuya}
         >
           <IdentityContractProvider>
-            <ToastProvider>
-              <ConfirmProvider>
-                {getLayout(<Component {...pageProps} />)}
-              </ConfirmProvider>
-            </ToastProvider>
+            <AddressBookContractProvider>
+              <ToastProvider>
+                <ConfirmProvider>
+                  {getLayout(<Component {...pageProps} />)}
+                </ConfirmProvider>
+              </ToastProvider>
+            </AddressBookContractProvider>
           </IdentityContractProvider>
         </UseInkathonProvider>
       </ThemeProvider>

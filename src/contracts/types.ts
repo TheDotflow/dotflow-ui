@@ -18,3 +18,8 @@ export type Address = {
 export type Networks = Record<NetworkId, NetworkInfo>;
 
 export type IdentityNo = number | null;
+
+export type IdentityRecord = {
+  nickName: null | string;
+  identityNo: number;
+}
