@@ -1,7 +1,8 @@
 import { ApiPromise, WsProvider } from "@polkadot/api";
 import { KeyringPair } from "@polkadot/keyring/types";
-import { AccountType } from "../../types/types-arguments/identity";
+
 import IdentityContract from "../../types/contracts/identity";
+import { AccountType } from "../../types/types-arguments/identity";
 
 class TransactionRouter {
   public static async sendTokens(
@@ -71,6 +72,7 @@ class TransactionRouter {
       throw new Error("The blockchain does not support XCM");
     }
 
+    // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve) => {
       const unsub = await xcmExecute.signAndSend(sender, (result: any) => {
         if (result.status.isFinalized) {
