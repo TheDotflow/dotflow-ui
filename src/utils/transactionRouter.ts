@@ -19,7 +19,9 @@ class TransactionRouter {
     }
 
     if (originNetwork == destinationNetwork) {
-      const rpcUrl = (await contract.query.networkInfoOf(originNetwork)).value.ok?.rpcUrl;
+      const rpcUrl = (await contract.query.networkInfoOf(originNetwork)).value
+        .ok?.rpcUrl;
+
       const wsProvider = new WsProvider(rpcUrl);
       const api = await ApiPromise.create({ provider: wsProvider });
 
@@ -32,7 +34,7 @@ class TransactionRouter {
         amount
       );
     } else {
-      await this.sendViaXcm(
+      await this.sendCrossChain(
         sender,
         originNetwork,
         receiver,
@@ -58,7 +60,12 @@ class TransactionRouter {
       throw new Error("Failed to get chain info");
     }
 
-    const xcm = this.xcmTransferAssetMessage(receiver, receiverAccountType, token, amount);
+    const xcm = this.xcmTransferAssetMessage(
+      receiver,
+      receiverAccountType,
+      token,
+      amount
+    );
 
     let xcmExecute;
 
@@ -77,7 +84,7 @@ class TransactionRouter {
     console.log("Transfer sent with hash", hash.toHex());
   }
 
-  private static sendViaXcm(
+  private static async sendCrossChain(
     sender: KeyringPair,
     originNetwork: number,
     receiver: Uint8Array,
@@ -93,43 +100,45 @@ class TransactionRouter {
     amount: number
   ): any {
     let receiverAccount;
-    if(receiverAccountType == AccountType.accountId32) {
+    if (receiverAccountType == AccountType.accountId32) {
       receiverAccount = {
         AccountId32: {
           network: "Any",
           id: receiverAddress,
-        }
+        },
       };
-    }else if(receiverAccountType == AccountType.accountKey20){
+    } else if (receiverAccountType == AccountType.accountKey20) {
       receiverAccount = {
         AccountKey20: {
           network: "Any",
           id: receiverAddress,
-        }
+        },
       };
     }
 
     const xcmMessage = {
-      V2: [{
-        TransferAsset: {
-          assets: [
-            {
-              fun: {
-                Fungible: amount
+      V2: [
+        {
+          TransferAsset: {
+            assets: [
+              {
+                fun: {
+                  Fungible: amount,
+                },
+                id: {
+                  Concrete: multiAsset,
+                },
               },
-              id: {
-                Concrete: multiAsset
-              }
-            }
-          ],
-          beneficiary: {
-            interior: {
-              X1: receiverAccount
+            ],
+            beneficiary: {
+              interior: {
+                X1: receiverAccount,
+              },
+              parents: 0,
             },
-            parents: 0
-          }
+          },
         },
-      }]
+      ],
     };
     return xcmMessage;
   }
