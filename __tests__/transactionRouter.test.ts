@@ -107,18 +107,18 @@ describe("TransactionRouter", () => {
     const sender = alice;
     const receiver = bob;
 
-    const statemineProvider = new WsProvider("ws://127.0.0.1:4243");
-    const statemineApi = await ApiPromise.create({
-      provider: statemineProvider,
+    const assetHubProvider = new WsProvider("ws://127.0.0.1:4243");
+    const assetHubApi = await ApiPromise.create({
+      provider: assetHubProvider,
     });
 
     // First create an asset.
-    if (!(await getAsset(statemineApi, 0))) {
-      await createAsset(statemineApi, sender, 0);
+    if (!(await getAsset(assetHubApi, 0))) {
+      await createAsset(assetHubApi, sender, 0);
     }
 
     // Mint some assets to the creator.
-    await mintAsset(statemineApi, sender, 0, 500);
+    await mintAsset(assetHubApi, sender, 0, 500);
 
     const amount = 10000;
 

@@ -34,14 +34,7 @@ class TransactionRouter {
         amount
       );
     } else {
-      await this.sendCrossChain(
-        sender,
-        originNetwork,
-        receiver,
-        destinationNetwork,
-        token,
-        amount
-      );
+      // Send cross-chain.
     }
   }
 
@@ -87,15 +80,6 @@ class TransactionRouter {
       })
     });
   }
-
-  private static async sendCrossChain(
-    _sender: KeyringPair,
-    _originNetwork: number,
-    _receiver: Uint8Array,
-    _destinationNetwork: number,
-    _token: string,
-    _amount: number
-  ) {}
 
   private static xcmTransferAssetMessage(
     receiverAddress: Uint8Array,
