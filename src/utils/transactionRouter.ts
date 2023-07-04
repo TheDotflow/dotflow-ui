@@ -67,7 +67,7 @@ class TransactionRouter {
       amount
     );
 
-    let xcmExecute;
+    let xcmExecute: any;
 
     if (api.tx.xcmPallet) {
       // TODO: don't hardcode the max weight.
@@ -78,19 +78,23 @@ class TransactionRouter {
       throw new Error("The blockchain does not support XCM");
     }
 
-    const hash = await xcmExecute.signAndSend(sender);
-
-    // TODO Remove the log:
-    console.log("Transfer sent with hash", hash.toHex());
+    return new Promise(async (resolve) => {
+      const unsub = await xcmExecute.signAndSend(sender, (result: any) => {
+        if (result.status.isFinalized) {
+          unsub();
+          resolve();
+        }
+      })
+    });
   }
 
   private static async sendCrossChain(
-    sender: KeyringPair,
-    originNetwork: number,
-    receiver: Uint8Array,
-    destinationNetwork: number,
-    token: string,
-    amount: number
+    _sender: KeyringPair,
+    _originNetwork: number,
+    _receiver: Uint8Array,
+    _destinationNetwork: number,
+    _token: string,
+    _amount: number
   ) {}
 
   private static xcmTransferAssetMessage(
