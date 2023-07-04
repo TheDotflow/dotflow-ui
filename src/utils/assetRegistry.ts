@@ -34,6 +34,31 @@ class AssetRegistry {
 
     return assets;
   }
+
+  public static async isSupportedOnBothChains(network: "polkadot" | "kusama", chainA: string, chainB: string, asset: any): Promise<boolean> {
+    const foundOnChainA = await this.isSupportedOnChain(network, chainA, asset);
+    const foundOnChainB = await this.isSupportedOnChain(network, chainB, asset);
+
+    return foundOnChainA && foundOnChainB;
+  }
+
+  public static async isSupportedOnChain(network: "polkadot" | "kusama", chain: string, asset: any): Promise<boolean> { 
+    const assets = await this.getAssetsOnBlockchain(network, chain);
+
+    const found = assets.find((el: any) => {
+      if(el.xcmInteriorKey) {
+        const junctions = el.xcmInteriorKey;
+
+        if(JSON.stringify(junctions) == JSON.stringify(asset)) {
+          return true;
+        }
+      }
+    });
+
+    if(found) return true;
+
+    return false
+  }
 }
 
 export default AssetRegistry;
