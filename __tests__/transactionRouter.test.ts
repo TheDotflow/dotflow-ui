@@ -59,11 +59,11 @@ describe("TransactionRouter", () => {
     const sender = alice;
     const receiver = bob;
 
-    const rococoProvider = new WsProvider("ws://127.0.0.1:4242");
-    const rococoApi = await ApiPromise.create({ provider: rococoProvider });
+    const westendProvider = new WsProvider("ws://127.0.0.1:4242");
+    const westendApi = await ApiPromise.create({ provider: westendProvider });
 
     // @ts-ignore
-    var { data: balance } = await rococoApi.query.system.account(
+    var { data: balance } = await westendApi.query.system.account(
       receiver.address
     );
     const receiverBalance = parseInt(balance.free.toHuman().replace(/,/g, ""));
@@ -93,7 +93,7 @@ describe("TransactionRouter", () => {
     );
 
     // @ts-ignore
-    var { data: balance } = await rococoApi.query.system.account(
+    var { data: balance } = await westendApi.query.system.account(
       receiver.address
     );
     const newReceiverBalance = parseInt(
@@ -122,6 +122,20 @@ describe("TransactionRouter", () => {
 
     const amount = 200;
 
+    const senderAccountBefore: any = (await assetHubApi.query.assets.account(
+      0,
+      sender.address
+    )).toHuman();
+
+    const senderBalanceBefore = parseInt(senderAccountBefore.balance.replace(/,/g, ""));
+
+    const receiverAccountBefore: any = (await assetHubApi.query.assets.account(
+      0,
+      receiver.address
+    )).toHuman();
+
+    const receiverBalanceBefore = parseInt(receiverAccountBefore.balance.replace(/,/g, ""));
+
     // First lets add a network.
     await addNetwork(identityContract, alice, {
       rpcUrl: "ws://127.0.0.1:4243",
@@ -147,6 +161,24 @@ describe("TransactionRouter", () => {
       },
       amount
     );
+
+    const senderAccountAfter: any = (await assetHubApi.query.assets.account(
+      0,
+      sender.address
+    )).toHuman();
+
+    const senderBalanceAfter = parseInt(senderAccountAfter.balance.replace(/,/g, ""));
+
+    const receiverAccountAfter: any = (await assetHubApi.query.assets.account(
+      0,
+      receiver.address
+    )).toHuman();
+
+    const receiverBalanceAfter = parseInt(receiverAccountAfter.balance.replace(/,/g, ""));
+
+    expect(senderBalanceAfter).toBe(senderBalanceBefore - amount);
+    expect(receiverBalanceAfter).toBe(receiverBalanceBefore + amount);
+ 
   }, 120000);
 });
 
