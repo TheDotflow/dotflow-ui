@@ -120,7 +120,7 @@ describe("TransactionRouter", () => {
     // Mint some assets to the creator.
     await mintAsset(assetHubApi, sender, 0, 500);
 
-    const amount = 10000;
+    const amount = 200;
 
     // First lets add a network.
     await addNetwork(identityContract, alice, {

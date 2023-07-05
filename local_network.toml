@@ -2,7 +2,7 @@
 default_command = "./bin/polkadot-v0.9.37"
 default_args = [ "-lparachain=debug" ]
 
-chain = "rococo-local"
+chain = "wococo-local"
   # relaychain nodes are by default validators
   [[relaychain.nodes]]
   ws_port = 4242
@@ -19,10 +19,11 @@ chain = "rococo-local"
 
 [[parachains]]
 id = 1000
+chain = "westmint-local"
 cumulus_based = true
 
   [parachains.collator]
   ws_port = 4243
-  name = "statemine-collator-01"
+  name = "westmint-collator-01"
   command = "./bin/polkadot-parachain"
   args = ["--log=xcm=trace,pallet-assets=trace"]
