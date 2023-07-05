@@ -76,7 +76,6 @@ describe("TransactionRouter", () => {
 
     const amount = Math.pow(10, 12);
 
-    // TODO: the token transfer for some reason fails.
     await TransactionRouter.sendTokens(
       identityContract,
       sender,
