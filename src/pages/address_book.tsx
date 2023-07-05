@@ -54,7 +54,7 @@ const AddressBookPage = () => {
       </Box>
       {!hasAddressBook ? (
         <Typography variant='h5'>
-          {"You don't have an identity yet."}
+          {"You don't have an address book yet."}
         </Typography>
       ) : (
         <>
