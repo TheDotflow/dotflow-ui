@@ -1,7 +1,14 @@
 import AddIcon from '@mui/icons-material/Add';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ShareIcon from '@mui/icons-material/Share';
-import { Box, Button, Grid, Typography } from '@mui/material';
+import {
+  Backdrop,
+  Box,
+  Button,
+  CircularProgress,
+  Grid,
+  Typography,
+} from '@mui/material';
 import { useState } from 'react';
 
 import { CreateIdentity, RemoveIdentity } from '@/components/Buttons';
@@ -16,7 +23,7 @@ import {
 import { useIdentity } from '@/contracts';
 
 const IdentityPage = () => {
-  const { identityNo, addresses, fetchAddresses } = useIdentity();
+  const { identityNo, addresses, fetchAddresses, loading } = useIdentity();
 
   const [newAddrModal, openAddAddr] = useState(false);
 
@@ -97,6 +104,12 @@ const IdentityPage = () => {
           </Grid>
         </>
       )}
+      <Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={loading}
+      >
+        <CircularProgress color='inherit' />
+      </Backdrop>
       <AddAddressModal
         open={newAddrModal}
         onClose={() => {
