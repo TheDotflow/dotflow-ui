@@ -41,21 +41,21 @@ export default function MyApp(props: MyAppProps) {
       <ThemeProvider theme={theme}>
         {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
         <CssBaseline />
-        <UseInkathonProvider
-          appName='DotFlow UI'
-          connectOnInit={false}
-          defaultChain={shibuya}
-        >
-          <IdentityContractProvider>
-            <AddressBookContractProvider>
-              <ToastProvider>
+        <ToastProvider>
+          <UseInkathonProvider
+            appName='DotFlow UI'
+            connectOnInit={false}
+            defaultChain={shibuya}
+          >
+            <IdentityContractProvider>
+              <AddressBookContractProvider>
                 <ConfirmProvider>
                   {getLayout(<Component {...pageProps} />)}
                 </ConfirmProvider>
-              </ToastProvider>
-            </AddressBookContractProvider>
-          </IdentityContractProvider>
-        </UseInkathonProvider>
+              </AddressBookContractProvider>
+            </IdentityContractProvider>
+          </UseInkathonProvider>
+        </ToastProvider>
       </ThemeProvider>
     </CacheProvider>
   );

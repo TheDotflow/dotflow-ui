@@ -1,8 +1,15 @@
 export type NetworkId = number;
 
-export type NetworkInfo = {
+export type AccountType = 'AccountId32' | 'AccountId20';
+
+export type NetworkConsts = {
   name: string;
   ss58Prefix: number;
+}
+
+export type NetworkInfo = NetworkConsts & {
+  rpcUrl: string;
+  accountType: AccountType;
 }
 
 export type Network = {
