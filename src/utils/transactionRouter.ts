@@ -6,21 +6,22 @@ import { AccountType } from "../../types/types-arguments/identity";
 
 class TransactionRouter {
   public static async sendTokens(
-    contract: IdentityContract,
+    identityContract: IdentityContract,
     sender: KeyringPair,
-    originNetwork: number,
+    originNetworkId: number,
     receiver: Uint8Array,
     receiverAccountType: AccountType,
-    destinationNetwork: number,
-    token: any,
+    destinationNetworkId: number,
+    multiAsset: any,
     amount: number
-  ): Promise<any> {
-    if (originNetwork == destinationNetwork && sender.addressRaw == receiver) {
+  ): Promise<void> {
+    if (originNetworkId == destinationNetworkId && sender.addressRaw == receiver) {
       throw new Error("Cannot send tokens to yourself");
     }
 
-    if (originNetwork == destinationNetwork) {
-      const rpcUrl = (await contract.query.networkInfoOf(originNetwork)).value
+    if (originNetworkId == destinationNetworkId) {
+      // We will extract all the chain information from the RPC node.
+      const rpcUrl = (await identityContract.query.networkInfoOf(originNetworkId)).value
         .ok?.rpcUrl;
 
       const wsProvider = new WsProvider(rpcUrl);
@@ -31,7 +32,7 @@ class TransactionRouter {
         sender,
         receiver,
         receiverAccountType,
-        token,
+        multiAsset,
         amount
       );
     } else {
@@ -44,10 +45,15 @@ class TransactionRouter {
     sender: KeyringPair,
     receiver: Uint8Array,
     receiverAccountType: AccountType,
-    token: any,
+    multiAsset: any,
     amount: number
   ): Promise<void> {
-    // Just a simple transfer.
+    // We use XCM even for transfers that are occurring on the same chain. The
+    // reason for this is that we cannot know what is the pallet and function
+    // for transferring tokens since it can be different on each chain. For that
+    // reason we will use the XCM `TransferAsset` instruction which is
+    // standardized and as far as the chain has an XCM executor the transaction
+    // will be executed correctly.
 
     const chainInfo = await api.registry.getChainProperties();
     if (!chainInfo) {
@@ -57,7 +63,7 @@ class TransactionRouter {
     const xcm = this.xcmTransferAssetMessage(
       receiver,
       receiverAccountType,
-      token,
+      multiAsset,
       amount
     );
 
@@ -83,6 +89,8 @@ class TransactionRouter {
     });
   }
 
+  // Constructs a `TransferAsset` XCM message that will be executed when sending
+  // tokens on the same chain.
   private static xcmTransferAssetMessage(
     receiverAddress: Uint8Array,
     receiverAccountType: AccountType,

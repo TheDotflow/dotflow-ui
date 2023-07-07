@@ -133,7 +133,7 @@ describe("TransactionRouter", () => {
       receiver.address
     )).toHuman();
 
-    const receiverBalanceBefore = parseInt(receiverAccountBefore.balance.replace(/,/g, ""));
+    const receiverBalanceBefore = receiverAccountBefore? parseInt(receiverAccountBefore.balance.replace(/,/g, "")) : 0;
 
     // First lets add a network.
     await addNetwork(identityContract, alice, {
