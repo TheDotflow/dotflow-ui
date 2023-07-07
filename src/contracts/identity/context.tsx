@@ -196,7 +196,7 @@ const IdentityContractProvider = ({ children }: Props) => {
       setLoading(false);
     };
     init();
-  }, [api, contract]);
+  }, [fetchIdentityNo, fetchNetworks]);
 
   return (
     <IdentityContext.Provider

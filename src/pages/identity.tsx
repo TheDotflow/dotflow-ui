@@ -81,12 +81,12 @@ const IdentityPage = () => {
           </Box>
         )}
       </Box>
-      {identityNo === null ? (
-        <Typography variant='h5'>
-          {"You don't have an identity yet."}
-        </Typography>
-      ) : (
-        !loading && (
+      {!loading &&
+        (identityNo === null ? (
+          <Typography variant='h5'>
+            {"You don't have an identity yet."}
+          </Typography>
+        ) : (
           <>
             <Typography className='section-header'>{`Wallet Addresses(${addresses.length})`}</Typography>
             <Grid container spacing={2} sx={{ mt: '12px' }}>
@@ -130,8 +130,7 @@ const IdentityPage = () => {
               onClose={() => openShareModal(false)}
             />
           </>
-        )
-      )}
+        ))}
       <Backdrop
         sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={loading}
