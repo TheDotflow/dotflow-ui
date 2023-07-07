@@ -70,10 +70,33 @@ class TransactionRouter {
     let xcmExecute: any;
 
     if (api.tx.xcmPallet) {
+      const paymentInfo = (await api.tx.xcmPallet
+        .execute(xcm, 0)
+        .paymentInfo(sender)).toHuman();
+
+      if(!paymentInfo || !paymentInfo.weight) {
+        throw new Error("Couldn't estimate transaction fee");
+      }
+
+      // @ts-ignore
+      const xcmMaxRefTime = parseInt(paymentInfo.weight.refTime.replace(/,/g, ""));
+
       // TODO: don't hardcode the max weight.
-      xcmExecute = api.tx.xcmPallet.execute(xcm, 3000000000);
+      xcmExecute = api.tx.xcmPallet.execute(xcm, xcmMaxRefTime * 10);
     } else if (api.tx.polkadotXcm) {
-      xcmExecute = api.tx.polkadotXcm.execute(xcm, 3000000000);
+      const paymentInfo = (await api.tx.polkadotXcm
+        .execute(xcm, 0)
+        .paymentInfo(sender)).toHuman();
+      
+      if(!paymentInfo || !paymentInfo.weight) {
+        throw new Error("Couldn't estimate transaction fee");
+      }
+
+      // @ts-ignore
+      const xcmMaxRefTime = parseInt(paymentInfo.weight.refTime.replace(/,/g, ""));
+
+      // TODO: don't hardcode the max weight.
+      xcmExecute = api.tx.polkadotXcm.execute(xcm, xcmMaxRefTime * 10);
     } else {
       throw new Error("The blockchain does not support XCM");
     }
