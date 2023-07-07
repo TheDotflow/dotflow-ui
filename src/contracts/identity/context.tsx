@@ -73,7 +73,6 @@ const IdentityContractProvider = ({ children }: Props) => {
       return;
     }
     try {
-      setLoading(true);
       const result = await contractQuery(api, '', contract, 'identity_of', {}, [
         activeAccount.address,
       ]);
@@ -87,8 +86,6 @@ const IdentityContractProvider = ({ children }: Props) => {
       else setIdentityNo(Number(output));
     } catch (e) {
       setIdentityNo(null);
-    } finally {
-      setLoading(false);
     }
   }, [activeAccount, api, contract]);
 
@@ -122,7 +119,6 @@ const IdentityContractProvider = ({ children }: Props) => {
     };
 
     try {
-      setLoading(true);
       const result = await contractQuery(
         api,
         '',
@@ -153,8 +149,6 @@ const IdentityContractProvider = ({ children }: Props) => {
       setNetworks(_networks);
     } catch (e: any) {
       toastError(e.toString());
-    } finally {
-      setLoading(false);
     }
   }, [api, contract, toastError]);
 
@@ -195,20 +189,14 @@ const IdentityContractProvider = ({ children }: Props) => {
   }, [api, contract, identityNo, fetchAddresses]);
 
   useEffect(() => {
-    void fetchNetworks();
-  }, [api, contract, fetchNetworks]);
-
-  useEffect(() => {
-    void fetchIdentityNo();
-  }, [activeAccount, api, contract, fetchIdentityNo]);
-
-  useEffect(() => {
-    void fetchNetworks();
-  }, [api, contract, fetchNetworks]);
-
-  useEffect(() => {
-    void fetchIdentityNo();
-  }, [activeAccount, api, contract, fetchIdentityNo]);
+    const init = async () => {
+      setLoading(true);
+      await fetchIdentityNo();
+      await fetchNetworks();
+      setLoading(false);
+    };
+    init();
+  }, [api, contract]);
 
   return (
     <IdentityContext.Provider
