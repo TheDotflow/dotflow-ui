@@ -47,6 +47,47 @@ describe("AssetRegistry", () => {
     ]);
   });
 
+  test("xcmInteriorKey to MultiAsset works", () => {
+    const ksmXcmInteriorKey = [
+      {
+        network: "kusama",
+      },
+      "here",
+    ];
+  
+    expect(
+      AssetRegistry.xcmInteriorToMultiAsset(ksmXcmInteriorKey, false),
+    ).toStrictEqual({
+      parents: 0,
+      interior: "Here",
+    });
+  
+    expect(
+      AssetRegistry.xcmInteriorToMultiAsset(ksmXcmInteriorKey, true),
+    ).toStrictEqual({
+      parents: 1,
+      interior: "Here",
+    });
+
+    const usdcXcmInteriorKey = [
+      { network: "polkadot" },
+      { parachain: 2000 },
+      { generalKey: "0x0207df96d1341a7d16ba1ad431e2c847d978bc2bce" },
+    ];
+
+    expect(
+      AssetRegistry.xcmInteriorToMultiAsset(usdcXcmInteriorKey, false),
+    ).toStrictEqual({
+      parents: 0,
+      interior: {
+        X2: [
+          { parachain: 2000 },
+          { generalKey: "0x0207df96d1341a7d16ba1ad431e2c847d978bc2bce" }
+        ]
+      }
+    });
+  });
+
   test("Getting assets on Acala works", async () => {
     const assets = await AssetRegistry.getAssetsOnBlockchain("polkadot", "acala");
 

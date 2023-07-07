@@ -34,6 +34,40 @@ class AssetRegistry {
 
     return assets;
   }
+
+  public static xcmInteriorToMultiAsset(xcmInteriorKey: any[], isParachain: boolean) {
+    // The first 'junction' is actually just the specifying the network and we
+    // don't need that in `MultiAsset`.
+    const junctionCount = xcmInteriorKey.length - 1;
+    const parents = isParachain? 1 : 0;
+
+    if(junctionCount == 1 && xcmInteriorKey[1].toString().toLowerCase() == "here") {
+      return {
+        parents,
+        interior: "Here" 
+      }
+    }
+
+    const junctions = this.getJunctions(xcmInteriorKey, junctionCount);
+
+    return eval(`
+      {
+        parents: ${parents},
+        interior: {
+          X ${junctionCount} : ${junctions}
+        }
+      }
+    `);
+  }
+
+  private static getJunctions(xcmInteriorKey: any[], junctionCount: number): any[] {
+    let junctions = [];
+    for(let i = 1; i < junctionCount; i++) {
+      junctions.push(xcmInteriorKey[i]);
+    }
+
+    return junctions;
+  } 
 }
 
 export default AssetRegistry;
