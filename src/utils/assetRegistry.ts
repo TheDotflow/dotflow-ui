@@ -49,20 +49,19 @@ class AssetRegistry {
     }
 
     const junctions = this.getJunctions(xcmInteriorKey, junctionCount);
+    const x = `X${junctionCount}`;
 
-    return eval(`
-      {
-        parents: ${parents},
-        interior: {
-          X ${junctionCount} : ${junctions}
-        }
+    return {
+      parents,
+      interior: {
+        [x]: junctions
       }
-    `);
+    }
   }
 
   private static getJunctions(xcmInteriorKey: any[], junctionCount: number): any[] {
     let junctions = [];
-    for(let i = 1; i < junctionCount; i++) {
+    for(let i = 1; i <= junctionCount; i++) {
       junctions.push(xcmInteriorKey[i]);
     }
 
