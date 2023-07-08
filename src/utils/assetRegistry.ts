@@ -60,7 +60,7 @@ class AssetRegistry {
   }
 
   private static getJunctions(xcmInteriorKey: any[], junctionCount: number): any[] {
-    let junctions = [];
+    const junctions = [];
     for(let i = 1; i <= junctionCount; i++) {
       junctions.push(xcmInteriorKey[i]);
     }

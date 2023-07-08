@@ -86,6 +86,26 @@ describe("AssetRegistry", () => {
         ]
       }
     });
+
+    const usdtXcmInteriorKey = [
+      { network: "polkadot" },
+      { parachain: 1000 },
+      { palletInstance: 50 },
+      { generalIndex: 1984 },
+    ];
+
+    expect(
+      AssetRegistry.xcmInteriorToMultiAsset(usdtXcmInteriorKey, false),
+    ).toStrictEqual({
+      parents: 0,
+      interior: {
+        X3: [
+          { parachain: 1000 },
+          { palletInstance: 50 },
+          { generalIndex: 1984 },
+        ]
+      }
+    });
   });
 
   test("Getting assets on Acala works", async () => {
