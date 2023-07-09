@@ -78,6 +78,7 @@ class TransactionRouter {
         throw new Error("Couldn't estimate transaction fee");
       }
 
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       const xcmMaxRefTime = parseInt(paymentInfo.weight.refTime.replace(/,/g, ""));
 
@@ -92,6 +93,7 @@ class TransactionRouter {
         throw new Error("Couldn't estimate transaction fee");
       }
 
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       const xcmMaxRefTime = parseInt(paymentInfo.weight.refTime.replace(/,/g, ""));
 
