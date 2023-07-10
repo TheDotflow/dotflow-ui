@@ -1,25 +1,31 @@
 import axios from 'axios';
 
 type Asset = {
-  asset: any,
-  name: string,
-  symbol: string,
-  decimals: number,
-  xcmInteriorKey?: any,
-  inferred: boolean,
-  confidence: number
+  asset: any;
+  name: string;
+  symbol: string;
+  decimals: number;
+  xcmInteriorKey?: any;
+  inferred: boolean;
+  confidence: number;
 };
 
-const xcmGAR = "https://cdn.jsdelivr.net/gh/colorfulnotion/xcm-global-registry/metadata/xcmgar_url.json";
+const xcmGAR =
+  'https://cdn.jsdelivr.net/gh/colorfulnotion/xcm-global-registry/metadata/xcmgar_url.json';
 
 class AssetRegistry {
-  public static async getAssetsOnBlockchain(network: "polkadot" | "kusama", chain: string): Promise<Asset[]> {
+  public static async getAssetsOnBlockchain(
+    network: 'polkadot' | 'kusama',
+    chain: string
+  ): Promise<Asset[]> {
     const blockchains = (await axios.get(xcmGAR)).data;
 
-    const blockchain = blockchains.assets[network].find((b: any) => b.id.toLowerCase() == chain.toLowerCase());
+    const blockchain = blockchains.assets[network].find(
+      (b: any) => b.id.toLowerCase() == chain.toLowerCase()
+    );
 
     if (!blockchain) {
-      throw new Error("Blockchain not found");
+      throw new Error('Blockchain not found');
     }
 
     const assetsUrl = blockchain.url;
@@ -35,29 +41,34 @@ class AssetRegistry {
     return assets;
   }
 
-  public static async isSupportedOnBothChains(network: "polkadot" | "kusama", chainA: string, chainB: string, asset: any): Promise<boolean> {
+  public static async isSupportedOnBothChains(
+    network: 'polkadot' | 'kusama',
+    chainA: string,
+    chainB: string,
+    asset: any
+  ): Promise<boolean> {
     const foundOnChainA = await this.isSupportedOnChain(network, chainA, asset);
     const foundOnChainB = await this.isSupportedOnChain(network, chainB, asset);
 
     return foundOnChainA && foundOnChainB;
   }
 
-  public static async isSupportedOnChain(network: "polkadot" | "kusama", chain: string, asset: any): Promise<boolean> { 
+  public static async isSupportedOnChain(
+    network: 'polkadot' | 'kusama',
+    chain: string,
+    asset: any
+  ): Promise<boolean> {
     const assets = await this.getAssetsOnBlockchain(network, chain);
 
-    const found = assets.find((el: any) => {
-      if(el.xcmInteriorKey) {
-        const junctions = el.xcmInteriorKey;
+    const found = assets.find(
+      (el: Asset) =>
+        el.xcmInteriorKey &&
+        JSON.stringify(el.xcmInteriorKey) === JSON.stringify(asset)
+    );
 
-        if(JSON.stringify(junctions) == JSON.stringify(asset)) {
-          return true;
-        }
-      }
-    });
+    if (found) return true;
 
-    if(found) return true;
-
-    return false
+    return false;
   }
 }
 
