@@ -27,11 +27,62 @@ describe('AssetRegistry', () => {
     ]);
   });
 
-  test('Getting assets of Kusama works', async () => {
-    const assets = await AssetRegistry.getAssetsOnBlockchain(
-      'kusama',
-      'kusama'
-    );
+  test("Checking whether an asset exists on both chains works", async () => {
+    const GLMR = [
+      {
+        network: "polkadot"
+      },
+      {
+        parachain: 2004,
+      },
+      {
+        palletInstance: 10
+      }
+    ];
+
+    const isGlmrSupported = await AssetRegistry.isSupportedOnBothChains("polkadot", "moonbeam", "acala", GLMR);
+    expect(isGlmrSupported).toBe(true);
+
+    const USDC = [
+      {
+        network: "polkadot"
+      },
+      {
+        parachain: 2004,
+      },
+      {
+        palletInstance: 108
+      },
+      {
+        generalIndex: "0xfd9d0bf45a2947a519a741c4b9e99eb6"
+      }
+    ];
+
+    const isUsdcSupported = await AssetRegistry.isSupportedOnBothChains("polkadot", "moonbeam", "acala", USDC);
+    // Both chains have USDC, but they are not the same.
+    expect(isUsdcSupported).toBe(false);
+
+    const USDT = [
+      {
+        network: "polkadot"
+      },
+      {
+        parachain: 1000,
+      },
+      {
+        palletInstance: 50
+      },
+      {
+        generalIndex: 1984
+      }
+    ];
+
+    const isUsdtSupported = await AssetRegistry.isSupportedOnBothChains("polkadot", "moonbeam", "acala", USDT);
+    expect(isUsdtSupported).toBe(true);
+  });
+
+  test("Getting assets of Kusama works", async () => {
+    const assets = await AssetRegistry.getAssetsOnBlockchain("kusama", "kusama");
 
     expect(assets).toStrictEqual([
       {

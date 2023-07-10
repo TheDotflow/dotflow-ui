@@ -86,6 +86,36 @@ class AssetRegistry {
   ): any[] {
     return xcmInteriorKey.slice(1, junctionCount + 1);
   }
+  
+  public static async isSupportedOnBothChains(
+    network: 'polkadot' | 'kusama',
+    chainA: string,
+    chainB: string,
+    asset: any
+  ): Promise<boolean> {
+    const foundOnChainA = await this.isSupportedOnChain(network, chainA, asset);
+    const foundOnChainB = await this.isSupportedOnChain(network, chainB, asset);
+
+    return foundOnChainA && foundOnChainB;
+  }
+
+  public static async isSupportedOnChain(
+    network: 'polkadot' | 'kusama',
+    chain: string,
+    asset: any
+  ): Promise<boolean> {
+    const assets = await this.getAssetsOnBlockchain(network, chain);
+
+    const found = assets.find(
+      (el: Asset) =>
+        el.xcmInteriorKey &&
+        JSON.stringify(el.xcmInteriorKey) === JSON.stringify(asset)
+    );
+
+    if (found) return true;
+
+    return false;
+  }
 }
 
 export default AssetRegistry;

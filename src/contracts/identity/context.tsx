@@ -1,4 +1,6 @@
+import { ApiPromise, WsProvider } from '@polkadot/api';
 import { ContractPromise } from '@polkadot/api-contract';
+import jsonrpc from '@polkadot/types/interfaces/jsonrpc';
 import {
   contractQuery,
   decodeOutput,
@@ -13,9 +15,17 @@ import {
   useState,
 } from 'react';
 
+import { useToast } from '@/contexts/Toast';
+
 import { IdentityMetadata } from '.';
 import { CONTRACT_IDENTITY } from '..';
-import { Address, IdentityNo, NetworkId, Networks } from '../types';
+import {
+  Address,
+  IdentityNo,
+  NetworkConsts,
+  NetworkId,
+  Networks,
+} from '../types';
 
 interface IdentityContract {
   identityNo: number | null;
@@ -24,6 +34,7 @@ interface IdentityContract {
   contract: ContractPromise | undefined;
   fetchIdentityNo: () => Promise<void>;
   fetchAddresses: () => Promise<void>;
+  loading: boolean;
 }
 
 const defaultIdentity: IdentityContract = {
@@ -38,6 +49,7 @@ const defaultIdentity: IdentityContract = {
   fetchAddresses: async () => {
     /* */
   },
+  loading: true,
 };
 
 const IdentityContext = createContext<IdentityContract>(defaultIdentity);
@@ -52,6 +64,8 @@ const IdentityContractProvider = ({ children }: Props) => {
   const [identityNo, setIdentityNo] = useState<IdentityNo>(null);
   const [networks, setNetworks] = useState<Networks>({});
   const [addresses, setAddresses] = useState<Array<Address>>([]);
+  const [loading, setLoading] = useState(false);
+  const { toastError } = useToast();
 
   const fetchIdentityNo = useCallback(async () => {
     if (!api || !contract || !activeAccount) {
@@ -80,6 +94,30 @@ const IdentityContractProvider = ({ children }: Props) => {
       setNetworks({});
       return;
     }
+
+    const getChainInfo = async (
+      rpcUrl: string
+    ): Promise<NetworkConsts | null> => {
+      try {
+        const provider = new WsProvider(rpcUrl);
+        const api = new ApiPromise({ provider, rpc: jsonrpc });
+
+        await api.isReady;
+
+        const ss58Prefix: number =
+          api.consts.system.ss58Prefix.toPrimitive() as number;
+        const name = (await api.rpc.system.chain()).toString();
+
+        return {
+          name,
+          ss58Prefix,
+        };
+      } catch (e) {
+        toastError && toastError(`Failed to get chain info for ${rpcUrl}`);
+        return null;
+      }
+    };
+
     try {
       const result = await contractQuery(
         api,
@@ -94,19 +132,25 @@ const IdentityContractProvider = ({ children }: Props) => {
         'available_networks'
       );
       if (isError) throw new Error(decodedOutput);
+
       const _networks: Networks = {};
-      output.map((item: any) => {
-        const { name, ss58Prefix } = item[1];
-        _networks[Number(item[0])] = {
-          name,
-          ss58Prefix: Number(ss58Prefix.replace(',', '')),
-        };
-      });
+
+      for await (const item of output) {
+        const networkId = Number(item[0]);
+        const { accountType, rpcUrl } = item[1];
+        const info = await getChainInfo(rpcUrl);
+        if (info)
+          _networks[networkId] = {
+            rpcUrl,
+            accountType,
+            ...info,
+          };
+      }
       setNetworks(_networks);
-    } catch (e) {
-      setNetworks({});
+    } catch (e: any) {
+      toastError(e.toString());
     }
-  }, [api, contract]);
+  }, [api, contract, toastError]);
 
   const fetchAddresses = useCallback(async () => {
     if (!api || !contract || identityNo === null) {
@@ -145,20 +189,14 @@ const IdentityContractProvider = ({ children }: Props) => {
   }, [api, contract, identityNo, fetchAddresses]);
 
   useEffect(() => {
-    void fetchNetworks();
-  }, [api, contract, fetchNetworks]);
-
-  useEffect(() => {
-    void fetchIdentityNo();
-  }, [activeAccount, api, contract, fetchIdentityNo]);
-
-  useEffect(() => {
-    void fetchNetworks();
-  }, [api, contract, fetchNetworks]);
-
-  useEffect(() => {
-    void fetchIdentityNo();
-  }, [activeAccount, api, contract, fetchIdentityNo]);
+    const init = async () => {
+      setLoading(true);
+      await fetchIdentityNo();
+      await fetchNetworks();
+      setLoading(false);
+    };
+    init();
+  }, [fetchIdentityNo, fetchNetworks]);
 
   return (
     <IdentityContext.Provider
@@ -169,6 +207,7 @@ const IdentityContractProvider = ({ children }: Props) => {
         networks,
         fetchAddresses,
         fetchIdentityNo,
+        loading,
       }}
     >
       {children}
