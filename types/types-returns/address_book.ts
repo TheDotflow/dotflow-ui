@@ -1,5 +1,4 @@
-import type BN from 'bn.js';
-import type {ReturnNumber} from '@727-ventures/typechain-types';
+/* eslint-disable no-unused-vars */
 
 export type AccountId = string | number[]
 

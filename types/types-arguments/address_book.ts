@@ -1,4 +1,4 @@
-import type BN from 'bn.js';
+/* eslint-disable no-unused-vars */
 
 export type AccountId = string | number[]
 

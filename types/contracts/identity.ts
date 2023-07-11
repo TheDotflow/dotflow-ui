@@ -2,28 +2,29 @@
 
 import type { ApiPromise } from '@polkadot/api';
 import { Abi } from '@polkadot/api-contract';
-import type { KeyringPair } from '@polkadot/keyring/types';
 import { ContractPromise } from '@polkadot/api-contract';
-import { ContractAbi } from '../contract-info/identity';
-import QueryMethods from '../query/identity';
+import type { KeyringPair } from '@polkadot/keyring/types';
+
 import BuildExtrinsicMethods from '../build-extrinsic/identity';
-import TxSignAndSendMethods from '../tx-sign-and-send/identity';
-import MixedMethods from '../mixed-methods/identity';
+import { ContractAbi } from '../contract-info/identity';
 import EventsClass from '../events/identity';
+import MixedMethods from '../mixed-methods/identity';
+import QueryMethods from '../query/identity';
+import TxSignAndSendMethods from '../tx-sign-and-send/identity';
 
 
 export default class Contract {
-	readonly query : QueryMethods;
-	readonly buildExtrinsic : BuildExtrinsicMethods;
-	readonly tx : TxSignAndSendMethods;
-	readonly methods : MixedMethods;
+	readonly query: QueryMethods;
+	readonly buildExtrinsic: BuildExtrinsicMethods;
+	readonly tx: TxSignAndSendMethods;
+	readonly methods: MixedMethods;
 	readonly events: EventsClass;
 
-	readonly address : string;
-	readonly signer : KeyringPair;
+	readonly address: string;
+	readonly signer: KeyringPair;
 
-	private nativeContract : ContractPromise;
-	private nativeAPI : ApiPromise;
+	private nativeContract: ContractPromise;
+	private nativeAPI: ApiPromise;
 	private contractAbi: Abi;
 
 	/**
@@ -34,9 +35,9 @@ export default class Contract {
 	 * @param nativeAPI - The API instance to use for queries.
 	*/
 	constructor(
-		address : string,
-		signer : KeyringPair,
-		nativeAPI : ApiPromise,
+		address: string,
+		signer: KeyringPair,
+		nativeAPI: ApiPromise,
 	) {
 		this.address = address;
 		this.nativeContract = new ContractPromise(nativeAPI, ContractAbi, address);
@@ -56,7 +57,7 @@ export default class Contract {
 	 *
 	 * @returns The name of the contract.
 	*/
-	get name() : string {
+	get name(): string {
 		return this.nativeContract.abi.info.contract.name.toString();
 	}
 
@@ -65,7 +66,7 @@ export default class Contract {
 	 *
 	 * @returns The abi of the contract.
 	*/
-	get abi() : Abi {
+	get abi(): Abi {
 		return this.contractAbi;
 	}
 
@@ -81,7 +82,7 @@ export default class Contract {
 	 * await contract.withSigner(signerBob).transfer(signerAlice.address, 100);
 	 * ```
 	*/
-	withSigner(signer : KeyringPair) : Contract {
+	withSigner(signer: KeyringPair): Contract {
 		return new Contract(this.address, signer, this.nativeAPI);
 	}
 
@@ -91,7 +92,7 @@ export default class Contract {
 	* @param address - The address of the contract.
 	* @returns New instance of the contract class to interact with new contract.
 	*/
-	withAddress(address : string) : Contract {
+	withAddress(address: string): Contract {
 		return new Contract(address, this.signer, this.nativeAPI);
 	}
 
@@ -101,7 +102,7 @@ export default class Contract {
 	 * @param api - The API instance to use for queries.
 	 * @returns New instance of the contract class to interact with new API.
 	*/
-	withAPI(api : ApiPromise) : Contract {
+	withAPI(api: ApiPromise): Contract {
 		return new Contract(this.address, this.signer, api);
 	}
 }
