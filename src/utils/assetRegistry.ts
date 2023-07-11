@@ -10,6 +10,15 @@ type Asset = {
   confidence: number;
 };
 
+type MultiAsset = {
+  parents: number;
+  interior:
+    | 'Here'
+    | {
+        [key: string]: Asset[];
+      };
+};
+
 const xcmGAR =
   'https://cdn.jsdelivr.net/gh/colorfulnotion/xcm-global-registry/metadata/xcmgar_url.json';
 
@@ -41,6 +50,43 @@ class AssetRegistry {
     return assets;
   }
 
+  public static xcmInteriorToMultiAsset(
+    xcmInteriorKey: any[],
+    isParachain: boolean
+  ): MultiAsset {
+    // The first 'junction' is actually just the specifying the network and we
+    // don't need that in `MultiAsset`.
+    const junctionCount = xcmInteriorKey.length - 1;
+    const parents = isParachain ? 1 : 0;
+
+    if (
+      junctionCount == 1 &&
+      xcmInteriorKey[1].toString().toLowerCase() == 'here'
+    ) {
+      return {
+        parents,
+        interior: 'Here',
+      };
+    }
+
+    const junctions = this.getJunctions(xcmInteriorKey, junctionCount);
+    const x = `X${junctionCount}`;
+
+    return {
+      parents,
+      interior: {
+        [x]: junctions,
+      },
+    };
+  }
+
+  private static getJunctions(
+    xcmInteriorKey: any[],
+    junctionCount: number
+  ): any[] {
+    return xcmInteriorKey.slice(1, junctionCount + 1);
+  }
+  
   public static async isSupportedOnBothChains(
     network: 'polkadot' | 'kusama',
     chainA: string,
