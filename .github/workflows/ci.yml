@@ -21,7 +21,7 @@ jobs:
       - run: yarn install
       - run: 'CI=false yarn build'
       - run: yarn lint
-  test:
+  asset-registry-test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -34,7 +34,21 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: yarn install
       - run: 'CI=false yarn build'
-      - run: yarn test
+      - run: yarn test -- __tests__/assetRegistry.test.ts
+  identity-key-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x]
+    steps:
+      - uses: actions/checkout@v3.1.0
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: yarn install
+      - run: 'CI=false yarn build'
+      - run: yarn test -- __tests__/identityKey.test.ts
 
   all:
     needs: [build]

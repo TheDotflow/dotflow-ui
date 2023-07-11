@@ -2,6 +2,7 @@
   "name": "dotflow-ui",
   "private": true,
   "scripts": {
+    "compile": "typechain-compiler --toolchain nightly-2023-01-04",
     "dev": "next dev",
     "start": "next start",
     "build": "next build",
@@ -16,9 +17,10 @@
     "@mui/icons-material": "^5.2.5",
     "@mui/lab": "^5.0.0-alpha.134",
     "@mui/material": "^5.2.8",
-    "@polkadot/api": "^10.8.1",
+    "@polkadot/api": "^10.9.1",
     "@polkadot/api-contract": "^10.8.1",
     "@polkadot/extension-inject": "^0.46.4",
+    "@polkadot/keyring": "^12.3.2",
     "@polkadot/types": "^10.8.1",
     "@polkadot/util": "^12.3.1",
     "@scio-labs/use-inkathon": "^0.0.1-alpha.44",
@@ -35,6 +37,8 @@
     "sharp": "^0.32.1"
   },
   "devDependencies": {
+    "@727-ventures/typechain-compiler": "^0.5.18",
+    "@727-ventures/typechain-types": "^1.1.0",
     "@babel/core": "^7.16.7",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^14.0.0",

@@ -23,4 +23,22 @@ For details regarding the contract deployment go to this [page](https://github.c
 2.  `yarn install`
 3.  `yarn dev`
 4.  Go to `http://localhost:3000` to interact with the webapp
-5.  To run the unit tests: `yarn test`
+
+### Running tests
+
+Some tests require a zombienet network to be run in the background. The steps to take before running the tests are the following:
+
+1. Run a local [swanky](https://github.com/AstarNetwork/swanky-node) test node. This is where the contracts will be deployed to locally. The command to run: `./swanky-node --dev --tmp`
+2. Run the local zombienet network: `zombienet-macos -p native spawn local_network.toml`
+
+After the swanky node and the zombienet is running you can run all the tests:
+
+```
+yarn test
+```
+
+The tests can take quite some time to run so, in case you want to run a specific test file, run the following command instead:
+
+```
+yarn test -- ./__tests__/test_file.test.ts
+```
