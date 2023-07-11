@@ -1,6 +1,7 @@
-import TransactionRouter from "../src/utils/transactionRouter";
 import { ApiPromise, Keyring, WsProvider } from "@polkadot/api";
 import { KeyringPair } from "@polkadot/keyring/types";
+
+import TransactionRouter from "../src/utils/transactionRouter";
 import IdentityContractFactory from "../types/constructors/identity";
 import IdentityContract from "../types/contracts/identity";
 import { AccountType, NetworkInfo } from "../types/types-arguments/identity";
@@ -62,8 +63,9 @@ describe("TransactionRouter", () => {
     const westendProvider = new WsProvider("ws://127.0.0.1:4242");
     const westendApi = await ApiPromise.create({ provider: westendProvider });
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    var { data: balance } = await westendApi.query.system.account(
+    const { data: balance } = await westendApi.query.system.account(
       receiver.address
     );
     const receiverBalance = parseInt(balance.free.toHuman().replace(/,/g, ""));
@@ -91,8 +93,9 @@ describe("TransactionRouter", () => {
       amount
     );
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    var { data: balance } = await westendApi.query.system.account(
+    const { data: balance } = await westendApi.query.system.account(
       receiver.address
     );
     const newReceiverBalance = parseInt(
@@ -133,7 +136,7 @@ describe("TransactionRouter", () => {
       receiver.address
     )).toHuman();
 
-    const receiverBalanceBefore = receiverAccountBefore? parseInt(receiverAccountBefore.balance.replace(/,/g, "")) : 0;
+    const receiverBalanceBefore = receiverAccountBefore ? parseInt(receiverAccountBefore.balance.replace(/,/g, "")) : 0;
 
     // First lets add a network.
     await addNetwork(identityContract, alice, {
@@ -177,7 +180,7 @@ describe("TransactionRouter", () => {
 
     expect(senderBalanceAfter).toBe(senderBalanceBefore - amount);
     expect(receiverBalanceAfter).toBe(receiverBalanceBefore + amount);
- 
+
   }, 120000);
 });
 
@@ -186,7 +189,7 @@ const addNetwork = async (
   signer: KeyringPair,
   network: NetworkInfo
 ): Promise<void> => {
-  const _addNetworkResult = await contract
+  await contract
     .withSigner(signer)
     .tx.addNetwork(network);
 };
@@ -196,7 +199,7 @@ const createAsset = async (
   signer: KeyringPair,
   id: number
 ): Promise<void> => {
-  return new Promise(async (resolve) => {
+  const callTx = async (resolve: () => void) => {
     const unsub = await api.tx.assets
       .create(
         id,
@@ -210,7 +213,8 @@ const createAsset = async (
           resolve();
         }
       });
-  });
+  };
+  return new Promise(callTx);
 };
 
 const mintAsset = async (
@@ -219,7 +223,7 @@ const mintAsset = async (
   id: number,
   amount: number
 ): Promise<void> => {
-  return new Promise(async (resolve) => {
+  const callTx = async (resolve: () => void) => {
     const unsub = await api.tx.assets
       .mint(
         id,
@@ -232,7 +236,8 @@ const mintAsset = async (
           resolve();
         }
       });
-  });
+  };
+  return new Promise(callTx);
 };
 
 const getAsset = async (api: ApiPromise, id: number): Promise<any> => {

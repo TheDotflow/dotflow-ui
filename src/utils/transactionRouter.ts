@@ -15,11 +15,11 @@ class TransactionRouter {
     multiAsset: any,
     amount: number
   ): Promise<void> {
-    if (originNetworkId == destinationNetworkId && sender.addressRaw == receiver) {
+    if (originNetworkId === destinationNetworkId && sender.addressRaw === receiver) {
       throw new Error("Cannot send tokens to yourself");
     }
 
-    if (originNetworkId == destinationNetworkId) {
+    if (originNetworkId === destinationNetworkId) {
       // We will extract all the chain information from the RPC node.
       const rpcUrl = (await identityContract.query.networkInfoOf(originNetworkId)).value
         .ok?.rpcUrl;
@@ -55,7 +55,7 @@ class TransactionRouter {
     // standardized and as far as the chain has an XCM executor the transaction
     // will be executed correctly.
 
-    const chainInfo = await api.registry.getChainProperties();
+    const chainInfo = api.registry.getChainProperties();
     if (!chainInfo) {
       throw new Error("Failed to get chain info");
     }
@@ -74,7 +74,7 @@ class TransactionRouter {
         .execute(xcm, 0)
         .paymentInfo(sender)).toHuman();
 
-      if(!paymentInfo || !paymentInfo.weight) {
+      if (!paymentInfo || !paymentInfo.weight) {
         throw new Error("Couldn't estimate transaction fee");
       }
 
@@ -88,8 +88,8 @@ class TransactionRouter {
       const paymentInfo = (await api.tx.polkadotXcm
         .execute(xcm, 0)
         .paymentInfo(sender)).toHuman();
-      
-      if(!paymentInfo || !paymentInfo.weight) {
+
+      if (!paymentInfo || !paymentInfo.weight) {
         throw new Error("Couldn't estimate transaction fee");
       }
 
