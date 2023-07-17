@@ -1,39 +1,36 @@
 import { ApiPromise, WsProvider } from "@polkadot/api";
 import { KeyringPair } from "@polkadot/keyring/types";
 
-import IdentityContract from "../../types/contracts/identity";
-import { AccountType } from "../../types/types-arguments/identity";
+import IdentityContract from "../../../types/contracts/identity";
+import { AccountType } from "../../../types/types-arguments/identity";
+
+import { Sender, Receiver, Fungible } from "./types";
+import TransferAsset from "./transferAsset";
 
 class TransactionRouter {
   public static async sendTokens(
     identityContract: IdentityContract,
-    sender: KeyringPair,
-    originNetworkId: number,
-    receiver: Uint8Array,
-    receiverAccountType: AccountType,
-    destinationNetworkId: number,
-    multiAsset: any,
-    amount: number
+    sender: Sender,
+    receiver: Receiver,
+    asset: Fungible
   ): Promise<void> {
-    if (originNetworkId === destinationNetworkId && sender.addressRaw === receiver) {
+    if (sender.network === receiver.network && sender.keypair.addressRaw === receiver.addressRaw) {
       throw new Error("Cannot send tokens to yourself");
     }
 
-    if (originNetworkId === destinationNetworkId) {
+    if (sender.network === receiver.network) {
       // We will extract all the chain information from the RPC node.
-      const rpcUrl = (await identityContract.query.networkInfoOf(originNetworkId)).value
+      const rpcUrl = (await identityContract.query.networkInfoOf(sender.network)).value
         .ok?.rpcUrl;
 
       const wsProvider = new WsProvider(rpcUrl);
       const api = await ApiPromise.create({ provider: wsProvider });
 
-      await this.sendOnSameBlockchain(
+      await TransferAsset.send(
         api,
         sender,
         receiver,
-        receiverAccountType,
-        multiAsset,
-        amount
+        asset
       );
     } else {
       // Send cross-chain.
