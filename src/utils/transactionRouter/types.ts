@@ -1,6 +1,7 @@
-import { KeyringPair } from "@polkadot/keyring/types";
-import { AccountType } from "../../../types/types-arguments/identity";
 import { ApiPromise } from "@polkadot/api";
+import { KeyringPair } from "@polkadot/keyring/types";
+
+import { AccountType } from "../../../types/types-arguments/identity";
 
 export type AccountIdRaw = Uint8Array;
 export type NetworkId = number;

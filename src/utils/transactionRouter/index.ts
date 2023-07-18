@@ -1,11 +1,10 @@
 import { ApiPromise, WsProvider } from "@polkadot/api";
 import { KeyringPair } from "@polkadot/keyring/types";
 
+import TransferAsset from "./transferAsset";
+import { Fungible,Receiver, Sender } from "./types";
 import IdentityContract from "../../../types/contracts/identity";
 import { AccountType } from "../../../types/types-arguments/identity";
-
-import { Sender, Receiver, Fungible } from "./types";
-import TransferAsset from "./transferAsset";
 
 class TransactionRouter {
   public static async sendTokens(

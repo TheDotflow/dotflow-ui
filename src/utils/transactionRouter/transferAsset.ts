@@ -1,8 +1,8 @@
 import { ApiPromise } from "@polkadot/api";
 import { KeyringPair } from "@polkadot/keyring/types";
-import { AccountType } from "../../../types/types-arguments/identity";
 
-import { Sender, Receiver, Fungible, TransactionSender } from "./types";
+import { Fungible, Receiver, Sender } from "./types";
+import { AccountType } from "../../../types/types-arguments/identity";
 
 class TransferAsset {
   send(api: ApiPromise, sender: KeyringPair, receiver: Receiver, asset: Fungible) {
