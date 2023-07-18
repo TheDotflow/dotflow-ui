@@ -84,7 +84,7 @@ describe("TransactionRouter", () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const { data: balance } = await westendApi.query.system.account(
-      receiver.addressRaw
+      bob.address
     );
     const receiverBalance = parseInt(balance.free.toHuman().replace(/,/g, ""));
 
@@ -114,7 +114,7 @@ describe("TransactionRouter", () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const { data: balance } = await westendApi.query.system.account(
-      receiver.addressRaw
+      bob.address
     );
     const newReceiverBalance = parseInt(
       balance.free.toHuman().replace(/,/g, "")
@@ -159,7 +159,7 @@ describe("TransactionRouter", () => {
 
     const receiverAccountBefore: any = (await assetHubApi.query.assets.account(
       0,
-      receiver.addressRaw
+      bob.address
     )).toHuman();
 
     const receiverBalanceBefore = receiverAccountBefore ? parseInt(receiverAccountBefore.balance.replace(/,/g, "")) : 0;
@@ -199,7 +199,7 @@ describe("TransactionRouter", () => {
 
     const receiverAccountAfter: any = (await assetHubApi.query.assets.account(
       0,
-      receiver.addressRaw
+      bob.address
     )).toHuman();
 
     const receiverBalanceAfter = parseInt(receiverAccountAfter.balance.replace(/,/g, ""));
