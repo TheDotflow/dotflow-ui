@@ -1,21 +1,20 @@
 /* This file is auto-generated */
 
-import type { GasLimit } from '@727-ventures/typechain-types';
-import { buildSubmittableExtrinsic } from '@727-ventures/typechain-types';
-import type { ApiPromise } from '@polkadot/api';
 import type { ContractPromise } from '@polkadot/api-contract';
-import type BN from 'bn.js';
-
+import type { GasLimit, GasLimitAndRequiredValue } from '@727-ventures/typechain-types';
+import { buildSubmittableExtrinsic } from '@727-ventures/typechain-types';
 import type * as ArgumentTypes from '../types-arguments/identity';
+import type BN from 'bn.js';
+import type { ApiPromise } from '@polkadot/api';
 
 
 
 export default class Methods {
-	private __nativeContract: ContractPromise;
+	private __nativeContract : ContractPromise;
 	private __apiPromise: ApiPromise;
 
 	constructor(
-		nativeContract: ContractPromise,
+		nativeContract : ContractPromise,
 		apiPromise: ApiPromise,
 	) {
 		this.__nativeContract = nativeContract;
@@ -26,11 +25,11 @@ export default class Methods {
 	 *
 	 * @param { (number | string | BN) } identityNo,
 	*/
-	"identity"(
+	"identity" (
 		identityNo: (number | string | BN),
 		__options: GasLimit,
-	) {
-		return buildSubmittableExtrinsic(this.__apiPromise, this.__nativeContract, "identity", [identityNo], __options);
+	){
+		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "identity", [identityNo], __options);
 	}
 
 	/**
@@ -38,11 +37,11 @@ export default class Methods {
 	 *
 	 * @param { (number | string | BN) } identityNo,
 	*/
-	"ownerOf"(
+	"ownerOf" (
 		identityNo: (number | string | BN),
 		__options: GasLimit,
-	) {
-		return buildSubmittableExtrinsic(this.__apiPromise, this.__nativeContract, "ownerOf", [identityNo], __options);
+	){
+		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "ownerOf", [identityNo], __options);
 	}
 
 	/**
@@ -50,11 +49,11 @@ export default class Methods {
 	 *
 	 * @param { ArgumentTypes.AccountId } owner,
 	*/
-	"identityOf"(
+	"identityOf" (
 		owner: ArgumentTypes.AccountId,
 		__options: GasLimit,
-	) {
-		return buildSubmittableExtrinsic(this.__apiPromise, this.__nativeContract, "identityOf", [owner], __options);
+	){
+		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "identityOf", [owner], __options);
 	}
 
 	/**
@@ -62,11 +61,11 @@ export default class Methods {
 	 *
 	 * @param { (number | string | BN) } networkId,
 	*/
-	"networkInfoOf"(
+	"networkInfoOf" (
 		networkId: (number | string | BN),
 		__options: GasLimit,
-	) {
-		return buildSubmittableExtrinsic(this.__apiPromise, this.__nativeContract, "networkInfoOf", [networkId], __options);
+	){
+		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "networkInfoOf", [networkId], __options);
 	}
 
 	/**
@@ -75,32 +74,32 @@ export default class Methods {
 	 * @param { (number | string | BN) } receiver,
 	 * @param { (number | string | BN) } network,
 	*/
-	"transactionDestination"(
+	"transactionDestination" (
 		receiver: (number | string | BN),
 		network: (number | string | BN),
 		__options: GasLimit,
-	) {
-		return buildSubmittableExtrinsic(this.__apiPromise, this.__nativeContract, "transactionDestination", [receiver, network], __options);
+	){
+		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "transactionDestination", [receiver, network], __options);
 	}
 
 	/**
 	 * availableNetworks
 	 *
 	*/
-	"availableNetworks"(
+	"availableNetworks" (
 		__options: GasLimit,
-	) {
-		return buildSubmittableExtrinsic(this.__apiPromise, this.__nativeContract, "availableNetworks", [], __options);
+	){
+		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "availableNetworks", [], __options);
 	}
 
 	/**
 	 * createIdentity
 	 *
 	*/
-	"createIdentity"(
+	"createIdentity" (
 		__options: GasLimit,
-	) {
-		return buildSubmittableExtrinsic(this.__apiPromise, this.__nativeContract, "createIdentity", [], __options);
+	){
+		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "createIdentity", [], __options);
 	}
 
 	/**
@@ -109,12 +108,12 @@ export default class Methods {
 	 * @param { (number | string | BN) } network,
 	 * @param { Array<(number | string | BN)> } address,
 	*/
-	"addAddress"(
+	"addAddress" (
 		network: (number | string | BN),
 		address: Array<(number | string | BN)>,
 		__options: GasLimit,
-	) {
-		return buildSubmittableExtrinsic(this.__apiPromise, this.__nativeContract, "addAddress", [network, address], __options);
+	){
+		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "addAddress", [network, address], __options);
 	}
 
 	/**
@@ -123,12 +122,12 @@ export default class Methods {
 	 * @param { (number | string | BN) } network,
 	 * @param { Array<(number | string | BN)> } address,
 	*/
-	"updateAddress"(
+	"updateAddress" (
 		network: (number | string | BN),
 		address: Array<(number | string | BN)>,
 		__options: GasLimit,
-	) {
-		return buildSubmittableExtrinsic(this.__apiPromise, this.__nativeContract, "updateAddress", [network, address], __options);
+	){
+		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "updateAddress", [network, address], __options);
 	}
 
 	/**
@@ -136,21 +135,21 @@ export default class Methods {
 	 *
 	 * @param { (number | string | BN) } network,
 	*/
-	"removeAddress"(
+	"removeAddress" (
 		network: (number | string | BN),
 		__options: GasLimit,
-	) {
-		return buildSubmittableExtrinsic(this.__apiPromise, this.__nativeContract, "removeAddress", [network], __options);
+	){
+		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "removeAddress", [network], __options);
 	}
 
 	/**
 	 * removeIdentity
 	 *
 	*/
-	"removeIdentity"(
+	"removeIdentity" (
 		__options: GasLimit,
-	) {
-		return buildSubmittableExtrinsic(this.__apiPromise, this.__nativeContract, "removeIdentity", [], __options);
+	){
+		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "removeIdentity", [], __options);
 	}
 
 	/**
@@ -158,11 +157,11 @@ export default class Methods {
 	 *
 	 * @param { ArgumentTypes.NetworkInfo } info,
 	*/
-	"addNetwork"(
+	"addNetwork" (
 		info: ArgumentTypes.NetworkInfo,
 		__options: GasLimit,
-	) {
-		return buildSubmittableExtrinsic(this.__apiPromise, this.__nativeContract, "addNetwork", [info], __options);
+	){
+		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "addNetwork", [info], __options);
 	}
 
 	/**
@@ -172,13 +171,13 @@ export default class Methods {
 	 * @param { string | null } newRpcUrl,
 	 * @param { ArgumentTypes.AccountType | null } newAddressType,
 	*/
-	"updateNetwork"(
+	"updateNetwork" (
 		networkId: (number | string | BN),
 		newRpcUrl: string | null,
 		newAddressType: ArgumentTypes.AccountType | null,
 		__options: GasLimit,
-	) {
-		return buildSubmittableExtrinsic(this.__apiPromise, this.__nativeContract, "updateNetwork", [networkId, newRpcUrl, newAddressType], __options);
+	){
+		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "updateNetwork", [networkId, newRpcUrl, newAddressType], __options);
 	}
 
 	/**
@@ -186,11 +185,11 @@ export default class Methods {
 	 *
 	 * @param { (number | string | BN) } networkId,
 	*/
-	"removeNetwork"(
+	"removeNetwork" (
 		networkId: (number | string | BN),
 		__options: GasLimit,
-	) {
-		return buildSubmittableExtrinsic(this.__apiPromise, this.__nativeContract, "removeNetwork", [networkId], __options);
+	){
+		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "removeNetwork", [networkId], __options);
 	}
 
 	/**
@@ -198,11 +197,11 @@ export default class Methods {
 	 *
 	 * @param { ArgumentTypes.AccountId } recoveryAccount,
 	*/
-	"setRecoveryAccount"(
+	"setRecoveryAccount" (
 		recoveryAccount: ArgumentTypes.AccountId,
 		__options: GasLimit,
-	) {
-		return buildSubmittableExtrinsic(this.__apiPromise, this.__nativeContract, "setRecoveryAccount", [recoveryAccount], __options);
+	){
+		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "setRecoveryAccount", [recoveryAccount], __options);
 	}
 
 	/**
@@ -211,12 +210,12 @@ export default class Methods {
 	 * @param { (number | string | BN) } identityNo,
 	 * @param { ArgumentTypes.AccountId } newOwner,
 	*/
-	"transferOwnership"(
+	"transferOwnership" (
 		identityNo: (number | string | BN),
 		newOwner: ArgumentTypes.AccountId,
 		__options: GasLimit,
-	) {
-		return buildSubmittableExtrinsic(this.__apiPromise, this.__nativeContract, "transferOwnership", [identityNo, newOwner], __options);
+	){
+		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "transferOwnership", [identityNo, newOwner], __options);
 	}
 
 }

@@ -427,8 +427,8 @@ describe('AssetRegistry', () => {
         asset: {
           Token: 'AUSD',
         },
-        name: 'Acala Dollar',
-        symbol: 'aUSD',
+        name: 'aUSD SEED',
+        symbol: 'aSEED',
         decimals: 12,
         xcmInteriorKey: [
           { network: 'polkadot' },

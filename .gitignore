@@ -41,3 +41,7 @@ package-lock.json
 
 # zombienet
 bin/
+
+# typechain
+types/
+artifacts/
