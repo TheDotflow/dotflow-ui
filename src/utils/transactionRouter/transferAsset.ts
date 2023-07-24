@@ -1,8 +1,8 @@
 import { ApiPromise } from "@polkadot/api";
+import { KeyringPair } from "@polkadot/keyring/types";
 
 import { Fungible, Receiver } from "./types";
 import { AccountType } from "../../../types/types-arguments/identity";
-import { KeyringPair } from "@polkadot/keyring/types";
 
 class TransferAsset {
   public static async send(
