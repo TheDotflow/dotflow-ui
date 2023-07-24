@@ -1,11 +1,12 @@
 import { ApiPromise, Keyring, WsProvider } from "@polkadot/api";
 import { KeyringPair } from "@polkadot/keyring/types";
 
+import { Fungible, Receiver, Sender } from "@/utils/transactionRouter/types";
+
 import TransactionRouter from "../src/utils/transactionRouter";
 import IdentityContractFactory from "../types/constructors/identity";
 import IdentityContract from "../types/contracts/identity";
 import { AccountType, NetworkInfo } from "../types/types-arguments/identity";
-import { Fungible, Receiver, Sender } from "@/utils/transactionRouter/types";
 
 const wsProvider = new WsProvider("ws://127.0.0.1:9944");
 const keyring = new Keyring({ type: "sr25519" });
@@ -81,11 +82,9 @@ describe("TransactionRouter", () => {
     const westendProvider = new WsProvider("ws://127.0.0.1:4242");
     const westendApi = await ApiPromise.create({ provider: westendProvider });
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    var { data: balance } = await westendApi.query.system.account(
+    const { data: balance } = (await westendApi.query.system.account(
       receiver.addressRaw
-    );
+    )) as any;
     const receiverBalance = parseInt(balance.free.toHuman().replace(/,/g, ""));
 
     // First lets add a network.
@@ -111,13 +110,11 @@ describe("TransactionRouter", () => {
       asset
     );
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    var { data: balance } = await westendApi.query.system.account(
+    const { data: newBalance } = (await westendApi.query.system.account(
       receiver.addressRaw
-    );
+    )) as any;
     const newReceiverBalance = parseInt(
-      balance.free.toHuman().replace(/,/g, "")
+      newBalance.free.toHuman().replace(/,/g, "")
     );
 
     expect(newReceiverBalance).toBe(receiverBalance + amount);
