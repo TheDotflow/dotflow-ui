@@ -20,6 +20,8 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: yarn install
       - run: 'CI=false yarn build'
+      - run: git clone https://github.com/TheDotflow/dotflow-ink
+      - run: yarn compile
       - run: yarn lint
   asset-registry-test:
     runs-on: ubuntu-latest
