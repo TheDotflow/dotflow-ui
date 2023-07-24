@@ -1,12 +1,13 @@
 import { ApiPromise } from "@polkadot/api";
 
-import { Fungible, Receiver, Sender } from "./types";
+import { Fungible, Receiver } from "./types";
 import { AccountType } from "../../../types/types-arguments/identity";
+import { KeyringPair } from "@polkadot/keyring/types";
 
 class TransferAsset {
   public static async send(
     api: ApiPromise,
-    sender: Sender,
+    sender: KeyringPair,
     receiver: Receiver,
     asset: Fungible
   ): Promise<void> {
@@ -34,7 +35,7 @@ class TransferAsset {
     if (api.tx.xcmPallet) {
       const paymentInfo = (await api.tx.xcmPallet
         .execute(xcm, 0)
-        .paymentInfo(sender.keypair)).toHuman();
+        .paymentInfo(sender)).toHuman();
 
       if (!paymentInfo || !paymentInfo.weight) {
         throw new Error("Couldn't estimate transaction fee");
@@ -49,7 +50,7 @@ class TransferAsset {
     } else if (api.tx.polkadotXcm) {
       const paymentInfo = (await api.tx.polkadotXcm
         .execute(xcm, 0)
-        .paymentInfo(sender.keypair)).toHuman();
+        .paymentInfo(sender)).toHuman();
 
       if (!paymentInfo || !paymentInfo.weight) {
         throw new Error("Couldn't estimate transaction fee");

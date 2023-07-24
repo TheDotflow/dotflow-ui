@@ -25,7 +25,7 @@ class TransactionRouter {
 
       await TransferAsset.send(
         api,
-        sender,
+        sender.keypair,
         receiver,
         asset
       );
