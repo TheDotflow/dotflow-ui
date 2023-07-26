@@ -18,11 +18,6 @@ class TransferAsset {
     // standardized and as far as the chain has an XCM executor the transaction
     // will be executed correctly.
 
-    const chainInfo = api.registry.getChainProperties();
-    if (!chainInfo) {
-      throw new Error("Failed to get chain info");
-    }
-
     const xcm = this.xcmTransferAssetMessage(
       receiver.addressRaw,
       receiver.type,
