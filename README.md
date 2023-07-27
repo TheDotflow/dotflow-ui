@@ -22,7 +22,8 @@ For details regarding the contract deployment go to this [page](https://github.c
 1.  Install [NodeJs](https://nodejs.org/en/download)
 2.  `yarn install`
 3.  `yarn dev`
-4.  Go to `http://localhost:3000` to interact with the webapp
+4. `yarn compile` NOTE: This requires the [dotflow-ink](https://github.com/TheDotflow/dotflow-ink) repository to be cloned next to the `dotflow-ui` repo.
+5.  Go to `http://localhost:3000` to interact with the webapp
 
 ### Running tests
 

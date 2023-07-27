@@ -1,27 +1,27 @@
 /* This file is auto-generated */
 
-import type { GasLimit } from '@727-ventures/typechain-types';
-import { txSignAndSend } from '@727-ventures/typechain-types';
-import type { ApiPromise } from '@polkadot/api';
 import type { ContractPromise } from '@polkadot/api-contract';
 import type { KeyringPair } from '@polkadot/keyring/types';
-import { EventRecord } from '@polkadot/types/interfaces';
-import type BN from 'bn.js';
-
-import EVENT_DATA_TYPE_DESCRIPTIONS from '../event-data/identity.json';
-import { decodeEvents } from "../shared/utils";
+import type { ApiPromise } from '@polkadot/api';
+import type { GasLimit, GasLimitAndRequiredValue, Result } from '@727-ventures/typechain-types';
+import { txSignAndSend } from '@727-ventures/typechain-types';
 import type * as ArgumentTypes from '../types-arguments/identity';
+import type BN from 'bn.js';
+// @ts-ignore
+import type {EventRecord} from "@polkadot/api/submittable";
+import {decodeEvents} from "../shared/utils";
+import EVENT_DATA_TYPE_DESCRIPTIONS from '../event-data/identity.json';
 
 
 export default class Methods {
-	private __nativeContract: ContractPromise;
-	private __keyringPair: KeyringPair;
+	private __nativeContract : ContractPromise;
+	private __keyringPair : KeyringPair;
 	private __apiPromise: ApiPromise;
 
 	constructor(
 		apiPromise: ApiPromise,
-		nativeContract: ContractPromise,
-		keyringPair: KeyringPair,
+		nativeContract : ContractPromise,
+		keyringPair : KeyringPair,
 	) {
 		this.__apiPromise = apiPromise;
 		this.__nativeContract = nativeContract;
@@ -33,11 +33,11 @@ export default class Methods {
 	*
 	* @param { (number | string | BN) } identityNo,
 	*/
-	"identity"(
+	"identity" (
 		identityNo: (number | string | BN),
-		__options?: GasLimit,
-	) {
-		return txSignAndSend(this.__apiPromise, this.__nativeContract, this.__keyringPair, "identity", (events: EventRecord[]) => {
+		__options ? : GasLimit,
+	){
+		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "identity", (events: EventRecord) => {
 			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
 		}, [identityNo], __options);
 	}
@@ -47,11 +47,11 @@ export default class Methods {
 	*
 	* @param { (number | string | BN) } identityNo,
 	*/
-	"ownerOf"(
+	"ownerOf" (
 		identityNo: (number | string | BN),
-		__options?: GasLimit,
-	) {
-		return txSignAndSend(this.__apiPromise, this.__nativeContract, this.__keyringPair, "ownerOf", (events: EventRecord[]) => {
+		__options ? : GasLimit,
+	){
+		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "ownerOf", (events: EventRecord) => {
 			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
 		}, [identityNo], __options);
 	}
@@ -61,11 +61,11 @@ export default class Methods {
 	*
 	* @param { ArgumentTypes.AccountId } owner,
 	*/
-	"identityOf"(
+	"identityOf" (
 		owner: ArgumentTypes.AccountId,
-		__options?: GasLimit,
-	) {
-		return txSignAndSend(this.__apiPromise, this.__nativeContract, this.__keyringPair, "identityOf", (events: EventRecord[]) => {
+		__options ? : GasLimit,
+	){
+		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "identityOf", (events: EventRecord) => {
 			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
 		}, [owner], __options);
 	}
@@ -75,11 +75,11 @@ export default class Methods {
 	*
 	* @param { (number | string | BN) } networkId,
 	*/
-	"networkInfoOf"(
+	"networkInfoOf" (
 		networkId: (number | string | BN),
-		__options?: GasLimit,
-	) {
-		return txSignAndSend(this.__apiPromise, this.__nativeContract, this.__keyringPair, "networkInfoOf", (events: EventRecord[]) => {
+		__options ? : GasLimit,
+	){
+		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "networkInfoOf", (events: EventRecord) => {
 			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
 		}, [networkId], __options);
 	}
@@ -90,12 +90,12 @@ export default class Methods {
 	* @param { (number | string | BN) } receiver,
 	* @param { (number | string | BN) } network,
 	*/
-	"transactionDestination"(
+	"transactionDestination" (
 		receiver: (number | string | BN),
 		network: (number | string | BN),
-		__options?: GasLimit,
-	) {
-		return txSignAndSend(this.__apiPromise, this.__nativeContract, this.__keyringPair, "transactionDestination", (events: EventRecord[]) => {
+		__options ? : GasLimit,
+	){
+		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "transactionDestination", (events: EventRecord) => {
 			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
 		}, [receiver, network], __options);
 	}
@@ -104,10 +104,10 @@ export default class Methods {
 	* availableNetworks
 	*
 	*/
-	"availableNetworks"(
-		__options?: GasLimit,
-	) {
-		return txSignAndSend(this.__apiPromise, this.__nativeContract, this.__keyringPair, "availableNetworks", (events: EventRecord[]) => {
+	"availableNetworks" (
+		__options ? : GasLimit,
+	){
+		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "availableNetworks", (events: EventRecord) => {
 			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
 		}, [], __options);
 	}
@@ -116,10 +116,10 @@ export default class Methods {
 	* createIdentity
 	*
 	*/
-	"createIdentity"(
-		__options?: GasLimit,
-	) {
-		return txSignAndSend(this.__apiPromise, this.__nativeContract, this.__keyringPair, "createIdentity", (events: EventRecord[]) => {
+	"createIdentity" (
+		__options ? : GasLimit,
+	){
+		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "createIdentity", (events: EventRecord) => {
 			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
 		}, [], __options);
 	}
@@ -130,12 +130,12 @@ export default class Methods {
 	* @param { (number | string | BN) } network,
 	* @param { Array<(number | string | BN)> } address,
 	*/
-	"addAddress"(
+	"addAddress" (
 		network: (number | string | BN),
 		address: Array<(number | string | BN)>,
-		__options?: GasLimit,
-	) {
-		return txSignAndSend(this.__apiPromise, this.__nativeContract, this.__keyringPair, "addAddress", (events: EventRecord[]) => {
+		__options ? : GasLimit,
+	){
+		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "addAddress", (events: EventRecord) => {
 			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
 		}, [network, address], __options);
 	}
@@ -146,12 +146,12 @@ export default class Methods {
 	* @param { (number | string | BN) } network,
 	* @param { Array<(number | string | BN)> } address,
 	*/
-	"updateAddress"(
+	"updateAddress" (
 		network: (number | string | BN),
 		address: Array<(number | string | BN)>,
-		__options?: GasLimit,
-	) {
-		return txSignAndSend(this.__apiPromise, this.__nativeContract, this.__keyringPair, "updateAddress", (events: EventRecord[]) => {
+		__options ? : GasLimit,
+	){
+		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "updateAddress", (events: EventRecord) => {
 			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
 		}, [network, address], __options);
 	}
@@ -161,11 +161,11 @@ export default class Methods {
 	*
 	* @param { (number | string | BN) } network,
 	*/
-	"removeAddress"(
+	"removeAddress" (
 		network: (number | string | BN),
-		__options?: GasLimit,
-	) {
-		return txSignAndSend(this.__apiPromise, this.__nativeContract, this.__keyringPair, "removeAddress", (events: EventRecord[]) => {
+		__options ? : GasLimit,
+	){
+		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "removeAddress", (events: EventRecord) => {
 			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
 		}, [network], __options);
 	}
@@ -174,10 +174,10 @@ export default class Methods {
 	* removeIdentity
 	*
 	*/
-	"removeIdentity"(
-		__options?: GasLimit,
-	) {
-		return txSignAndSend(this.__apiPromise, this.__nativeContract, this.__keyringPair, "removeIdentity", (events: EventRecord[]) => {
+	"removeIdentity" (
+		__options ? : GasLimit,
+	){
+		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "removeIdentity", (events: EventRecord) => {
 			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
 		}, [], __options);
 	}
@@ -187,11 +187,11 @@ export default class Methods {
 	*
 	* @param { ArgumentTypes.NetworkInfo } info,
 	*/
-	"addNetwork"(
+	"addNetwork" (
 		info: ArgumentTypes.NetworkInfo,
-		__options?: GasLimit,
-	) {
-		return txSignAndSend(this.__apiPromise, this.__nativeContract, this.__keyringPair, "addNetwork", (events: EventRecord[]) => {
+		__options ? : GasLimit,
+	){
+		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "addNetwork", (events: EventRecord) => {
 			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
 		}, [info], __options);
 	}
@@ -203,13 +203,13 @@ export default class Methods {
 	* @param { string | null } newRpcUrl,
 	* @param { ArgumentTypes.AccountType | null } newAddressType,
 	*/
-	"updateNetwork"(
+	"updateNetwork" (
 		networkId: (number | string | BN),
 		newRpcUrl: string | null,
 		newAddressType: ArgumentTypes.AccountType | null,
-		__options?: GasLimit,
-	) {
-		return txSignAndSend(this.__apiPromise, this.__nativeContract, this.__keyringPair, "updateNetwork", (events: EventRecord[]) => {
+		__options ? : GasLimit,
+	){
+		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "updateNetwork", (events: EventRecord) => {
 			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
 		}, [networkId, newRpcUrl, newAddressType], __options);
 	}
@@ -219,11 +219,11 @@ export default class Methods {
 	*
 	* @param { (number | string | BN) } networkId,
 	*/
-	"removeNetwork"(
+	"removeNetwork" (
 		networkId: (number | string | BN),
-		__options?: GasLimit,
-	) {
-		return txSignAndSend(this.__apiPromise, this.__nativeContract, this.__keyringPair, "removeNetwork", (events: EventRecord[]) => {
+		__options ? : GasLimit,
+	){
+		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "removeNetwork", (events: EventRecord) => {
 			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
 		}, [networkId], __options);
 	}
@@ -233,11 +233,11 @@ export default class Methods {
 	*
 	* @param { ArgumentTypes.AccountId } recoveryAccount,
 	*/
-	"setRecoveryAccount"(
+	"setRecoveryAccount" (
 		recoveryAccount: ArgumentTypes.AccountId,
-		__options?: GasLimit,
-	) {
-		return txSignAndSend(this.__apiPromise, this.__nativeContract, this.__keyringPair, "setRecoveryAccount", (events: EventRecord[]) => {
+		__options ? : GasLimit,
+	){
+		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "setRecoveryAccount", (events: EventRecord) => {
 			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
 		}, [recoveryAccount], __options);
 	}
@@ -248,12 +248,12 @@ export default class Methods {
 	* @param { (number | string | BN) } identityNo,
 	* @param { ArgumentTypes.AccountId } newOwner,
 	*/
-	"transferOwnership"(
+	"transferOwnership" (
 		identityNo: (number | string | BN),
 		newOwner: ArgumentTypes.AccountId,
-		__options?: GasLimit,
-	) {
-		return txSignAndSend(this.__apiPromise, this.__nativeContract, this.__keyringPair, "transferOwnership", (events: EventRecord[]) => {
+		__options ? : GasLimit,
+	){
+		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "transferOwnership", (events: EventRecord) => {
 			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
 		}, [identityNo, newOwner], __options);
 	}

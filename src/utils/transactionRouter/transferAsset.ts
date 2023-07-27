@@ -1,52 +1,15 @@
-import { ApiPromise, WsProvider } from "@polkadot/api";
+import { ApiPromise } from "@polkadot/api";
 import { KeyringPair } from "@polkadot/keyring/types";
 
-import IdentityContract from "../../types/contracts/identity";
-import { AccountType } from "../../types/types-arguments/identity";
+import { Fungible, Receiver } from "./types";
+import { AccountType } from "../../../types/types-arguments/identity";
 
-class TransactionRouter {
-  public static async sendTokens(
-    identityContract: IdentityContract,
-    sender: KeyringPair,
-    originNetworkId: number,
-    receiver: Uint8Array,
-    receiverAccountType: AccountType,
-    destinationNetworkId: number,
-    multiAsset: any,
-    amount: number
-  ): Promise<void> {
-    if (originNetworkId === destinationNetworkId && sender.addressRaw === receiver) {
-      throw new Error("Cannot send tokens to yourself");
-    }
-
-    if (originNetworkId === destinationNetworkId) {
-      // We will extract all the chain information from the RPC node.
-      const rpcUrl = (await identityContract.query.networkInfoOf(originNetworkId)).value
-        .ok?.rpcUrl;
-
-      const wsProvider = new WsProvider(rpcUrl);
-      const api = await ApiPromise.create({ provider: wsProvider });
-
-      await this.sendOnSameBlockchain(
-        api,
-        sender,
-        receiver,
-        receiverAccountType,
-        multiAsset,
-        amount
-      );
-    } else {
-      // Send cross-chain.
-    }
-  }
-
-  private static async sendOnSameBlockchain(
+class TransferAsset {
+  public static async send(
     api: ApiPromise,
     sender: KeyringPair,
-    receiver: Uint8Array,
-    receiverAccountType: AccountType,
-    multiAsset: any,
-    amount: number
+    receiver: Receiver,
+    asset: Fungible
   ): Promise<void> {
     // We use XCM even for transfers that are occurring on the same chain. The
     // reason for this is that we cannot know what is the pallet and function
@@ -61,10 +24,10 @@ class TransactionRouter {
     }
 
     const xcm = this.xcmTransferAssetMessage(
-      receiver,
-      receiverAccountType,
-      multiAsset,
-      amount
+      receiver.addressRaw,
+      receiver.type,
+      asset.multiAsset,
+      asset.amount
     );
 
     let xcmExecute: any;
@@ -167,4 +130,4 @@ class TransactionRouter {
   }
 }
 
-export default TransactionRouter;
+export default TransferAsset;

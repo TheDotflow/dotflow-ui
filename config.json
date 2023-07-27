@@ -1,5 +1,7 @@
 {
-  "projectFiles": ["../dotflow-ink/contracts/**/*"],
+  "projectFiles": [
+    "../dotflow-ink/contracts/**/*"
+  ],
   "typechainGeneratedPath": "types",
   "isWorkspace": true,
   "workspacePath": "../dotflow-ink/"
