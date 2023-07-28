@@ -16,7 +16,7 @@ class ReserveTransfer {
       throw new Error("The destination blockchain does not support XCM");
     }
 
-    let paraId: number = -1;
+    let paraId = -1;
     if (destinationApi.query.parachainInfo) {
       paraId = Number((await destinationApi.query.parachainInfo.parachainId()).toHuman());
     }
@@ -54,23 +54,6 @@ class ReserveTransfer {
   }
 
   private static getDestination(receiver: Receiver, paraId: number, isPara: boolean): any {
-    let receiverAccount;
-    if (receiver.type == AccountType.accountId32) {
-      receiverAccount = {
-        AccountId32: {
-          network: "Any",
-          id: receiver.addressRaw,
-        },
-      };
-    } else if (receiver.type == AccountType.accountKey20) {
-      receiverAccount = {
-        AccountKey20: {
-          network: "Any",
-          id: receiver.addressRaw,
-        },
-      };
-    }
-
     if (isPara) {
       return {
         V2: [
