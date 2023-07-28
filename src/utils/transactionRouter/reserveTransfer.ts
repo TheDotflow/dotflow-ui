@@ -16,22 +16,41 @@ class ReserveTransfer {
       throw new Error("The destination blockchain does not support XCM");
     }
 
-    let isPara = false;
-    if (destinationApi.query.parachainSystem) {
-      const chain = await destinationApi.rpc.system.chain();
-      isPara = true;
+    let paraId: number = -1;
+    if (destinationApi.query.parachainInfo) {
+      paraId = Number((await destinationApi.query.parachainInfo.parachainId()).toHuman());
     }
 
+    const destination = this.getDestination(receiver, paraId, paraId >= 0);
+    const beneficiary = this.getBeneficiary(receiver);
     const multiAsset = this.getMultiAsset(asset);
+
+    let reserveTransfer: any;
     if (originApi.tx.xcmPallet) {
-      const reserveTransfer = originApi.tx.xcmPallet.reserveTransferAssets(
-
-      )
+      reserveTransfer = originApi.tx.xcmPallet.reserveTransferAssets(
+        destination,
+        beneficiary,
+        multiAsset
+      );
     } else if (originApi.tx.polkadotXcm) {
-
+      reserveTransfer = originApi.tx.polkadotXcm.reserveTransferAssets(
+        destination,
+        beneficiary,
+        multiAsset
+      );
     } else {
       throw new Error("The blockchain does not support XCM");
     }
+
+    // eslint-disable-next-line no-async-promise-executor
+    return new Promise(async (resolve) => {
+      const unsub = await reserveTransfer.signAndSend(sender, (result: any) => {
+        if (result.status.isFinalized) {
+          unsub();
+          resolve();
+        }
+      })
+    });
   }
 
   private static getDestination(receiver: Receiver, paraId: number, isPara: boolean): any {
@@ -58,17 +77,44 @@ class ReserveTransfer {
           {
             parents: 1,
             interior: {
-              X2: [
+              X1: [
                 { Parachain: paraId },
-                receiverAccount
               ]
             }
           }
         ]
       }
     } else {
-
+      return {
+        V2: [
+          {
+            parents: 1,
+            interior: "Here"
+          }
+        ]
+      }
     }
+  }
+
+  private static getBeneficiary(receiver: Receiver) {
+    let receiverAccount;
+    if (receiver.type == AccountType.accountId32) {
+      receiverAccount = {
+        AccountId32: {
+          network: "Any",
+          id: receiver.addressRaw,
+        },
+      };
+    } else if (receiver.type == AccountType.accountKey20) {
+      receiverAccount = {
+        AccountKey20: {
+          network: "Any",
+          id: receiver.addressRaw,
+        },
+      };
+    }
+
+    return
   }
 
   private static getMultiAsset(asset: Fungible): any {
