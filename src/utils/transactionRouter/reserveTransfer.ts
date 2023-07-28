@@ -114,7 +114,7 @@ class ReserveTransfer {
       };
     }
 
-    return
+    return receiverAccount;
   }
 
   private static getMultiAsset(asset: Fungible): any {
