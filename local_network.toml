@@ -27,3 +27,26 @@ cumulus_based = true
   name = "westmint-collator-01"
   command = "./bin/polkadot-parachain"
   args = ["--log=xcm=trace,pallet-assets=trace"]
+
+[[parachains]]
+id = 1001
+chain = "westmint-local"
+cumulus_based = true
+
+  [parachains.collator]
+  ws_port = 4244
+  name = "westmint-collator-02"
+  command = "./bin/polkadot-parachain"
+  args = ["--log=xcm=trace,pallet-assets=trace"]
+
+[[hrmp_channels]]
+sender = 1000
+recipient = 1001
+max_capacity = 8
+max_message_size = 8000
+
+[[hrmp_channels]]
+sender = 1001
+recipient = 1000
+max_capacity = 8
+max_message_size = 8000
