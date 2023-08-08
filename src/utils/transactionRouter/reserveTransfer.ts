@@ -21,22 +21,31 @@ class ReserveTransfer {
       paraId = Number((await destinationApi.query.parachainInfo.parachainId()).toHuman());
     }
 
-    const destination = this.getDestination(receiver, paraId, paraId >= 0);
+    console.log("Reserve transferring");
+
+    const destination = this.getDestination(paraId, paraId >= 0);
     const beneficiary = this.getBeneficiary(receiver);
     const multiAsset = this.getMultiAsset(asset);
 
+    const feeAssetItem = 0;
+    const weightLimit = "Unlimited";
+
     let reserveTransfer: any;
     if (originApi.tx.xcmPallet) {
-      reserveTransfer = originApi.tx.xcmPallet.reserveTransferAssets(
+      reserveTransfer = originApi.tx.xcmPallet.limitedReserveTransferAssets(
         destination,
         beneficiary,
-        multiAsset
+        multiAsset,
+        feeAssetItem,
+        weightLimit
       );
     } else if (originApi.tx.polkadotXcm) {
-      reserveTransfer = originApi.tx.polkadotXcm.reserveTransferAssets(
+      reserveTransfer = originApi.tx.polkadotXcm.limitedReserveTransferAssets(
         destination,
         beneficiary,
-        multiAsset
+        multiAsset,
+        feeAssetItem,
+        weightLimit
       );
     } else {
       throw new Error("The blockchain does not support XCM");
@@ -53,7 +62,7 @@ class ReserveTransfer {
     });
   }
 
-  private static getDestination(receiver: Receiver, paraId: number, isPara: boolean): any {
+  private static getDestination(paraId: number, isPara: boolean): any {
     if (isPara) {
       return {
         V2: [
@@ -97,7 +106,11 @@ class ReserveTransfer {
       };
     }
 
-    return receiverAccount;
+    return {
+      V2: [
+        receiverAccount
+      ]
+    };
   }
 
   private static getMultiAsset(asset: Fungible): any {

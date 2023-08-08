@@ -33,12 +33,12 @@ describe("TransactionRouter Cross-chain", () => {
     );
 
     await addNetwork(identityContract, alice, {
-      rpcUrl: "ws://127.0.0.1:4243",
+      rpcUrl: "ws://127.0.0.1:9910",
       accountType: AccountType.accountId32,
     });
 
     await addNetwork(identityContract, alice, {
-      rpcUrl: "ws://127.0.0.1:4244",
+      rpcUrl: "ws://127.0.0.1:9920",
       accountType: AccountType.accountId32,
     });
   });
@@ -52,35 +52,51 @@ describe("TransactionRouter Cross-chain", () => {
     const receiver: Receiver = {
       addressRaw: bob.addressRaw,
       type: AccountType.accountId32,
-      network: 0,
+      network: 1,
     };
 
     // We have two asset hubs in our local network.
 
-    const assetHub1Provider = new WsProvider("ws://127.0.0.1:4243");
-    const assetHub1Api = await ApiPromise.create({
-      provider: assetHub1Provider,
+    const assetHubProvider = new WsProvider("ws://127.0.0.1:9910");
+    const assetHubApi = await ApiPromise.create({
+      provider: assetHubProvider,
     });
 
-    const assetHub2Provider = new WsProvider("ws://127.0.0.1:4244");
-    const assetHub2Api = await ApiPromise.create({
-      provider: assetHub1Provider,
+    const trappistProvider = new WsProvider("ws://127.0.0.1:9920");
+    const trappistApi = await ApiPromise.create({
+      provider: trappistProvider,
     });
 
     // Create assets on both networks
 
-    if (!(await getAsset(assetHub1Api, 0))) {
-      await createAsset(assetHub1Api, sender.keypair, 0);
+    if (!(await getAsset(assetHubApi, 0))) {
+      await createAsset(assetHubApi, sender.keypair, 0);
     }
 
-    if (!(await getAsset(assetHub2Api, 0))) {
-      await createAsset(assetHub2Api, sender.keypair, 0);
+    if (!(await getAsset(trappistApi, 0))) {
+      await createAsset(trappistApi, sender.keypair, 0);
     }
 
     // Mint some assets to the creator.
-    await mintAsset(assetHub1Api, sender.keypair, 0, 500);
+    await mintAsset(assetHubApi, sender.keypair, 0, 500);
 
-  }, 15000);
+    const amount = Math.pow(10, 12);
+
+    const asset: Fungible = {
+      multiAsset: {
+        interior: "Here",
+        parents: 0,
+      },
+      amount
+    };
+
+    await TransactionRouter.sendTokens(
+      identityContract,
+      sender,
+      receiver,
+      asset
+    );
+  }, 60000);
 });
 
 const addNetwork = async (
@@ -99,13 +115,8 @@ const createAsset = async (
   id: number
 ): Promise<void> => {
   const callTx = async (resolve: () => void) => {
-    const unsub = await api.tx.assets
-      .create(
-        id,
-        // Admin:
-        signer.address,
-        10 // min balance
-      )
+    let forceCreate = api.tx.assets.forceCreate(id, signer.address, true, 10);
+    const unsub = await api.tx.sudo.sudo(forceCreate)
       .signAndSend(signer, (result: any) => {
         if (result.status.isInBlock) {
           unsub();
@@ -142,4 +153,3 @@ const mintAsset = async (
 const getAsset = async (api: ApiPromise, id: number): Promise<any> => {
   return (await api.query.assets.asset(id)).toHuman();
 };
-
