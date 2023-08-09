@@ -80,11 +80,16 @@ describe("TransactionRouter Cross-chain", () => {
     // Mint some assets to the creator.
     await mintAsset(assetHubApi, sender.keypair, 0, 500);
 
-    const amount = Math.pow(10, 12);
+    const amount = 200;
 
     const asset: Fungible = {
       multiAsset: {
-        interior: "Here",
+        interior: {
+          X2: [
+            { PalletInstance: 50 },
+            { GeneralIndex: 0 }
+          ]
+        },
         parents: 0,
       },
       amount
@@ -96,7 +101,7 @@ describe("TransactionRouter Cross-chain", () => {
       receiver,
       asset
     );
-  }, 60000);
+  }, 120000);
 });
 
 const addNetwork = async (
@@ -151,5 +156,5 @@ const mintAsset = async (
 };
 
 const getAsset = async (api: ApiPromise, id: number): Promise<any> => {
-  return (await api.query.assets.asset(id)).toHuman();
+  return (await api.query.assets.asset(id)).toJSON();
 };

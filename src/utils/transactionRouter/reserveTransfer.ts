@@ -16,15 +16,17 @@ class ReserveTransfer {
       throw new Error("The destination blockchain does not support XCM");
     }
 
-    let paraId = -1;
+    let destParaId = -1;
     if (destinationApi.query.parachainInfo) {
-      paraId = Number((await destinationApi.query.parachainInfo.parachainId()).toHuman());
+      const response = (await destinationApi.query.parachainInfo.parachainId()).toJSON();
+      destParaId = Number(response);
     }
 
-    console.log("Reserve transferring");
+    const isOriginPara = destinationApi.query.hasOwnProperty("parachainInfo");
 
-    const destination = this.getDestination(paraId, paraId >= 0);
+    const destination = this.getDestination(isOriginPara, destParaId, destParaId >= 0);
     const beneficiary = this.getBeneficiary(receiver);
+    console.log(beneficiary);
     const multiAsset = this.getMultiAsset(asset);
 
     const feeAssetItem = 0;
@@ -62,28 +64,28 @@ class ReserveTransfer {
     });
   }
 
-  private static getDestination(paraId: number, isPara: boolean): any {
-    if (isPara) {
+  private static getDestination(isOriginPara: boolean, destParaId: number, isDestPara: boolean): any {
+    // TODO: the destination is set incorrectly.
+    // const interior = isDestPara ? { Parachain: paraId } : 
+    let parents = isOriginPara ? 1 : 0;
+
+    if (isDestPara) {
       return {
-        V2: [
-          {
-            parents: 1,
-            interior: {
-              X1: [
-                { Parachain: paraId },
-              ]
-            }
+        V1:
+        {
+          parents,
+          interior: {
+            X1: { Parachain: destParaId }
           }
-        ]
+        }
       }
     } else {
       return {
-        V2: [
-          {
-            parents: 1,
-            interior: "Here"
-          }
-        ]
+        V1:
+        {
+          parents,
+          interior: "Here"
+        }
       }
     }
   }
@@ -107,15 +109,20 @@ class ReserveTransfer {
     }
 
     return {
-      V2: [
-        receiverAccount
-      ]
+      V1: {
+        parents: 0,
+        interior: {
+          X1: {
+            ...receiverAccount
+          }
+        }
+      }
     };
   }
 
   private static getMultiAsset(asset: Fungible): any {
     return {
-      V2: [
+      V1: [
         {
           fun: {
             Fungible: asset.amount,

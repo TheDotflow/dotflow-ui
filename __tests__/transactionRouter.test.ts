@@ -85,7 +85,7 @@ describe("TransactionRouter", () => {
     const { data: balance } = (await westendApi.query.system.account(
       receiver.addressRaw
     )) as any;
-    const receiverBalance = parseInt(balance.free.toHuman().replace(/,/g, ""));
+    const receiverBalance = balance.free.toJSON();
 
     // First lets add a network.
     await addNetwork(identityContract, alice, {
@@ -113,9 +113,7 @@ describe("TransactionRouter", () => {
     const { data: newBalance } = (await westendApi.query.system.account(
       receiver.addressRaw
     )) as any;
-    const newReceiverBalance = parseInt(
-      newBalance.free.toHuman().replace(/,/g, "")
-    );
+    const newReceiverBalance = newBalance.free.toJSON();
 
     expect(newReceiverBalance).toBe(receiverBalance + amount);
   }, 30000);
@@ -150,16 +148,16 @@ describe("TransactionRouter", () => {
     const senderAccountBefore: any = (await assetHubApi.query.assets.account(
       0,
       sender.keypair.address
-    )).toHuman();
+    )).toJSON();
 
-    const senderBalanceBefore = parseInt(senderAccountBefore.balance.replace(/,/g, ""));
+    const senderBalanceBefore = senderAccountBefore.balance;
 
     const receiverAccountBefore: any = (await assetHubApi.query.assets.account(
       0,
       bob.address
-    )).toHuman();
+    )).toJSON();
 
-    const receiverBalanceBefore = receiverAccountBefore ? parseInt(receiverAccountBefore.balance.replace(/,/g, "")) : 0;
+    const receiverBalanceBefore = receiverAccountBefore ? receiverAccountBefore.balance : 0;
 
     // First lets add a network.
     await addNetwork(identityContract, alice, {
@@ -190,16 +188,16 @@ describe("TransactionRouter", () => {
     const senderAccountAfter: any = (await assetHubApi.query.assets.account(
       0,
       sender.keypair.address
-    )).toHuman();
+    )).toJSON();
 
-    const senderBalanceAfter = parseInt(senderAccountAfter.balance.replace(/,/g, ""));
+    const senderBalanceAfter = senderAccountAfter.balance;
 
     const receiverAccountAfter: any = (await assetHubApi.query.assets.account(
       0,
       bob.address
-    )).toHuman();
+    )).toJSON();
 
-    const receiverBalanceAfter = parseInt(receiverAccountAfter.balance.replace(/,/g, ""));
+    const receiverBalanceAfter = receiverAccountAfter.balance;
 
     expect(senderBalanceAfter).toBe(senderBalanceBefore - amount);
     expect(receiverBalanceAfter).toBe(receiverBalanceBefore + amount);
@@ -264,5 +262,5 @@ const mintAsset = async (
 };
 
 const getAsset = async (api: ApiPromise, id: number): Promise<any> => {
-  return (await api.query.assets.asset(id)).toHuman();
+  return (await api.query.assets.asset(id)).toJSON();
 };

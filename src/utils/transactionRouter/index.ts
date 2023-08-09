@@ -12,7 +12,6 @@ class TransactionRouter {
     receiver: Receiver,
     asset: Fungible
   ): Promise<void> {
-    console.log("HEY");
     if (sender.network === receiver.network && sender.keypair.addressRaw === receiver.addressRaw) {
       throw new Error("Cannot send tokens to yourself");
     }
@@ -30,7 +29,6 @@ class TransactionRouter {
       const originApi = await this.getApi(identityContract, sender.network);
       const destApi = await this.getApi(identityContract, receiver.network);
 
-      console.log("HEY 2");
       await ReserveTransfer.send(
         originApi,
         destApi,
@@ -44,8 +42,6 @@ class TransactionRouter {
   private static async getApi(identityContract: IdentityContract, networkId: number): Promise<ApiPromise> {
     const rpcUrl = (await identityContract.query.networkInfoOf(networkId)).value
       .ok?.rpcUrl;
-
-    console.log(rpcUrl);
 
     const wsProvider = new WsProvider(rpcUrl);
     const api = await ApiPromise.create({ provider: wsProvider });
