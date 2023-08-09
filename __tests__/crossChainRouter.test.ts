@@ -80,6 +80,8 @@ describe("TransactionRouter Cross-chain", () => {
     // Mint some assets to the creator.
     await mintAsset(assetHubApi, sender.keypair, 0, 500);
 
+    const balanceBefore = (await getAssetBalance(assetHubApi, 0, alice.address)).balance;
+
     const amount = 200;
 
     const asset: Fungible = {
@@ -101,6 +103,9 @@ describe("TransactionRouter Cross-chain", () => {
       receiver,
       asset
     );
+
+    const balanceAfter = (await getAssetBalance(assetHubApi, 0, alice.address)).balance;
+    expect(balanceAfter).toBe(balanceBefore - amount);
   }, 120000);
 });
 
@@ -158,3 +163,7 @@ const mintAsset = async (
 const getAsset = async (api: ApiPromise, id: number): Promise<any> => {
   return (await api.query.assets.asset(id)).toJSON();
 };
+
+const getAssetBalance = async (api: ApiPromise, id: number, who: string): Promise<any> => {
+  return (await api.query.assets.account(id, who)).toJSON();
+}
