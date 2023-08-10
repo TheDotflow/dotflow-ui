@@ -26,7 +26,6 @@ class ReserveTransfer {
 
     const destination = this.getDestination(isOriginPara, destParaId, destParaId >= 0);
     const beneficiary = this.getBeneficiary(receiver);
-    console.log(beneficiary);
     const multiAsset = this.getMultiAsset(asset);
 
     const feeAssetItem = 0;

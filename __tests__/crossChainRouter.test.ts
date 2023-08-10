@@ -67,6 +67,11 @@ describe("TransactionRouter Cross-chain", () => {
       provider: trappistProvider,
     });
 
+    const lockdownMode = await getLockdownMode(trappistApi);
+    if (lockdownMode) {
+      await deactivateLockdown(trappistApi, alice);
+    }
+
     // Create assets on both networks
 
     if (!(await getAsset(assetHubApi, 0))) {
@@ -77,12 +82,13 @@ describe("TransactionRouter Cross-chain", () => {
       await createAsset(trappistApi, sender.keypair, 0);
     }
 
+    const mintAmount = 20000000000000;
     // Mint some assets to the creator.
-    await mintAsset(assetHubApi, sender.keypair, 0, 500);
+    await mintAsset(assetHubApi, sender.keypair, 0, mintAmount);
 
     const balanceBefore = (await getAssetBalance(assetHubApi, 0, alice.address)).balance;
 
-    const amount = 200;
+    const amount = 10000000000000;
 
     const asset: Fungible = {
       multiAsset: {
@@ -106,7 +112,7 @@ describe("TransactionRouter Cross-chain", () => {
 
     const balanceAfter = (await getAssetBalance(assetHubApi, 0, alice.address)).balance;
     expect(balanceAfter).toBe(balanceBefore - amount);
-  }, 120000);
+  }, 180000);
 });
 
 const addNetwork = async (
@@ -125,7 +131,7 @@ const createAsset = async (
   id: number
 ): Promise<void> => {
   const callTx = async (resolve: () => void) => {
-    let forceCreate = api.tx.assets.forceCreate(id, signer.address, true, 10);
+    const forceCreate = api.tx.assets.forceCreate(id, signer.address, true, 10);
     const unsub = await api.tx.sudo.sudo(forceCreate)
       .signAndSend(signer, (result: any) => {
         if (result.status.isInBlock) {
@@ -158,6 +164,24 @@ const mintAsset = async (
       });
   };
   return new Promise(callTx);
+};
+
+const deactivateLockdown = async (api: ApiPromise, signer: KeyringPair): Promise<void> => {
+  const callTx = async (resolve: () => void) => {
+    const forceDisable = api.tx.lockdownMode.deactivateLockdownMode();
+    const unsub = await api.tx.sudo.sudo(forceDisable)
+      .signAndSend(signer, (result: any) => {
+        if (result.status.isInBlock) {
+          unsub();
+          resolve();
+        }
+      });
+  };
+  return new Promise(callTx);
+}
+
+const getLockdownMode = async (api: ApiPromise): Promise<any> => {
+  return (await api.query.lockdownMode.lockdownModeStatus()).toJSON();
 };
 
 const getAsset = async (api: ApiPromise, id: number): Promise<any> => {
