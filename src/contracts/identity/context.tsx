@@ -64,7 +64,8 @@ const IdentityContractProvider = ({ children }: Props) => {
   const [identityNo, setIdentityNo] = useState<IdentityNo>(null);
   const [networks, setNetworks] = useState<Networks>({});
   const [addresses, setAddresses] = useState<Array<Address>>([]);
-  const [loading, setLoading] = useState(false);
+  const [loadingIdentityNo, setLoadingIdentityNo] = useState(false);
+  const [loadingNetworks, setLoadingNetworks] = useState(false);
   const { toastError } = useToast();
 
   const fetchIdentityNo = useCallback(async () => {
@@ -72,6 +73,7 @@ const IdentityContractProvider = ({ children }: Props) => {
       setIdentityNo(null);
       return;
     }
+    setLoadingIdentityNo(true);
     try {
       const result = await contractQuery(api, '', contract, 'identity_of', {}, [
         activeAccount.address,
@@ -87,6 +89,7 @@ const IdentityContractProvider = ({ children }: Props) => {
     } catch (e) {
       setIdentityNo(null);
     }
+    setLoadingIdentityNo(false);
   }, [activeAccount, api, contract]);
 
   const fetchNetworks = useCallback(async () => {
@@ -94,8 +97,6 @@ const IdentityContractProvider = ({ children }: Props) => {
       setNetworks({});
       return;
     }
-
-    if (Object.keys(networks).length) return;
 
     const getChainInfo = async (
       rpcUrls: string[]
@@ -125,6 +126,7 @@ const IdentityContractProvider = ({ children }: Props) => {
       }
     };
 
+    setLoadingNetworks(true);
     try {
       const result = await contractQuery(
         api,
@@ -157,6 +159,7 @@ const IdentityContractProvider = ({ children }: Props) => {
     } catch (e: any) {
       toastError(e.toString());
     }
+    setLoadingNetworks(false);
   }, [api, contract, toastError]);
 
   const fetchAddresses = useCallback(async () => {
@@ -196,13 +199,12 @@ const IdentityContractProvider = ({ children }: Props) => {
   }, [api, contract, identityNo, fetchAddresses]);
 
   useEffect(() => {
-    const init = async () => {
-      setLoading(true);
-      await Promise.all([fetchIdentityNo(), fetchNetworks()]);
-      setLoading(false);
-    };
-    init();
-  }, [fetchIdentityNo, fetchNetworks]);
+    fetchIdentityNo();
+  }, [api, contract, activeAccount]);
+
+  useEffect(() => {
+    fetchNetworks();
+  }, [api?.isReady, contract?.address]);
 
   return (
     <IdentityContext.Provider
@@ -213,7 +215,7 @@ const IdentityContractProvider = ({ children }: Props) => {
         networks,
         fetchAddresses,
         fetchIdentityNo,
-        loading,
+        loading: loadingIdentityNo || loadingNetworks,
       }}
     >
       {children}
