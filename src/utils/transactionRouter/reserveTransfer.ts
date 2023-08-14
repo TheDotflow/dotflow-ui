@@ -173,14 +173,16 @@ class ReserveTransfer {
   // Returns a proper MultiAsset.
   private static getMultiAsset(asset: Fungible): any {
     return {
-      V1: {
-        fun: {
-          Fungible: asset.amount,
+      V1: [
+        {
+          fun: {
+            Fungible: asset.amount,
+          },
+          id: {
+            Concrete: asset.multiAsset,
+          },
         },
-        id: {
-          Concrete: asset.multiAsset,
-        },
-      },
+      ]
     }
   }
 }

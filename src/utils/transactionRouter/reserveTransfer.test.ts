@@ -130,14 +130,16 @@ describe("TransactionRouter unit tests", () => {
       // @ts-ignore
       expect(ReserveTransfer.getMultiAsset(asset)).toStrictEqual(
         {
-          V1: {
-            fun: {
-              Fungible: asset.amount
-            },
-            id: {
-              Concrete: asset.multiAsset
+          V1: [
+            {
+              fun: {
+                Fungible: asset.amount
+              },
+              id: {
+                Concrete: asset.multiAsset
+              }
             }
-          }
+          ]
         }
       )
     });

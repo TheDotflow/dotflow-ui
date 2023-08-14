@@ -97,14 +97,14 @@ describe("TransactionRouter Cross-chain", () => {
       });
     }
 
-    const mintAmount = 20000000000;
+    const mintAmount = 2000000000000;
     // Mint some assets to the creator.
     await mintAsset(assetHubApi, sender.keypair, USDT_ASSET_ID, mintAmount);
 
     const senderBalanceBefore = await getAssetBalance(assetHubApi, USDT_ASSET_ID, alice.address);
     const receiverBalanceBefore = await getAssetBalance(trappistApi, USDT_ASSET_ID, bob.address);
 
-    const amount = 10000000000;
+    const amount = 1000000000000;
     const assetReserveChainId = 0;
 
     const asset: Fungible = {
