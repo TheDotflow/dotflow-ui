@@ -1,6 +1,6 @@
 {
   "source": {
-    "hash": "0x4ab87202c8d94c5fd2bb598ea73ce826b93351f47e0a2e9ca61f9a4c7591b129",
+    "hash": "0x8dc8d21880cc15012552148eb6551379525ee975554f1f87b61470a487333135",
     "language": "ink! 4.2.0",
     "compiler": "rustc 1.68.0-nightly",
     "build_info": {
@@ -14,7 +14,7 @@
     }
   },
   "contract": {
-    "name": "address-book",
+    "name": "address_book",
     "version": "0.1.0",
     "authors": [
       "Master Union <masteruniondoo@gmail.com>"
