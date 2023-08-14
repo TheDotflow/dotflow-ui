@@ -11,7 +11,7 @@ import { AccountType, NetworkInfo } from "../types/types-arguments/identity";
 const wsProvider = new WsProvider("ws://127.0.0.1:9944");
 const keyring = new Keyring({ type: "sr25519" });
 
-describe("TransactionRouter", () => {
+describe("TransactionRouter e2e tests", () => {
   let swankyApi: ApiPromise;
   let alice: KeyringPair;
   let bob: KeyringPair;
