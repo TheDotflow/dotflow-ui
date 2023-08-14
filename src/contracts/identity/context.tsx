@@ -95,11 +95,14 @@ const IdentityContractProvider = ({ children }: Props) => {
       return;
     }
 
+    if (Object.keys(networks).length) return;
+
     const getChainInfo = async (
-      rpcUrl: string
+      rpcUrls: string[]
     ): Promise<NetworkConsts | null> => {
+      const rpc = rpcUrls[0];
       try {
-        const provider = new WsProvider(rpcUrl);
+        const provider = new WsProvider(rpc);
         const api = new ApiPromise({ provider, rpc: jsonrpc });
 
         await api.isReady;
@@ -107,13 +110,17 @@ const IdentityContractProvider = ({ children }: Props) => {
         const ss58Prefix: number =
           api.consts.system.ss58Prefix.toPrimitive() as number;
         const name = (await api.rpc.system.chain()).toString();
+        const paraId = (
+          await api.query.parachainInfo.parachainId()
+        ).toPrimitive() as number;
 
         return {
           name,
           ss58Prefix,
+          paraId,
         };
       } catch (e) {
-        toastError && toastError(`Failed to get chain info for ${rpcUrl}`);
+        toastError && toastError(`Failed to get chain info for ${rpc}`);
         return null;
       }
     };
@@ -137,11 +144,11 @@ const IdentityContractProvider = ({ children }: Props) => {
 
       for await (const item of output) {
         const networkId = Number(item[0]);
-        const { accountType, rpcUrl } = item[1];
-        const info = await getChainInfo(rpcUrl);
+        const { accountType, rpcUrls } = item[1];
+        const info = await getChainInfo(rpcUrls);
         if (info)
           _networks[networkId] = {
-            rpcUrl,
+            rpcUrls,
             accountType,
             ...info,
           };
@@ -191,8 +198,7 @@ const IdentityContractProvider = ({ children }: Props) => {
   useEffect(() => {
     const init = async () => {
       setLoading(true);
-      await fetchIdentityNo();
-      await fetchNetworks();
+      await Promise.all([fetchIdentityNo(), fetchNetworks()]);
       setLoading(false);
     };
     init();
