@@ -129,6 +129,21 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
                   </MenuItem>
                 ))}
               </TextField>
+              {networkId !== undefined ? (
+                <div>
+                  <FormHelperText
+                    sx={{
+                      width: '100%',
+                      textAlign: 'right',
+                      margin: 0,
+                    }}
+                  >
+                    <span>{`Ss58 prefix: ${networks[networkId].ss58Prefix}`}</span>
+                  </FormHelperText>
+                </div>
+              ) : (
+                <></>
+              )}
             </FormControl>
             <FormControl className='form-item'>
               <FormLabel>Address</FormLabel>
