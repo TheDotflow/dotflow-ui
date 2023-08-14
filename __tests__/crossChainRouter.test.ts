@@ -11,6 +11,8 @@ import { AccountType, NetworkInfo } from "../types/types-arguments/identity";
 const wsProvider = new WsProvider("ws://127.0.0.1:9944");
 const keyring = new Keyring({ type: "sr25519" });
 
+const USDT_ASSET_ID = 1984;
+
 describe("TransactionRouter Cross-chain", () => {
   let swankyApi: ApiPromise;
   let alice: KeyringPair;
@@ -43,7 +45,7 @@ describe("TransactionRouter Cross-chain", () => {
     });
   });
 
-  it("Transferring cross-chain works", async () => {
+  it("Transferring cross-chain from asset's reserve chain works", async () => {
     const sender: Sender = {
       keypair: alice,
       network: 0
@@ -74,21 +76,35 @@ describe("TransactionRouter Cross-chain", () => {
 
     // Create assets on both networks
 
-    if (!(await getAsset(assetHubApi, 0))) {
-      await createAsset(assetHubApi, sender.keypair, 0);
+    if (!(await getAsset(assetHubApi, USDT_ASSET_ID))) {
+      await createAsset(assetHubApi, sender.keypair, USDT_ASSET_ID);
     }
 
-    if (!(await getAsset(trappistApi, 0))) {
-      await createAsset(trappistApi, sender.keypair, 0);
+    if (!(await getAsset(trappistApi, USDT_ASSET_ID))) {
+      await createAsset(trappistApi, sender.keypair, USDT_ASSET_ID);
     }
 
-    const mintAmount = 20000000000000;
+    if (!(await getAssetIdMultiLocation(trappistApi, USDT_ASSET_ID))) {
+      await registerReserveAsset(trappistApi, alice, USDT_ASSET_ID, {
+        parents: 1,
+        interior: {
+          X3: [
+            { Parachain: 1000 },
+            { PalletInstance: 50 },
+            { GeneralIndex: USDT_ASSET_ID }
+          ]
+        }
+      });
+    }
+
+    const mintAmount = 20000000000;
     // Mint some assets to the creator.
-    await mintAsset(assetHubApi, sender.keypair, 0, mintAmount);
+    await mintAsset(assetHubApi, sender.keypair, USDT_ASSET_ID, mintAmount);
 
-    const balanceBefore = (await getAssetBalance(assetHubApi, 0, alice.address)).balance;
+    const senderBalanceBefore = await getAssetBalance(assetHubApi, USDT_ASSET_ID, alice.address);
+    const receiverBalanceBefore = await getAssetBalance(trappistApi, USDT_ASSET_ID, bob.address);
 
-    const amount = 10000000000000;
+    const amount = 10000000000;
     const assetReserveChainId = 0;
 
     const asset: Fungible = {
@@ -96,7 +112,7 @@ describe("TransactionRouter Cross-chain", () => {
         interior: {
           X2: [
             { PalletInstance: 50 },
-            { GeneralIndex: 0 }
+            { GeneralIndex: USDT_ASSET_ID }
           ]
         },
         parents: 0,
@@ -112,8 +128,13 @@ describe("TransactionRouter Cross-chain", () => {
       asset
     );
 
-    const balanceAfter = (await getAssetBalance(assetHubApi, 0, alice.address)).balance;
-    expect(balanceAfter).toBe(balanceBefore - amount);
+    const senderBalanceAfter = await getAssetBalance(assetHubApi, USDT_ASSET_ID, alice.address);
+    const receiverBalanceAfter = await getAssetBalance(trappistApi, USDT_ASSET_ID, bob.address);
+
+    expect(senderBalanceAfter).toBe(senderBalanceBefore - amount);
+    // The `receiverBalanceAfter` won't be exactly equal to `receiverBalanceBefore + amount` since some of the tokens are
+    // used for `BuyExecution`.
+    expect(receiverBalanceAfter).toBeGreaterThan(receiverBalanceBefore);
   }, 180000);
 });
 
@@ -168,6 +189,29 @@ const mintAsset = async (
   return new Promise(callTx);
 };
 
+const registerReserveAsset = async (
+  api: ApiPromise,
+  signer: KeyringPair,
+  id: number,
+  assetLocation: any
+): Promise<void> => {
+  const callTx = async (resolve: () => void) => {
+    const register = api.tx.assetRegistry.registerReserveAsset(id, assetLocation);
+    const unsub = await api.tx.sudo.sudo(register)
+      .signAndSend(signer, (result: any) => {
+        if (result.status.isInBlock) {
+          unsub();
+          resolve();
+        }
+      });
+  };
+  return new Promise(callTx);
+}
+
+const getAssetIdMultiLocation = async (api: ApiPromise, id: number): Promise<any> => {
+  return (await api.query.assetRegistry.assetIdMultiLocation(id)).toJSON();
+}
+
 const deactivateLockdown = async (api: ApiPromise, signer: KeyringPair): Promise<void> => {
   const callTx = async (resolve: () => void) => {
     const forceDisable = api.tx.lockdownMode.deactivateLockdownMode();
@@ -191,5 +235,9 @@ const getAsset = async (api: ApiPromise, id: number): Promise<any> => {
 };
 
 const getAssetBalance = async (api: ApiPromise, id: number, who: string): Promise<any> => {
-  return (await api.query.assets.account(id, who)).toJSON();
+  const maybeBalance: any = (await api.query.assets.account(id, who)).toJSON();
+  if (maybeBalance && maybeBalance.balance) {
+    return maybeBalance.balance;
+  }
+  return 0;
 }
