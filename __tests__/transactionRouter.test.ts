@@ -37,7 +37,7 @@ describe("TransactionRouter", () => {
     // First lets add a network and create an identity.
 
     await addNetwork(identityContract, alice, {
-      rpcUrl: "ws://127.0.0.1:4242",
+      rpcUrl: "ws://127.0.0.1:9910",
       accountType: AccountType.accountId32,
     });
 
@@ -57,11 +57,14 @@ describe("TransactionRouter", () => {
       amount: 1000
     };
 
+    const assetReserveChainId = 0;
+
     await expect(
       TransactionRouter.sendTokens(
         identityContract,
         sender,
         receiver,
+        assetReserveChainId,
         asset
       )
     ).rejects.toThrow("Cannot send tokens to yourself");
@@ -79,17 +82,17 @@ describe("TransactionRouter", () => {
       network: 0,
     };
 
-    const westendProvider = new WsProvider("ws://127.0.0.1:4242");
+    const westendProvider = new WsProvider("ws://127.0.0.1:9910");
     const westendApi = await ApiPromise.create({ provider: westendProvider });
 
     const { data: balance } = (await westendApi.query.system.account(
       receiver.addressRaw
     )) as any;
-    const receiverBalance = balance.free.toJSON();
+    const receiverBalance = parseInt(balance.free.toHuman().replace(/,/g, ""));
 
     // First lets add a network.
     await addNetwork(identityContract, alice, {
-      rpcUrl: "ws://127.0.0.1:4242",
+      rpcUrl: "ws://127.0.0.1:9910",
       accountType: AccountType.accountId32,
     });
 
@@ -102,18 +105,22 @@ describe("TransactionRouter", () => {
       },
       amount
     };
+    const assetReserveChainId = 0;
 
     await TransactionRouter.sendTokens(
       identityContract,
       sender,
       receiver,
+      assetReserveChainId,
       asset
     );
 
     const { data: newBalance } = (await westendApi.query.system.account(
       receiver.addressRaw
     )) as any;
-    const newReceiverBalance = newBalance.free.toJSON();
+    const newReceiverBalance = parseInt(
+      newBalance.free.toHuman().replace(/,/g, "")
+    );
 
     expect(newReceiverBalance).toBe(receiverBalance + amount);
   }, 30000);
@@ -130,7 +137,7 @@ describe("TransactionRouter", () => {
       network: 0,
     };
 
-    const assetHubProvider = new WsProvider("ws://127.0.0.1:4243");
+    const assetHubProvider = new WsProvider("ws://127.0.0.1:9930");
     const assetHubApi = await ApiPromise.create({
       provider: assetHubProvider,
     });
@@ -148,20 +155,20 @@ describe("TransactionRouter", () => {
     const senderAccountBefore: any = (await assetHubApi.query.assets.account(
       0,
       sender.keypair.address
-    )).toJSON();
+    )).toHuman();
 
-    const senderBalanceBefore = senderAccountBefore.balance;
+    const senderBalanceBefore = parseInt(senderAccountBefore.balance.replace(/,/g, ""));
 
     const receiverAccountBefore: any = (await assetHubApi.query.assets.account(
       0,
       bob.address
-    )).toJSON();
+    )).toHuman();
 
-    const receiverBalanceBefore = receiverAccountBefore ? receiverAccountBefore.balance : 0;
+    const receiverBalanceBefore = receiverAccountBefore ? parseInt(receiverAccountBefore.balance.replace(/,/g, "")) : 0;
 
     // First lets add a network.
     await addNetwork(identityContract, alice, {
-      rpcUrl: "ws://127.0.0.1:4243",
+      rpcUrl: "ws://127.0.0.1:9930",
       accountType: AccountType.accountId32,
     });
 
@@ -177,32 +184,35 @@ describe("TransactionRouter", () => {
       },
       amount
     };
+    const assetReserveChainId = 0;
 
     await TransactionRouter.sendTokens(
       identityContract,
       sender,
       receiver,
+      assetReserveChainId,
       asset
     );
 
     const senderAccountAfter: any = (await assetHubApi.query.assets.account(
       0,
       sender.keypair.address
-    )).toJSON();
+    )).toHuman();
 
-    const senderBalanceAfter = senderAccountAfter.balance;
+    const senderBalanceAfter = parseInt(senderAccountAfter.balance.replace(/,/g, ""));
 
     const receiverAccountAfter: any = (await assetHubApi.query.assets.account(
       0,
       bob.address
-    )).toJSON();
+    )).toHuman();
 
-    const receiverBalanceAfter = receiverAccountAfter.balance;
+    console.log(receiverAccountAfter);
+    const receiverBalanceAfter = parseInt(receiverAccountAfter.balance.replace(/,/g, ""));
 
     expect(senderBalanceAfter).toBe(senderBalanceBefore - amount);
     expect(receiverBalanceAfter).toBe(receiverBalanceBefore + amount);
 
-  }, 120000);
+  }, 180000);
 });
 
 const addNetwork = async (
@@ -262,5 +272,5 @@ const mintAsset = async (
 };
 
 const getAsset = async (api: ApiPromise, id: number): Promise<any> => {
-  return (await api.query.assets.asset(id)).toJSON();
+  return (await api.query.assets.asset(id)).toHuman();
 };

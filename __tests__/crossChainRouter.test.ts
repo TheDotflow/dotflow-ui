@@ -89,6 +89,7 @@ describe("TransactionRouter Cross-chain", () => {
     const balanceBefore = (await getAssetBalance(assetHubApi, 0, alice.address)).balance;
 
     const amount = 10000000000000;
+    const assetReserveChainId = 0;
 
     const asset: Fungible = {
       multiAsset: {
@@ -107,6 +108,7 @@ describe("TransactionRouter Cross-chain", () => {
       identityContract,
       sender,
       receiver,
+      assetReserveChainId,
       asset
     );
 

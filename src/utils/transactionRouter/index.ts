@@ -10,6 +10,7 @@ class TransactionRouter {
     identityContract: IdentityContract,
     sender: Sender,
     receiver: Receiver,
+    reserveChainId: number,
     asset: Fungible
   ): Promise<void> {
     if (sender.network === receiver.network && sender.keypair.addressRaw === receiver.addressRaw) {
@@ -25,13 +26,35 @@ class TransactionRouter {
         receiver,
         asset
       );
-    } else {
-      const originApi = await this.getApi(identityContract, sender.network);
-      const destApi = await this.getApi(identityContract, receiver.network);
 
-      await ReserveTransfer.send(
+      return;
+    }
+
+    const originApi = await this.getApi(identityContract, sender.network);
+    const destApi = await this.getApi(identityContract, receiver.network);
+    if (sender.network == reserveChainId) {
+      await ReserveTransfer.sendFromReserveChain(
         originApi,
         destApi,
+        sender.keypair,
+        receiver,
+        asset
+      );
+    } else if (receiver.network == reserveChainId) {
+      ReserveTransfer.sendToReserveChain(
+        originApi,
+        destApi,
+        sender.keypair,
+        receiver,
+        asset
+      );
+    } else {
+      const reserveChain = await this.getApi(identityContract, receiver.network);
+
+      ReserveTransfer.sendAcrossReserveChain(
+        originApi,
+        destApi,
+        reserveChain,
         sender.keypair,
         receiver,
         asset

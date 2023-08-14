@@ -11,12 +11,11 @@ class TransferAsset {
     receiver: Receiver,
     asset: Fungible
   ): Promise<void> {
-    // We use XCM even for transfers that are occurring on the same chain. The
-    // reason for this is that we cannot know what is the pallet and function
-    // for transferring tokens since it can be different on each chain. For that
-    // reason we will use the XCM `TransferAsset` instruction which is
-    // standardized and as far as the chain has an XCM executor the transaction
-    // will be executed correctly.
+    // We use XCM even for transfers that are occurring on the same chain. The reason for
+    // this is that we cannot know what is the pallet and function for transferring tokens 
+    // since it can be different on each chain. For that reason we will use the XCM `TransferAsset` 
+    // instruction which is standardized and as far as the chain has an XCM executor the 
+    // transaction will be executed correctly.
 
     const xcm = this.xcmTransferAssetMessage(
       receiver.addressRaw,
