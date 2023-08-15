@@ -129,7 +129,7 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
                   </MenuItem>
                 ))}
               </TextField>
-              {networkId !== undefined &&
+              {networkId !== undefined && (
                 <div>
                   <FormHelperText
                     sx={{
@@ -141,8 +141,6 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
                     <span>{`Ss58 prefix: ${networks[networkId].ss58Prefix}`}</span>
                   </FormHelperText>
                 </div>
-              ) : (
-                <></>
               )}
             </FormControl>
             <FormControl className='form-item'>

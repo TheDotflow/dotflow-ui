@@ -101,7 +101,9 @@ const IdentityContractProvider = ({ children }: Props) => {
     const getChainInfo = async (
       rpcUrls: string[]
     ): Promise<NetworkConsts | null> => {
-      const rpc = rpcUrls[0];
+      const count = rpcUrls.length;
+      const rpcIndex = Math.min(Math.floor(Math.random() * count), count - 1);
+      const rpc = rpcUrls[rpcIndex];
       try {
         const provider = new WsProvider(rpc);
         const api = new ApiPromise({ provider, rpc: jsonrpc });
