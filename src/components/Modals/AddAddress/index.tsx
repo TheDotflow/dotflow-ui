@@ -129,7 +129,7 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
                   </MenuItem>
                 ))}
               </TextField>
-              {networkId !== undefined ? (
+              {networkId !== undefined &&
                 <div>
                   <FormHelperText
                     sx={{
