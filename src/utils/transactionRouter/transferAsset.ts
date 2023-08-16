@@ -27,35 +27,17 @@ class TransferAsset {
     let xcmExecute: any;
 
     if (api.tx.xcmPallet) {
-      const paymentInfo = (await api.tx.xcmPallet
-        .execute(xcm, 0)
-        .paymentInfo(sender)).toHuman();
-
-      if (!paymentInfo || !paymentInfo.weight) {
-        throw new Error("Couldn't estimate transaction fee");
-      }
-
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      const xcmMaxRefTime = parseInt(paymentInfo.weight.refTime.replace(/,/g, ""));
-
-      // TODO: don't hardcode the max weight.
-      xcmExecute = api.tx.xcmPallet.execute(xcm, xcmMaxRefTime * 10);
+      // TODO: come up with more precise weight estimations.
+      xcmExecute = api.tx.xcmPallet.execute(xcm, {
+        refTime: Math.pow(10, 9),
+        proofSize: 10000,
+      });
     } else if (api.tx.polkadotXcm) {
-      const paymentInfo = (await api.tx.polkadotXcm
-        .execute(xcm, 0)
-        .paymentInfo(sender)).toHuman();
-
-      if (!paymentInfo || !paymentInfo.weight) {
-        throw new Error("Couldn't estimate transaction fee");
-      }
-
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      const xcmMaxRefTime = parseInt(paymentInfo.weight.refTime.replace(/,/g, ""));
-
-      // TODO: don't hardcode the max weight.
-      xcmExecute = api.tx.polkadotXcm.execute(xcm, xcmMaxRefTime * 10);
+      // TODO: come up with more precise weight estimations.
+      xcmExecute = api.tx.polkadotXcm.execute(xcm, {
+        refTime: Math.pow(10, 9),
+        proofSize: 10000,
+      });
     } else {
       throw new Error("The blockchain does not support XCM");
     }

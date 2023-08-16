@@ -45,7 +45,7 @@ describe("TransactionRouter Cross-chain", () => {
     });
   });
 
-  it("Transferring cross-chain from asset's reserve chain works", async () => {
+  test("Transferring cross-chain from asset's reserve chain works", async () => {
     const sender: Sender = {
       keypair: alice,
       network: 0
@@ -136,6 +136,10 @@ describe("TransactionRouter Cross-chain", () => {
     // used for `BuyExecution`.
     expect(receiverBalanceAfter).toBeGreaterThan(receiverBalanceBefore);
   }, 180000);
+
+  test("Transferring cross-chain to asset's reserve chain works", async () => {
+    // TODO
+  });
 });
 
 const addNetwork = async (

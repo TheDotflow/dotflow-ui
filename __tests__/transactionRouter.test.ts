@@ -82,17 +82,17 @@ describe("TransactionRouter e2e tests", () => {
       network: 0,
     };
 
-    const westendProvider = new WsProvider("ws://127.0.0.1:9910");
-    const westendApi = await ApiPromise.create({ provider: westendProvider });
+    const rococoProvider = new WsProvider("ws://127.0.0.1:9900");
+    const rococoApi = await ApiPromise.create({ provider: rococoProvider });
 
-    const { data: balance } = (await westendApi.query.system.account(
+    const { data: balance } = (await rococoApi.query.system.account(
       receiver.addressRaw
     )) as any;
     const receiverBalance = parseInt(balance.free.toHuman().replace(/,/g, ""));
 
     // First lets add a network.
     await addNetwork(identityContract, alice, {
-      rpcUrl: "ws://127.0.0.1:9910",
+      rpcUrl: "ws://127.0.0.1:9900",
       accountType: AccountType.accountId32,
     });
 
@@ -115,7 +115,7 @@ describe("TransactionRouter e2e tests", () => {
       asset
     );
 
-    const { data: newBalance } = (await westendApi.query.system.account(
+    const { data: newBalance } = (await rococoApi.query.system.account(
       receiver.addressRaw
     )) as any;
     const newReceiverBalance = parseInt(
@@ -137,29 +137,34 @@ describe("TransactionRouter e2e tests", () => {
       network: 0,
     };
 
-    const assetHubProvider = new WsProvider("ws://127.0.0.1:9930");
-    const assetHubApi = await ApiPromise.create({
-      provider: assetHubProvider,
+    const trappitProvider = new WsProvider("ws://127.0.0.1:9920");
+    const trappistApi = await ApiPromise.create({
+      provider: trappitProvider,
     });
 
+    const lockdownMode = await getLockdownMode(trappistApi);
+    if (lockdownMode) {
+      await deactivateLockdown(trappistApi, alice);
+    }
+
     // First create an asset.
-    if (!(await getAsset(assetHubApi, 0))) {
-      await createAsset(assetHubApi, sender.keypair, 0);
+    if (!(await getAsset(trappistApi, 0))) {
+      await createAsset(trappistApi, sender.keypair, 0);
     }
 
     // Mint some assets to the creator.
-    await mintAsset(assetHubApi, sender.keypair, 0, 500);
+    await mintAsset(trappistApi, sender.keypair, 0, 500);
 
     const amount = 200;
 
-    const senderAccountBefore: any = (await assetHubApi.query.assets.account(
+    const senderAccountBefore: any = (await trappistApi.query.assets.account(
       0,
       sender.keypair.address
     )).toHuman();
 
     const senderBalanceBefore = parseInt(senderAccountBefore.balance.replace(/,/g, ""));
 
-    const receiverAccountBefore: any = (await assetHubApi.query.assets.account(
+    const receiverAccountBefore: any = (await trappistApi.query.assets.account(
       0,
       bob.address
     )).toHuman();
@@ -168,7 +173,7 @@ describe("TransactionRouter e2e tests", () => {
 
     // First lets add a network.
     await addNetwork(identityContract, alice, {
-      rpcUrl: "ws://127.0.0.1:9930",
+      rpcUrl: "ws://127.0.0.1:9920",
       accountType: AccountType.accountId32,
     });
 
@@ -176,7 +181,7 @@ describe("TransactionRouter e2e tests", () => {
       multiAsset: {
         interior: {
           X2: [
-            { PalletInstance: 50 }, // assets pallet
+            { PalletInstance: 41 }, // assets pallet
             { GeneralIndex: 0 },
           ],
         },
@@ -194,14 +199,14 @@ describe("TransactionRouter e2e tests", () => {
       asset
     );
 
-    const senderAccountAfter: any = (await assetHubApi.query.assets.account(
+    const senderAccountAfter: any = (await trappistApi.query.assets.account(
       0,
       sender.keypair.address
     )).toHuman();
 
     const senderBalanceAfter = parseInt(senderAccountAfter.balance.replace(/,/g, ""));
 
-    const receiverAccountAfter: any = (await assetHubApi.query.assets.account(
+    const receiverAccountAfter: any = (await trappistApi.query.assets.account(
       0,
       bob.address
     )).toHuman();
@@ -273,4 +278,22 @@ const mintAsset = async (
 
 const getAsset = async (api: ApiPromise, id: number): Promise<any> => {
   return (await api.query.assets.asset(id)).toHuman();
+};
+
+const deactivateLockdown = async (api: ApiPromise, signer: KeyringPair): Promise<void> => {
+  const callTx = async (resolve: () => void) => {
+    const forceDisable = api.tx.lockdownMode.deactivateLockdownMode();
+    const unsub = await api.tx.sudo.sudo(forceDisable)
+      .signAndSend(signer, (result: any) => {
+        if (result.status.isInBlock) {
+          unsub();
+          resolve();
+        }
+      });
+  };
+  return new Promise(callTx);
+}
+
+const getLockdownMode = async (api: ApiPromise): Promise<any> => {
+  return (await api.query.lockdownMode.lockdownModeStatus()).toJSON();
 };
