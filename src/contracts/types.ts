@@ -5,10 +5,11 @@ export type AccountType = 'AccountId32' | 'AccountId20';
 export type NetworkConsts = {
   name: string;
   ss58Prefix: number;
+  paraId: number;
 }
 
 export type NetworkInfo = NetworkConsts & {
-  rpcUrl: string;
+  rpcUrls: string[];
   accountType: AccountType;
 }
 

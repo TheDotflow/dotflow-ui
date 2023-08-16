@@ -64,7 +64,8 @@ const IdentityContractProvider = ({ children }: Props) => {
   const [identityNo, setIdentityNo] = useState<IdentityNo>(null);
   const [networks, setNetworks] = useState<Networks>({});
   const [addresses, setAddresses] = useState<Array<Address>>([]);
-  const [loading, setLoading] = useState(false);
+  const [loadingIdentityNo, setLoadingIdentityNo] = useState(false);
+  const [loadingNetworks, setLoadingNetworks] = useState(false);
   const { toastError } = useToast();
 
   const fetchIdentityNo = useCallback(async () => {
@@ -72,6 +73,7 @@ const IdentityContractProvider = ({ children }: Props) => {
       setIdentityNo(null);
       return;
     }
+    setLoadingIdentityNo(true);
     try {
       const result = await contractQuery(api, '', contract, 'identity_of', {}, [
         activeAccount.address,
@@ -87,6 +89,7 @@ const IdentityContractProvider = ({ children }: Props) => {
     } catch (e) {
       setIdentityNo(null);
     }
+    setLoadingIdentityNo(false);
   }, [activeAccount, api, contract]);
 
   const fetchNetworks = useCallback(async () => {
@@ -96,10 +99,13 @@ const IdentityContractProvider = ({ children }: Props) => {
     }
 
     const getChainInfo = async (
-      rpcUrl: string
+      rpcUrls: string[]
     ): Promise<NetworkConsts | null> => {
+      const count = rpcUrls.length;
+      const rpcIndex = Math.min(Math.floor(Math.random() * count), count - 1);
+      const rpc = rpcUrls[rpcIndex];
       try {
-        const provider = new WsProvider(rpcUrl);
+        const provider = new WsProvider(rpc);
         const api = new ApiPromise({ provider, rpc: jsonrpc });
 
         await api.isReady;
@@ -107,17 +113,22 @@ const IdentityContractProvider = ({ children }: Props) => {
         const ss58Prefix: number =
           api.consts.system.ss58Prefix.toPrimitive() as number;
         const name = (await api.rpc.system.chain()).toString();
+        const paraId = (
+          await api.query.parachainInfo.parachainId()
+        ).toPrimitive() as number;
 
         return {
           name,
           ss58Prefix,
+          paraId,
         };
       } catch (e) {
-        toastError && toastError(`Failed to get chain info for ${rpcUrl}`);
+        toastError && toastError(`Failed to get chain info for ${rpc}`);
         return null;
       }
     };
 
+    setLoadingNetworks(true);
     try {
       const result = await contractQuery(
         api,
@@ -137,11 +148,11 @@ const IdentityContractProvider = ({ children }: Props) => {
 
       for await (const item of output) {
         const networkId = Number(item[0]);
-        const { accountType, rpcUrl } = item[1];
-        const info = await getChainInfo(rpcUrl);
+        const { accountType, rpcUrls } = item[1];
+        const info = await getChainInfo(rpcUrls);
         if (info)
           _networks[networkId] = {
-            rpcUrl,
+            rpcUrls,
             accountType,
             ...info,
           };
@@ -150,6 +161,7 @@ const IdentityContractProvider = ({ children }: Props) => {
     } catch (e: any) {
       toastError(e.toString());
     }
+    setLoadingNetworks(false);
   }, [api, contract, toastError]);
 
   const fetchAddresses = useCallback(async () => {
@@ -189,14 +201,12 @@ const IdentityContractProvider = ({ children }: Props) => {
   }, [api, contract, identityNo, fetchAddresses]);
 
   useEffect(() => {
-    const init = async () => {
-      setLoading(true);
-      await fetchIdentityNo();
-      await fetchNetworks();
-      setLoading(false);
-    };
-    init();
-  }, [fetchIdentityNo, fetchNetworks]);
+    fetchIdentityNo();
+  }, [api, contract, activeAccount]);
+
+  useEffect(() => {
+    fetchNetworks();
+  }, [api?.isReady, contract?.address]);
 
   return (
     <IdentityContext.Provider
@@ -207,7 +217,7 @@ const IdentityContractProvider = ({ children }: Props) => {
         networks,
         fetchAddresses,
         fetchIdentityNo,
-        loading,
+        loading: loadingIdentityNo || loadingNetworks,
       }}
     >
       {children}
