@@ -49,9 +49,9 @@ class TransactionRouter {
         asset
       );
     } else {
-      const reserveChain = await this.getApi(identityContract, receiver.network);
+      const reserveChain = await this.getApi(identityContract, reserveChainId);
 
-      ReserveTransfer.sendAcrossReserveChain(
+      await ReserveTransfer.sendAcrossReserveChain(
         originApi,
         destApi,
         reserveChain,

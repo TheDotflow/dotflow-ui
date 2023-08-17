@@ -93,17 +93,17 @@ class ReserveTransfer {
     const reserveParaId = await this.getParaId(reserveChainApi);
     const destinationParaId = await this.getParaId(destinationApi);
 
-    const xcmProgram = this.twoHopXcmInstruction(asset, reserveParaId, destinationParaId, receiver.addressRaw);
+    const xcmProgram = this.twoHopXcmInstruction(asset, reserveParaId, destinationParaId, receiver);
 
     let reserveTransfer: any;
     if (originApi.tx.xcmPallet) {
       reserveTransfer = originApi.tx.xcmPallet.execute(xcmProgram, {
-        refTime: Math.pow(10, 10),
+        refTime: 3 * Math.pow(10, 11),
         proofSize: Math.pow(10, 6),
       });
     } else if (originApi.tx.polkadotXcm) {
       reserveTransfer = originApi.tx.polkadotXcm.execute(xcmProgram, {
-        refTime: Math.pow(10, 10),
+        refTime: 3 * Math.pow(10, 11),
         proofSize: Math.pow(10, 6),
       });
     } else {
@@ -122,13 +122,14 @@ class ReserveTransfer {
   }
 
   // TODO: documentation
-  private static twoHopXcmInstruction(asset: Fungible, reserveParaId: number, destParaId: number, beneficiary: any): any {
+  private static twoHopXcmInstruction(asset: Fungible, reserveParaId: number, destParaId: number, beneficiary: Receiver): any {
     const reserve = this.getReserve(reserveParaId);
 
-    let assetFromReservePerspective = asset.multiAsset;
+    // NOTE: we use parse and stringify to make a hard copy of the asset.
+    let assetFromReservePerspective = JSON.parse(JSON.stringify(asset.multiAsset));
     if (reserveParaId > 0) {
       // The location of the asset will always start with the parachain if the reserve is a parachain.
-      assetFromReservePerspective.splice(0, 1);
+      this.removeParachainFromLocation(assetFromReservePerspective, reserveParaId);
     }
 
     return {
@@ -142,8 +143,8 @@ class ReserveTransfer {
             reserve,
             xcm: [
               // TODO: the hardcoded number isn't really accurate to what we actually need.
-              this.buyExecution([assetFromReservePerspective], 450000000000),
-              this.depositReserveAsset([{ Wild: "All" }], 1, {
+              this.buyExecution(assetFromReservePerspective, 450000000000),
+              this.depositReserveAsset({ Wild: "All" }, 1, {
                 parents: 1,
                 interior: {
                   X1: {
@@ -151,7 +152,7 @@ class ReserveTransfer {
                   }
                 }
               }, [
-                this.depositAsset([{ Wild: "All" }], 1, beneficiary)
+                this.depositAsset({ Wild: "All" }, 1, beneficiary)
               ])
             ]
           }
@@ -187,7 +188,7 @@ class ReserveTransfer {
     };
   }
 
-  private static buyExecution(multiAsset: any[], amount: number): any {
+  private static buyExecution(multiAsset: any, amount: number): any {
     return {
       BuyExecution: {
         fees: {
@@ -203,7 +204,7 @@ class ReserveTransfer {
     };
   }
 
-  private static depositReserveAsset(assets: any[], maxAssets: number, dest: any, xcm: any[]): any {
+  private static depositReserveAsset(assets: any, maxAssets: number, dest: any, xcm: any[]): any {
     return {
       DepositReserveAsset: {
         assets,
@@ -214,14 +215,19 @@ class ReserveTransfer {
     }
   }
 
-  private static depositAsset(assets: any[], maxAssets: number, beneficiary: any): any {
+  private static depositAsset(assets: any, maxAssets: number, receiver: Receiver): any {
+    const beneficiary = {
+      parents: 0,
+      interior: {
+        X1: this.getReceiverAccount(receiver)
+      }
+    };
+
     return {
       DepositAsset: {
         assets,
         maxAssets,
-        interior: {
-          X1: beneficiary
-        }
+        beneficiary
       }
     };
   }
@@ -254,7 +260,7 @@ class ReserveTransfer {
   }
 
   private static ensureContainsXcmPallet(api: ApiPromise) {
-    if (api.tx.xcmPallet || api.tx.polkadotXcm) {
+    if (!(api.tx.xcmPallet || api.tx.polkadotXcm)) {
       throw new Error("The blockchain does not support XCM");
     }
   }
@@ -291,22 +297,7 @@ class ReserveTransfer {
   //
   // The beneficiary is an interior entity of the destination that will actually receive the tokens.
   private static getBeneficiary(receiver: Receiver) {
-    let receiverAccount;
-    if (receiver.type == AccountType.accountId32) {
-      receiverAccount = {
-        AccountId32: {
-          network: "Any",
-          id: receiver.addressRaw,
-        },
-      };
-    } else if (receiver.type == AccountType.accountKey20) {
-      receiverAccount = {
-        AccountKey20: {
-          network: "Any",
-          id: receiver.addressRaw,
-        },
-      };
-    }
+    const receiverAccount = this.getReceiverAccount(receiver);
 
     return {
       V2: {
@@ -318,6 +309,24 @@ class ReserveTransfer {
         }
       }
     };
+  }
+
+  private static getReceiverAccount(receiver: Receiver): any {
+    if (receiver.type == AccountType.accountId32) {
+      return {
+        AccountId32: {
+          network: "Any",
+          id: receiver.addressRaw,
+        },
+      };
+    } else if (receiver.type == AccountType.accountKey20) {
+      return {
+        AccountKey20: {
+          network: "Any",
+          id: receiver.addressRaw,
+        },
+      };
+    }
   }
 
   // Returns a proper MultiAsset.
@@ -333,6 +342,23 @@ class ReserveTransfer {
           },
         },
       ]
+    }
+  }
+
+  // Helper function to remove a specific key from an object.
+  private static removeParachainFromLocation(location: any, paraId: number) {
+    const keyPattern = /^X\d$/;
+
+    const key = Object.keys(location.interior).find(key => keyPattern.test(key));
+
+    if (key) {
+      const junctions: any[] = location.interior[key];
+      junctions.splice(0, 1);
+      delete location.interior[key];
+      location.interior[`X${junctions.length}`] = junctions;
+      location.parents = 0;
+    } else {
+      throw Error("Couldn't get junctions of an asset's location");
     }
   }
 }
