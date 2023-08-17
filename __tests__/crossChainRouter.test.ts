@@ -50,103 +50,102 @@ describe("TransactionRouter Cross-chain", () => {
       accountType: AccountType.accountId32,
     });
   });
-  /*
-    test("Transferring cross-chain from asset's reserve chain works", async () => {
-      const sender: Sender = {
-        keypair: alice,
-        network: 0
-      };
-  
-      const receiver: Receiver = {
-        addressRaw: bob.addressRaw,
-        type: AccountType.accountId32,
-        network: 1,
-      };
-  
-      const rococoProvider = new WsProvider("ws://127.0.0.1:9900");
-      const rococoApi = await ApiPromise.create({
-        provider: rococoProvider,
+
+  test("Transferring cross-chain from asset's reserve chain works", async () => {
+    const sender: Sender = {
+      keypair: alice,
+      network: 0
+    };
+
+    const receiver: Receiver = {
+      addressRaw: bob.addressRaw,
+      type: AccountType.accountId32,
+      network: 1,
+    };
+
+    const rococoProvider = new WsProvider("ws://127.0.0.1:9900");
+    const rococoApi = await ApiPromise.create({
+      provider: rococoProvider,
+    });
+
+    const assetHubProvider = new WsProvider("ws://127.0.0.1:9910");
+    const assetHubApi = await ApiPromise.create({
+      provider: assetHubProvider,
+    });
+
+    const trappistProvider = new WsProvider("ws://127.0.0.1:9920");
+    const trappistApi = await ApiPromise.create({
+      provider: trappistProvider,
+    });
+
+    const lockdownMode = await getLockdownMode(trappistApi);
+    if (lockdownMode) {
+      await deactivateLockdown(trappistApi, alice);
+    }
+
+    // Create assets on both networks
+
+    if (!(await getAsset(assetHubApi, USDT_ASSET_ID))) {
+      await forceCreateAsset(rococoApi, assetHubApi, 1000, alice, USDT_ASSET_ID);
+    }
+
+    if (!(await getAsset(trappistApi, USDT_ASSET_ID))) {
+      await createAsset(trappistApi, alice, USDT_ASSET_ID);
+    }
+
+    // If the asset is not already registered in the registry make sure we add it.
+    if (!(await getAssetIdMultiLocation(trappistApi, USDT_ASSET_ID))) {
+      await registerReserveAsset(trappistApi, alice, USDT_ASSET_ID, {
+        parents: 1,
+        interior: {
+          X3: [
+            { Parachain: 1000 },
+            { PalletInstance: 50 },
+            { GeneralIndex: USDT_ASSET_ID }
+          ]
+        }
       });
-  
-      const assetHubProvider = new WsProvider("ws://127.0.0.1:9910");
-      const assetHubApi = await ApiPromise.create({
-        provider: assetHubProvider,
-      });
-  
-      const trappistProvider = new WsProvider("ws://127.0.0.1:9920");
-      const trappistApi = await ApiPromise.create({
-        provider: trappistProvider,
-      });
-  
-      const lockdownMode = await getLockdownMode(trappistApi);
-      if (lockdownMode) {
-        await deactivateLockdown(trappistApi, alice);
-      }
-  
-      // Create assets on both networks
-  
-      if (!(await getAsset(assetHubApi, USDT_ASSET_ID))) {
-        await forceCreateAsset(rococoApi, assetHubApi, 1000, alice, USDT_ASSET_ID);
-      }
-  
-      if (!(await getAsset(trappistApi, USDT_ASSET_ID))) {
-        await createAsset(trappistApi, alice, USDT_ASSET_ID);
-      }
-  
-      // If the asset is not already registered in the registry make sure we add it.
-      if (!(await getAssetIdMultiLocation(trappistApi, USDT_ASSET_ID))) {
-        await registerReserveAsset(trappistApi, alice, USDT_ASSET_ID, {
-          parents: 1,
-          interior: {
-            X3: [
-              { Parachain: 1000 },
-              { PalletInstance: 50 },
-              { GeneralIndex: USDT_ASSET_ID }
-            ]
-          }
-        });
-      }
-  
-      const mintAmount = 2000000000000;
-      // Mint some assets to the creator.
-      await mintAsset(assetHubApi, sender.keypair, USDT_ASSET_ID, mintAmount);
-  
-      const senderBalanceBefore = await getAssetBalance(assetHubApi, USDT_ASSET_ID, alice.address);
-      const receiverBalanceBefore = await getAssetBalance(trappistApi, USDT_ASSET_ID, bob.address);
-  
-      const amount = 1000000000000;
-      const assetReserveChainId = 0;
-  
-      const asset: Fungible = {
-        multiAsset: {
-          interior: {
-            X2: [
-              { PalletInstance: 50 },
-              { GeneralIndex: USDT_ASSET_ID }
-            ]
-          },
-          parents: 0,
+    }
+
+    const mintAmount = 5000000000000;
+    // Mint some assets to the creator.
+    await mintAsset(assetHubApi, sender.keypair, USDT_ASSET_ID, mintAmount);
+
+    const senderBalanceBefore = await getAssetBalance(assetHubApi, USDT_ASSET_ID, alice.address);
+    const receiverBalanceBefore = await getAssetBalance(trappistApi, USDT_ASSET_ID, bob.address);
+
+    const amount = 4000000000000;
+    const assetReserveChainId = 0;
+
+    const asset: Fungible = {
+      multiAsset: {
+        interior: {
+          X2: [
+            { PalletInstance: 50 },
+            { GeneralIndex: USDT_ASSET_ID }
+          ]
         },
-        amount
-      };
-  
-      await TransactionRouter.sendTokens(
-        identityContract,
-        sender,
-        receiver,
-        assetReserveChainId,
-        asset
-      );
-  
-      const senderBalanceAfter = await getAssetBalance(assetHubApi, USDT_ASSET_ID, alice.address);
-      const receiverBalanceAfter = await getAssetBalance(trappistApi, USDT_ASSET_ID, bob.address);
-  
-      expect(senderBalanceAfter).toBe(senderBalanceBefore - amount);
-      // The `receiverBalanceAfter` won't be exactly equal to `receiverBalanceBefore + amount` since some of the tokens are
-      // used for `BuyExecution`.
-      expect(receiverBalanceAfter).toBeGreaterThan(receiverBalanceBefore);
-    }, 180000);
-    */
+        parents: 0,
+      },
+      amount
+    };
+
+    await TransactionRouter.sendTokens(
+      identityContract,
+      sender,
+      receiver,
+      assetReserveChainId,
+      asset
+    );
+
+    const senderBalanceAfter = await getAssetBalance(assetHubApi, USDT_ASSET_ID, alice.address);
+    const receiverBalanceAfter = await getAssetBalance(trappistApi, USDT_ASSET_ID, bob.address);
+
+    expect(senderBalanceAfter).toBe(senderBalanceBefore - amount);
+    // The `receiverBalanceAfter` won't be exactly equal to `receiverBalanceBefore + amount` since some of the tokens are
+    // used for `BuyExecution`.
+    expect(receiverBalanceAfter).toBeGreaterThan(receiverBalanceBefore);
+  }, 180000);
 
   test("Transferring cross-chain to asset's reserve chain works", async () => {
     // TODO
@@ -236,8 +235,22 @@ describe("TransactionRouter Cross-chain", () => {
       amount
     };
 
+    const senderBalanceBefore = await getAssetBalance(trappistApi, USDT_ASSET_ID, bob.address);
+    const receiverBalanceBefore = await getAssetBalance(baseApi, USDT_ASSET_ID, bob.address);
+
     // Transfer the tokens to bob's account on base:
     await TransactionRouter.sendTokens(identityContract, sender, receiver, assetReserveChainId, asset);
+
+    // We need to wait a bit more to actually receive the assets on the base chain.
+    await delay(12000);
+
+    const senderBalanceAfter = await getAssetBalance(trappistApi, USDT_ASSET_ID, bob.address);
+    const receiverBalanceAfter = await getAssetBalance(baseApi, USDT_ASSET_ID, bob.address);
+
+    // Some tolerance since part of the tokens will be used for fee payment.
+    const tolerance = 100000;
+    expect(senderBalanceAfter).toBeLessThanOrEqual(senderBalanceBefore - amount);
+    expect(receiverBalanceAfter).toBeGreaterThanOrEqual(receiverBalanceBefore + amount - tolerance);
   }, 180000);
 });
 
@@ -387,3 +400,5 @@ const getAssetBalance = async (api: ApiPromise, id: number, who: string): Promis
   }
   return 0;
 }
+
+const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
