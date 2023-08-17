@@ -18,6 +18,7 @@ describe("TransactionRouter Cross-chain", () => {
   let swankyApi: ApiPromise;
   let alice: KeyringPair;
   let bob: KeyringPair;
+  let charlie: KeyringPair;
   let identityContract: any;
 
   beforeEach(async function (): Promise<void> {
@@ -27,6 +28,7 @@ describe("TransactionRouter Cross-chain", () => {
     });
     alice = keyring.addFromUri("//Alice");
     bob = keyring.addFromUri("//Bob");
+    charlie = keyring.addFromUri("//Charlie");
 
     const factory = new IdentityContractFactory(swankyApi, alice);
     identityContract = new IdentityContract(
@@ -148,11 +150,99 @@ describe("TransactionRouter Cross-chain", () => {
   }, 180000);
 
   test("Transferring cross-chain to asset's reserve chain works", async () => {
-    // TODO
-  });
+    // NOTE this test depends on the success of the first test.
+
+    const rococoProvider = new WsProvider("ws://127.0.0.1:9900");
+    const rococoApi = await ApiPromise.create({
+      provider: rococoProvider,
+    });
+
+    const assetHubProvider = new WsProvider("ws://127.0.0.1:9910");
+    const assetHubApi = await ApiPromise.create({
+      provider: assetHubProvider,
+    });
+
+    const trappistProvider = new WsProvider("ws://127.0.0.1:9920");
+    const trappistApi = await ApiPromise.create({
+      provider: trappistProvider,
+    });
+
+    const lockdownMode = await getLockdownMode(trappistApi);
+    if (lockdownMode) {
+      await deactivateLockdown(trappistApi, alice);
+    }
+
+    // Create assets on both networks.
+
+    if (!(await getAsset(assetHubApi, USDT_ASSET_ID))) {
+      await forceCreateAsset(rococoApi, assetHubApi, 1000, alice, USDT_ASSET_ID);
+    }
+
+    if (!(await getAsset(trappistApi, USDT_ASSET_ID))) {
+      await createAsset(trappistApi, alice, USDT_ASSET_ID);
+    }
+
+    // If the asset is not already registered in the registry make sure we add it.
+    if (!(await getAssetIdMultiLocation(trappistApi, USDT_ASSET_ID))) {
+      await registerReserveAsset(trappistApi, alice, USDT_ASSET_ID, {
+        parents: 1,
+        interior: {
+          X3: [
+            { Parachain: 1000 },
+            { PalletInstance: 50 },
+            { GeneralIndex: USDT_ASSET_ID }
+          ]
+        }
+      });
+    }
+
+    const amount = 950000000000;
+
+    const sender: Sender = {
+      keypair: bob,
+      network: 1
+    };
+
+    const receiver: Receiver = {
+      addressRaw: charlie.addressRaw,
+      type: AccountType.accountId32,
+      network: 0,
+    };
+
+    const asset: Fungible = {
+      multiAsset: {
+        interior: {
+          X3: [
+            { Parachain: 1000 },
+            { PalletInstance: 50 },
+            { GeneralIndex: USDT_ASSET_ID }
+          ]
+        },
+        parents: 1,
+      },
+      amount
+    };
+
+    const senderBalanceBefore = await getAssetBalance(trappistApi, USDT_ASSET_ID, bob.address);
+    const receiverBalanceBefore = await getAssetBalance(assetHubApi, USDT_ASSET_ID, charlie.address);
+
+    // Transfer the tokens to charlies's account on asset hub:
+    await TransactionRouter.sendTokens(identityContract, sender, receiver, receiver.network, asset);
+
+    // We need to wait a bit more to actually receive the assets on the base chain.
+    await delay(5000);
+
+    const senderBalanceAfter = await getAssetBalance(trappistApi, USDT_ASSET_ID, bob.address);
+    const receiverBalanceAfter = await getAssetBalance(assetHubApi, USDT_ASSET_ID, charlie.address);
+
+    // Some tolerance since part of the tokens will be used for fee payment.
+    const tolerance = 100000;
+    expect(senderBalanceAfter).toBeLessThanOrEqual(senderBalanceBefore - amount);
+    expect(receiverBalanceAfter).toBeGreaterThanOrEqual(receiverBalanceBefore + amount - tolerance);
+  }, 120000);
 
   test("Transferring cross-chain accross reserve chain works", async () => {
-    // NOTE this test depends on the success of the previos test.
+    // NOTE this test depends on the success of the first test.
 
     const rococoProvider = new WsProvider("ws://127.0.0.1:9900");
     const rococoApi = await ApiPromise.create({

@@ -72,7 +72,37 @@ class ReserveTransfer {
     receiver: Receiver,
     asset: Fungible
   ): Promise<void> {
-    // TODO
+    this.ensureContainsXcmPallet(originApi);
+    this.ensureContainsXcmPallet(destinationApi);
+
+    const destinationParaId = await this.getParaId(destinationApi);
+
+    const xcmProgram = this.transferReserveAssetInstruction(asset, destinationParaId, receiver);
+
+    let reserveTransfer: any;
+    if (originApi.tx.xcmPallet) {
+      reserveTransfer = originApi.tx.xcmPallet.execute(xcmProgram, {
+        refTime: 3 * Math.pow(10, 11),
+        proofSize: Math.pow(10, 6),
+      });
+    } else if (originApi.tx.polkadotXcm) {
+      reserveTransfer = originApi.tx.polkadotXcm.execute(xcmProgram, {
+        refTime: 3 * Math.pow(10, 11),
+        proofSize: Math.pow(10, 6),
+      });
+    } else {
+      throw new Error("The blockchain does not support XCM");
+    }
+
+    // eslint-disable-next-line no-async-promise-executor
+    return new Promise(async (resolve) => {
+      const unsub = await reserveTransfer.signAndSend(sender, (result: any) => {
+        if (result.status.isFinalized) {
+          unsub();
+          resolve();
+        }
+      })
+    });
   }
 
   // Neither the sender nor the receiver chain is the reserve chain of the asset being sent.
@@ -162,13 +192,33 @@ class ReserveTransfer {
   }
 
   // Returns the XCM instruction for transfering a reserve asset.
-  private static transferReserveAssetInstruction(asset: Fungible, receiver: Receiver): any {
-    // TODO:
+  private static transferReserveAssetInstruction(asset: Fungible, destParaId: number, beneficiary: Receiver): any {
+    const reserve = this.getReserve(destParaId);
+
+    // NOTE: we use parse and stringify to make a hard copy of the asset.
+    let assetFromReservePerspective = JSON.parse(JSON.stringify(asset.multiAsset));
+    if (destParaId >= 0) {
+      // The location of the asset will always start with the parachain if the reserve is a parachain.
+      this.removeParachainFromLocation(assetFromReservePerspective, destParaId);
+    }
+
     return {
-      TransferReserveAsset: {
-        assets: this.getMultiAsset(asset),
-        receiver: this.getBeneficiary(receiver)
-      }
+      V2: [
+        this.withdrawAsset(asset),
+        {
+          InitiateReserveWithdraw: {
+            assets: {
+              Wild: "All"
+            },
+            reserve,
+            xcm: [
+              // TODO: the hardcoded number isn't really accurate to what we actually need.
+              this.buyExecution(assetFromReservePerspective, 450000000000),
+              this.depositAsset({ Wild: "All" }, 1, this.getReceiverAccount(beneficiary))
+            ]
+          }
+        },
+      ]
     }
   }
 

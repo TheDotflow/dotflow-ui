@@ -41,7 +41,7 @@ class TransactionRouter {
         asset
       );
     } else if (receiver.network == reserveChainId) {
-      ReserveTransfer.sendToReserveChain(
+      await ReserveTransfer.sendToReserveChain(
         originApi,
         destApi,
         sender.keypair,
