@@ -1,5 +1,6 @@
 import { ApiPromise, Keyring, WsProvider } from "@polkadot/api";
 import { KeyringPair } from "@polkadot/keyring/types";
+import { u8aToHex } from '@polkadot/util';
 
 import { Fungible, Receiver, Sender } from "@/utils/transactionRouter/types";
 
@@ -57,7 +58,10 @@ describe("TransactionRouter Cross-chain", () => {
       network: 1,
     };
 
-    // We have two asset hubs in our local network.
+    const rococoProvider = new WsProvider("ws://127.0.0.1:9900");
+    const rococoApi = await ApiPromise.create({
+      provider: rococoProvider,
+    });
 
     const assetHubProvider = new WsProvider("ws://127.0.0.1:9910");
     const assetHubApi = await ApiPromise.create({
@@ -77,11 +81,11 @@ describe("TransactionRouter Cross-chain", () => {
     // Create assets on both networks
 
     if (!(await getAsset(assetHubApi, USDT_ASSET_ID))) {
-      await createAsset(assetHubApi, sender.keypair, USDT_ASSET_ID);
+      await forceCreateAsset(rococoApi, assetHubApi, 1000, alice, USDT_ASSET_ID);
     }
 
     if (!(await getAsset(trappistApi, USDT_ASSET_ID))) {
-      await createAsset(trappistApi, sender.keypair, USDT_ASSET_ID);
+      await createAsset(trappistApi, alice, USDT_ASSET_ID);
     }
 
     if (!(await getAssetIdMultiLocation(trappistApi, USDT_ASSET_ID))) {
@@ -158,17 +162,61 @@ const createAsset = async (
   id: number
 ): Promise<void> => {
   const callTx = async (resolve: () => void) => {
-    const forceCreate = api.tx.assets.forceCreate(id, signer.address, true, 10);
-    const unsub = await api.tx.sudo.sudo(forceCreate)
-      .signAndSend(signer, (result: any) => {
-        if (result.status.isInBlock) {
-          unsub();
-          resolve();
-        }
-      });
+    const create = api.tx.assets.create(id, signer.address, 10);
+    const unsub = await create.signAndSend(signer, (result: any) => {
+      if (result.status.isInBlock) {
+        unsub();
+        resolve();
+      }
+    });
   };
   return new Promise(callTx);
 };
+
+const forceCreateAsset = async (
+  relaychainApi: ApiPromise,
+  paraApi: ApiPromise,
+  paraId: number,
+  signer: KeyringPair,
+  id: number
+): Promise<void> => {
+  const forceCreate = u8aToHex(paraApi.tx.assets.forceCreate(id, signer.address, true, 10).method.toU8a());
+  console.log(forceCreate);
+
+  const xcm = {
+    V3: [
+      {
+        UnpaidExecution: {
+          weightLimit: "Unlimited"
+        }
+      },
+      {
+        Transact: {
+          originKind: "Superuser",
+          requireWeightAtMost: {
+            refTime: 9000000000,
+            proofSize: 10000
+          },
+          call: {
+            encoded: forceCreate,
+          }
+        }
+      }
+    ]
+  };
+
+  const callTx = async (resolve: () => void) => {
+    const paraSudoCall = relaychainApi.tx.parasSudoWrapper.sudoQueueDownwardXcm(paraId, xcm);
+
+    const unsub = await relaychainApi.tx.sudo.sudo(paraSudoCall).signAndSend(signer, (result: any) => {
+      if (result.status.isInBlock) {
+        unsub();
+        resolve();
+      }
+    });
+  }
+  return new Promise(callTx);
+}
 
 const mintAsset = async (
   api: ApiPromise,

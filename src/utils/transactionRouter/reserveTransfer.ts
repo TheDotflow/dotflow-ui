@@ -117,7 +117,7 @@ class ReserveTransfer {
 
     if (isDestPara) {
       return {
-        V1:
+        V2:
         {
           parents,
           interior: {
@@ -128,7 +128,7 @@ class ReserveTransfer {
     } else {
       // If the destination is not a parachain it is basically a relay chain.
       return {
-        V1:
+        V2:
         {
           parents,
           interior: "Here"
@@ -159,7 +159,7 @@ class ReserveTransfer {
     }
 
     return {
-      V1: {
+      V2: {
         parents: 0,
         interior: {
           X1: {
@@ -173,7 +173,7 @@ class ReserveTransfer {
   // Returns a proper MultiAsset.
   private static getMultiAsset(asset: Fungible): any {
     return {
-      V1: [
+      V2: [
         {
           fun: {
             Fungible: asset.amount,
