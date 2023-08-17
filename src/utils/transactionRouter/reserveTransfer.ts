@@ -15,15 +15,10 @@ class ReserveTransfer {
     receiver: Receiver,
     asset: Fungible
   ): Promise<void> {
-    if (!(destinationApi.tx.xcmPallet || destinationApi.tx.polkadotXcm)) {
-      throw new Error("The destination blockchain does not support XCM");
-    }
+    this.ensureContainsXcmPallet(originApi);
+    this.ensureContainsXcmPallet(destinationApi);
 
-    let destParaId = -1;
-    if (destinationApi.query.parachainInfo) {
-      const response = (await destinationApi.query.parachainInfo.parachainId()).toJSON();
-      destParaId = Number(response);
-    }
+    const destParaId = await this.getParaId(destinationApi);
 
     const isOriginPara = originApi.query.hasOwnProperty("parachainInfo");
 
@@ -86,26 +81,181 @@ class ReserveTransfer {
   public static async sendAcrossReserveChain(
     originApi: ApiPromise,
     destinationApi: ApiPromise,
-    assetReserveChain: ApiPromise,
+    reserveChainApi: ApiPromise,
     sender: KeyringPair,
     receiver: Receiver,
     asset: Fungible
   ): Promise<void> {
-    // TODO
+    this.ensureContainsXcmPallet(originApi);
+    this.ensureContainsXcmPallet(destinationApi);
+    this.ensureContainsXcmPallet(reserveChainApi);
+
+    const reserveParaId = await this.getParaId(reserveChainApi);
+    const destinationParaId = await this.getParaId(destinationApi);
+
+    const xcmProgram = this.twoHopXcmInstruction(asset, reserveParaId, destinationParaId, receiver.addressRaw);
+
+    let reserveTransfer: any;
+    if (originApi.tx.xcmPallet) {
+      reserveTransfer = originApi.tx.xcmPallet.execute(xcmProgram, {
+        refTime: Math.pow(10, 10),
+        proofSize: Math.pow(10, 6),
+      });
+    } else if (originApi.tx.polkadotXcm) {
+      reserveTransfer = originApi.tx.polkadotXcm.execute(xcmProgram, {
+        refTime: Math.pow(10, 10),
+        proofSize: Math.pow(10, 6),
+      });
+    } else {
+      throw new Error("The blockchain does not support XCM");
+    }
+
+    // eslint-disable-next-line no-async-promise-executor
+    return new Promise(async (resolve) => {
+      const unsub = await reserveTransfer.signAndSend(sender, (result: any) => {
+        if (result.status.isFinalized) {
+          unsub();
+          resolve();
+        }
+      })
+    });
   }
 
   // TODO: documentation
-  private static twoHopXcmInstruction(): any {
-    // TODO
+  private static twoHopXcmInstruction(asset: Fungible, reserveParaId: number, destParaId: number, beneficiary: any): any {
+    const reserve = this.getReserve(reserveParaId);
+
+    let assetFromReservePerspective = asset.multiAsset;
+    if (reserveParaId > 0) {
+      // The location of the asset will always start with the parachain if the reserve is a parachain.
+      assetFromReservePerspective.splice(0, 1);
+    }
+
+    return {
+      V2: [
+        this.withdrawAsset(asset),
+        {
+          InitiateReserveWithdraw: {
+            assets: {
+              Wild: "All"
+            },
+            reserve,
+            xcm: [
+              // TODO: the hardcoded number isn't really accurate to what we actually need.
+              this.buyExecution([assetFromReservePerspective], 450000000000),
+              this.depositReserveAsset([{ Wild: "All" }], 1, {
+                parents: 1,
+                interior: {
+                  X1: {
+                    Parachain: destParaId
+                  }
+                }
+              }, [
+                this.depositAsset([{ Wild: "All" }], 1, beneficiary)
+              ])
+            ]
+          }
+        },
+      ]
+    }
   }
 
   // Returns the XCM instruction for transfering a reserve asset.
   private static transferReserveAssetInstruction(asset: Fungible, receiver: Receiver): any {
+    // TODO:
     return {
       TransferReserveAsset: {
         assets: this.getMultiAsset(asset),
         receiver: this.getBeneficiary(receiver)
       }
+    }
+  }
+
+  private static withdrawAsset(asset: Fungible): any {
+    return {
+      WithdrawAsset: [
+        {
+          id:
+          {
+            Concrete: asset.multiAsset
+          },
+          fun: {
+            Fungible: asset.amount
+          }
+        }
+      ]
+    };
+  }
+
+  private static buyExecution(multiAsset: any[], amount: number): any {
+    return {
+      BuyExecution: {
+        fees: {
+          id: {
+            Concrete: multiAsset
+          },
+          fun: {
+            Fungible: amount
+          }
+        },
+        weightLimit: "Unlimited"
+      },
+    };
+  }
+
+  private static depositReserveAsset(assets: any[], maxAssets: number, dest: any, xcm: any[]): any {
+    return {
+      DepositReserveAsset: {
+        assets,
+        maxAssets,
+        dest,
+        xcm
+      }
+    }
+  }
+
+  private static depositAsset(assets: any[], maxAssets: number, beneficiary: any): any {
+    return {
+      DepositAsset: {
+        assets,
+        maxAssets,
+        interior: {
+          X1: beneficiary
+        }
+      }
+    };
+  }
+
+  private static getReserve(reserveParaId: number) {
+    if (reserveParaId < 0) {
+      return {
+        parents: 0,
+        interior: "Here"
+      }
+    } else {
+      return {
+        parents: 1,
+        interior: {
+          X1: {
+            Parachain: reserveParaId
+          }
+        }
+      }
+    }
+  }
+
+  private static async getParaId(api: ApiPromise): Promise<number> {
+    if (api.query.parachainInfo) {
+      const response = (await api.query.parachainInfo.parachainId()).toJSON();
+      return Number(response);
+    } else {
+      return -1;
+    }
+  }
+
+  private static ensureContainsXcmPallet(api: ApiPromise) {
+    if (api.tx.xcmPallet || api.tx.polkadotXcm) {
+      throw new Error("The blockchain does not support XCM");
     }
   }
 

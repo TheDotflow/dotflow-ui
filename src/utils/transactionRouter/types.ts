@@ -17,6 +17,6 @@ export type Receiver = {
 }
 
 export type Fungible = {
-  multiAsset: any,
+  multiAsset: any[],
   amount: number
 }
