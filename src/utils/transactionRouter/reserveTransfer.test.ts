@@ -6,7 +6,7 @@ import { AccountType } from "../../../types/types-arguments/identity";
 import ReserveTransfer from "./reserveTransfer";
 import { Receiver, Fungible } from "./types";
 import { Keyring } from "@polkadot/api";
-import { cryptoWaitReady } from '@polkadot/util-crypto';
+import { cryptoWaitReady } from "@polkadot/util-crypto";
 
 const sr25519Keyring = new Keyring({ type: "sr25519" });
 const ecdsaKering = new Keyring({ type: "ecdsa" });
@@ -15,50 +15,42 @@ describe("TransactionRouter unit tests", () => {
   describe("getDestination works", () => {
     it("Works with the destination being the relay chain", () => {
       // @ts-ignore
-      expect(ReserveTransfer.getDestination(true, 69, false)).toStrictEqual(
-        {
-          V2: {
-            parents: 1,
-            interior: "Here"
-          }
-        }
-      );
+      expect(ReserveTransfer.getDestination(true, 69, false)).toStrictEqual({
+        V2: {
+          parents: 1,
+          interior: "Here",
+        },
+      });
 
       // @ts-ignore
-      expect(ReserveTransfer.getDestination(false, 69, false)).toStrictEqual(
-        {
-          V2: {
-            parents: 0,
-            interior: "Here"
-          }
-        }
-      );
+      expect(ReserveTransfer.getDestination(false, 69, false)).toStrictEqual({
+        V2: {
+          parents: 0,
+          interior: "Here",
+        },
+      });
     });
 
     it("Works with the destination being a parachain", () => {
       // @ts-ignore
-      expect(ReserveTransfer.getDestination(false, 2000, true)).toStrictEqual(
-        {
-          V2: {
-            parents: 0,
-            interior: {
-              X1: { Parachain: 2000 }
-            }
-          }
-        }
-      );
+      expect(ReserveTransfer.getDestination(false, 2000, true)).toStrictEqual({
+        V2: {
+          parents: 0,
+          interior: {
+            X1: { Parachain: 2000 },
+          },
+        },
+      });
 
       // @ts-ignore
-      expect(ReserveTransfer.getDestination(true, 2000, true)).toStrictEqual(
-        {
-          V2: {
-            parents: 1,
-            interior: {
-              X1: { Parachain: 2000 }
-            }
-          }
-        }
-      );
+      expect(ReserveTransfer.getDestination(true, 2000, true)).toStrictEqual({
+        V2: {
+          parents: 1,
+          interior: {
+            X1: { Parachain: 2000 },
+          },
+        },
+      });
     });
   });
 
@@ -72,48 +64,48 @@ describe("TransactionRouter unit tests", () => {
       var receiver: Receiver = {
         addressRaw: alice.addressRaw,
         network: 0,
-        type: AccountType.accountId32
+        type: AccountType.accountId32,
       };
 
-      // @ts-ignore
-      expect(ReserveTransfer.getReserveTransferBeneficiary(receiver)).toStrictEqual(
-        {
-          V2: {
-            parents: 0,
-            interior: {
-              X1: {
-                AccountId32: {
-                  network: "Any",
-                  id: receiver.addressRaw
-                }
-              }
-            }
-          }
-        }
-      );
+      expect(
+        // @ts-ignore
+        ReserveTransfer.getReserveTransferBeneficiary(receiver),
+      ).toStrictEqual({
+        V2: {
+          parents: 0,
+          interior: {
+            X1: {
+              AccountId32: {
+                network: "Any",
+                id: receiver.addressRaw,
+              },
+            },
+          },
+        },
+      });
 
       var receiver: Receiver = {
         addressRaw: bob.addressRaw,
         network: 0,
-        type: AccountType.accountKey20
+        type: AccountType.accountKey20,
       };
 
-      // @ts-ignore
-      expect(ReserveTransfer.getReserveTransferBeneficiary(receiver)).toStrictEqual(
-        {
-          V2: {
-            parents: 0,
-            interior: {
-              X1: {
-                AccountKey20: {
-                  network: "Any",
-                  id: receiver.addressRaw
-                }
-              }
-            }
-          }
-        }
-      );
+      expect(
+        // @ts-ignore
+        ReserveTransfer.getReserveTransferBeneficiary(receiver),
+      ).toStrictEqual({
+        V2: {
+          parents: 0,
+          interior: {
+            X1: {
+              AccountKey20: {
+                network: "Any",
+                id: receiver.addressRaw,
+              },
+            },
+          },
+        },
+      });
     });
   });
 
@@ -124,24 +116,22 @@ describe("TransactionRouter unit tests", () => {
           interior: "Here",
           parents: 0,
         },
-        amount: 200
+        amount: 200,
       };
 
       // @ts-ignore
-      expect(ReserveTransfer.getMultiAsset(asset)).toStrictEqual(
-        {
-          V2: [
-            {
-              fun: {
-                Fungible: asset.amount
-              },
-              id: {
-                Concrete: asset.multiAsset
-              }
-            }
-          ]
-        }
-      )
+      expect(ReserveTransfer.getMultiAsset(asset)).toStrictEqual({
+        V2: [
+          {
+            fun: {
+              Fungible: asset.amount,
+            },
+            id: {
+              Concrete: asset.multiAsset,
+            },
+          },
+        ],
+      });
     });
 
     describe("getSendToReserveChainInstructions works", () => {
@@ -152,7 +142,7 @@ describe("TransactionRouter unit tests", () => {
         const beneficiary: Receiver = {
           addressRaw: bob.addressRaw,
           network: 1,
-          type: AccountType.accountId32
+          type: AccountType.accountId32,
         };
 
         const asset: Fungible = {
@@ -161,21 +151,23 @@ describe("TransactionRouter unit tests", () => {
               X3: [
                 { Parachain: destParaId },
                 { PalletInstance: 42 },
-                { GeneralIndex: 69 }
-              ]
+                { GeneralIndex: 69 },
+              ],
             },
             parents: 0,
           },
-          amount: 200
+          amount: 200,
         };
 
-        // @ts-ignore
-        expect(ReserveTransfer.getSendToReserveChainInstructions(
-          asset,
-          destParaId,
-          beneficiary,
-          true
-        )).toStrictEqual({
+        expect(
+          // @ts-ignore
+          ReserveTransfer.getSendToReserveChainInstructions(
+            asset,
+            destParaId,
+            beneficiary,
+            true,
+          ),
+        ).toStrictEqual({
           V2: [
             {
               WithdrawAsset: [
@@ -187,22 +179,16 @@ describe("TransactionRouter unit tests", () => {
                     Concrete: {
                       interior: {
                         X3: [
-                          {
-                            Parachain: destParaId,
-                          },
-                          {
-                            PalletInstance: 42,
-                          },
-                          {
-                            GeneralIndex: 69,
-                          },
+                          { Parachain: destParaId },
+                          { PalletInstance: 42 },
+                          { GeneralIndex: 69 },
                         ],
                       },
                       parents: 1,
                     },
                   },
                 },
-              ]
+              ],
             },
             {
               InitiateReserveWithdraw: {
@@ -228,12 +214,8 @@ describe("TransactionRouter unit tests", () => {
                           Concrete: {
                             interior: {
                               X2: [
-                                {
-                                  PalletInstance: 42,
-                                },
-                                {
-                                  GeneralIndex: 69,
-                                },
+                                { PalletInstance: 42 },
+                                { GeneralIndex: 69 },
                               ],
                             },
                             parents: 0,
@@ -253,19 +235,19 @@ describe("TransactionRouter unit tests", () => {
                           X1: {
                             AccountId32: {
                               id: bob.addressRaw,
-                              network: "Any"
-                            }
-                          }
+                              network: "Any",
+                            },
+                          },
                         },
-                        parents: 0
+                        parents: 0,
                       },
-                      maxAssets: 1
-                    }
-                  }
-                ]
-              }
-            }
-          ]
+                      maxAssets: 1,
+                    },
+                  },
+                ],
+              },
+            },
+          ],
         });
       });
 
@@ -276,29 +258,28 @@ describe("TransactionRouter unit tests", () => {
         const beneficiary: Receiver = {
           addressRaw: bob.addressRaw,
           network: 1,
-          type: AccountType.accountId32
+          type: AccountType.accountId32,
         };
 
         const asset: Fungible = {
           multiAsset: {
             interior: {
-              X2: [
-                { PalletInstance: 42 },
-                { GeneralIndex: 69 }
-              ]
+              X2: [{ PalletInstance: 42 }, { GeneralIndex: 69 }],
             },
             parents: 0,
           },
-          amount: 200
+          amount: 200,
         };
 
-        // @ts-ignore
-        expect(ReserveTransfer.getSendToReserveChainInstructions(
-          asset,
-          destParaId,
-          beneficiary,
-          true
-        )).toStrictEqual({
+        expect(
+          // @ts-ignore
+          ReserveTransfer.getSendToReserveChainInstructions(
+            asset,
+            destParaId,
+            beneficiary,
+            true,
+          ),
+        ).toStrictEqual({
           V2: [
             {
               WithdrawAsset: [
@@ -310,19 +291,15 @@ describe("TransactionRouter unit tests", () => {
                     Concrete: {
                       interior: {
                         X2: [
-                          {
-                            PalletInstance: 42,
-                          },
-                          {
-                            GeneralIndex: 69,
-                          },
+                          { PalletInstance: 42 },
+                          { GeneralIndex: 69 },
                         ],
                       },
                       parents: 1,
                     },
                   },
                 },
-              ]
+              ],
             },
             {
               InitiateReserveWithdraw: {
@@ -344,12 +321,8 @@ describe("TransactionRouter unit tests", () => {
                           Concrete: {
                             interior: {
                               X2: [
-                                {
-                                  PalletInstance: 42,
-                                },
-                                {
-                                  GeneralIndex: 69,
-                                },
+                                { PalletInstance: 42 },
+                                { GeneralIndex: 69 },
                               ],
                             },
                             parents: 0,
@@ -369,19 +342,19 @@ describe("TransactionRouter unit tests", () => {
                           X1: {
                             AccountId32: {
                               id: bob.addressRaw,
-                              network: "Any"
-                            }
-                          }
+                              network: "Any",
+                            },
+                          },
                         },
-                        parents: 0
+                        parents: 0,
                       },
-                      maxAssets: 1
-                    }
-                  }
-                ]
-              }
-            }
-          ]
+                      maxAssets: 1,
+                    },
+                  },
+                ],
+              },
+            },
+          ],
         });
       });
 
@@ -392,7 +365,7 @@ describe("TransactionRouter unit tests", () => {
         const beneficiary: Receiver = {
           addressRaw: bob.addressRaw,
           network: 1,
-          type: AccountType.accountId32
+          type: AccountType.accountId32,
         };
 
         const asset: Fungible = {
@@ -401,21 +374,23 @@ describe("TransactionRouter unit tests", () => {
               X2: [
                 { Parachain: destParaId },
                 { PalletInstance: 42 },
-                { GeneralIndex: 69 }
-              ]
+                { GeneralIndex: 69 },
+              ],
             },
             parents: 0,
           },
-          amount: 200
+          amount: 200,
         };
 
-        // @ts-ignore
-        expect(ReserveTransfer.getSendToReserveChainInstructions(
-          asset,
-          destParaId,
-          beneficiary,
-          false
-        )).toStrictEqual({
+        expect(
+          // @ts-ignore
+          ReserveTransfer.getSendToReserveChainInstructions(
+            asset,
+            destParaId,
+            beneficiary,
+            false,
+          ),
+        ).toStrictEqual({
           V2: [
             {
               WithdrawAsset: [
@@ -436,7 +411,7 @@ describe("TransactionRouter unit tests", () => {
                     },
                   },
                 },
-              ]
+              ],
             },
             {
               InitiateReserveWithdraw: {
@@ -458,12 +433,8 @@ describe("TransactionRouter unit tests", () => {
                           Concrete: {
                             interior: {
                               X2: [
-                                {
-                                  PalletInstance: 42,
-                                },
-                                {
-                                  GeneralIndex: 69,
-                                },
+                                { PalletInstance: 42 },
+                                { GeneralIndex: 69 },
                               ],
                             },
                             parents: 0,
@@ -483,19 +454,19 @@ describe("TransactionRouter unit tests", () => {
                           X1: {
                             AccountId32: {
                               id: bob.addressRaw,
-                              network: "Any"
-                            }
-                          }
+                              network: "Any",
+                            },
+                          },
                         },
-                        parents: 0
+                        parents: 0,
                       },
-                      maxAssets: 1
-                    }
-                  }
-                ]
-              }
-            }
-          ]
+                      maxAssets: 1,
+                    },
+                  },
+                ],
+              },
+            },
+          ],
         });
       });
     });
@@ -509,7 +480,7 @@ describe("TransactionRouter unit tests", () => {
         const beneficiary: Receiver = {
           addressRaw: bob.addressRaw,
           network: 1,
-          type: AccountType.accountId32
+          type: AccountType.accountId32,
         };
 
         const asset: Fungible = {
@@ -518,48 +489,45 @@ describe("TransactionRouter unit tests", () => {
               X3: [
                 { Parachain: reserveParaId },
                 { PalletInstance: 42 },
-                { GeneralIndex: 69 }
-              ]
+                { GeneralIndex: 69 },
+              ],
             },
             parents: 0,
           },
-          amount: 200
+          amount: 200,
         };
 
-        // @ts-ignore
-        expect(ReserveTransfer.getTwoHopTransferInstructions(
-          asset,
-          reserveParaId,
-          destParaId,
-          beneficiary,
-          true
-        )).toStrictEqual({
+        expect(
+          // @ts-ignore
+          ReserveTransfer.getTwoHopTransferInstructions(
+            asset,
+            reserveParaId,
+            destParaId,
+            beneficiary,
+            true,
+          ),
+        ).toStrictEqual({
           V2: [
             {
-              WithdrawAsset: [{
-                id:
+              WithdrawAsset: [
                 {
-                  Concrete: {
-                    interior: {
-                      X3: [
-                        {
-                          Parachain: reserveParaId,
-                        },
-                        {
-                          PalletInstance: 42,
-                        },
-                        {
-                          GeneralIndex: 69,
-                        },
-                      ],
+                  id: {
+                    Concrete: {
+                      interior: {
+                        X3: [
+                          { Parachain: reserveParaId },
+                          { PalletInstance: 42 },
+                          { GeneralIndex: 69 },
+                        ],
+                      },
+                      parents: 1,
                     },
-                    parents: 1,
+                  },
+                  fun: {
+                    Fungible: asset.amount,
                   },
                 },
-                fun: {
-                  Fungible: asset.amount
-                }
-              }]
+              ],
             },
             {
               InitiateReserveWithdraw: {
@@ -585,12 +553,8 @@ describe("TransactionRouter unit tests", () => {
                           Concrete: {
                             interior: {
                               X2: [
-                                {
-                                  PalletInstance: 42,
-                                },
-                                {
-                                  GeneralIndex: 69,
-                                },
+                                { PalletInstance: 42 },
+                                { GeneralIndex: 69 },
                               ],
                             },
                             parents: 0,
@@ -625,22 +589,22 @@ describe("TransactionRouter unit tests", () => {
                                 X1: {
                                   AccountId32: {
                                     id: bob.addressRaw,
-                                    network: "Any"
-                                  }
-                                }
+                                    network: "Any",
+                                  },
+                                },
                               },
-                              parents: 0
+                              parents: 0,
                             },
-                            maxAssets: 1
-                          }
-                        }
-                      ]
-                    }
-                  }
-                ]
-              }
+                            maxAssets: 1,
+                          },
+                        },
+                      ],
+                    },
+                  },
+                ],
+              },
             },
-          ]
+          ],
         });
       });
 
@@ -652,7 +616,7 @@ describe("TransactionRouter unit tests", () => {
         const beneficiary: Receiver = {
           addressRaw: bob.addressRaw,
           network: 1,
-          type: AccountType.accountId32
+          type: AccountType.accountId32,
         };
 
         const asset: Fungible = {
@@ -660,17 +624,19 @@ describe("TransactionRouter unit tests", () => {
             interior: "Here",
             parents: 0,
           },
-          amount: 200
+          amount: 200,
         };
 
-        // @ts-ignore
-        expect(ReserveTransfer.getTwoHopTransferInstructions(
-          asset,
-          reserveParaId,
-          destParaId,
-          beneficiary,
-          true
-        )).toStrictEqual({
+        expect(
+          // @ts-ignore
+          ReserveTransfer.getTwoHopTransferInstructions(
+            asset,
+            reserveParaId,
+            destParaId,
+            beneficiary,
+            true,
+          ),
+        ).toStrictEqual({
           V2: [
             {
               WithdrawAsset: [
@@ -711,7 +677,7 @@ describe("TransactionRouter unit tests", () => {
                         },
                       },
                       weightLimit: "Unlimited",
-                    }
+                    },
                   },
                   {
                     DepositReserveAsset: {
@@ -738,22 +704,22 @@ describe("TransactionRouter unit tests", () => {
                                 X1: {
                                   AccountId32: {
                                     id: bob.addressRaw,
-                                    network: "Any"
-                                  }
-                                }
+                                    network: "Any",
+                                  },
+                                },
                               },
-                              parents: 0
+                              parents: 0,
                             },
-                            maxAssets: 1
-                          }
-                        }
-                      ]
-                    }
-                  }
-                ]
-              }
-            }
-          ]
+                            maxAssets: 1,
+                          },
+                        },
+                      ],
+                    },
+                  },
+                ],
+              },
+            },
+          ],
         });
       });
 
@@ -765,7 +731,7 @@ describe("TransactionRouter unit tests", () => {
         const beneficiary: Receiver = {
           addressRaw: bob.addressRaw,
           network: 1,
-          type: AccountType.accountId32
+          type: AccountType.accountId32,
         };
 
         const asset: Fungible = {
@@ -774,47 +740,45 @@ describe("TransactionRouter unit tests", () => {
               X3: [
                 { Parachain: reserveParaId },
                 { PalletInstance: 42 },
-                { GeneralIndex: 69 }
-              ]
+                { GeneralIndex: 69 },
+              ],
             },
             parents: 0,
           },
-          amount: 200
+          amount: 200,
         };
 
-        // @ts-ignore
-        expect(ReserveTransfer.getTwoHopTransferInstructions(
-          asset,
-          reserveParaId,
-          destParaId,
-          beneficiary,
-          false
-        )).toStrictEqual({
+        expect(
+          // @ts-ignore
+          ReserveTransfer.getTwoHopTransferInstructions(
+            asset,
+            reserveParaId,
+            destParaId,
+            beneficiary,
+            false,
+          ),
+        ).toStrictEqual({
           V2: [
             {
-              WithdrawAsset: [{
-                fun: {
-                  Fungible: 200,
-                },
-                id: {
-                  Concrete: {
-                    interior: {
-                      X3: [
-                        {
-                          Parachain: reserveParaId,
-                        },
-                        {
-                          PalletInstance: 42,
-                        },
-                        {
-                          GeneralIndex: 69,
-                        },
-                      ],
-                    },
-                    parents: 0,
+              WithdrawAsset: [
+                {
+                  fun: {
+                    Fungible: 200,
                   },
-                }
-              }]
+                  id: {
+                    Concrete: {
+                      interior: {
+                        X3: [
+                          { Parachain: reserveParaId },
+                          { PalletInstance: 42 },
+                          { GeneralIndex: 69 },
+                        ],
+                      },
+                      parents: 0,
+                    },
+                  },
+                },
+              ],
             },
             {
               InitiateReserveWithdraw: {
@@ -840,12 +804,8 @@ describe("TransactionRouter unit tests", () => {
                           Concrete: {
                             interior: {
                               X2: [
-                                {
-                                  PalletInstance: 42,
-                                },
-                                {
-                                  GeneralIndex: 69,
-                                },
+                                { PalletInstance: 42 },
+                                { GeneralIndex: 69 },
                               ],
                             },
                             parents: 0,
@@ -880,22 +840,22 @@ describe("TransactionRouter unit tests", () => {
                                 X1: {
                                   AccountId32: {
                                     id: bob.addressRaw,
-                                    network: "Any"
-                                  }
-                                }
+                                    network: "Any",
+                                  },
+                                },
                               },
-                              parents: 0
+                              parents: 0,
                             },
-                            maxAssets: 1
-                          }
-                        }
-                      ]
-                    }
-                  }
-                ]
-              }
-            }
-          ]
+                            maxAssets: 1,
+                          },
+                        },
+                      ],
+                    },
+                  },
+                ],
+              },
+            },
+          ],
         });
       });
     });
