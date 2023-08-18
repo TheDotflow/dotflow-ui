@@ -451,6 +451,13 @@ class ReserveTransfer {
   // Helper function to remove a specific key from an object.
   private static assetFromReservePerspective(location: any) {
     const junctions = this.extractJunctions(location);
+
+    if (junctions.length === 1) {
+      location.interior = "Here";
+      location.parents = 0;
+      return;
+    }
+
     junctions.splice(0, 1);
     delete location.interior[`X${junctions.length + 1}`];
     location.interior[`X${junctions.length}`] = junctions;

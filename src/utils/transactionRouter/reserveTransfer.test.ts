@@ -134,6 +134,342 @@ describe("TransactionRouter unit tests", () => {
       });
     });
 
+    describe("withdrawAsset works", () => {
+      it("Works with parachain origin", () => {
+        const asset: Fungible = {
+          multiAsset: {
+            interior: {
+              X3: [
+                { Parachain: 2000 },
+                { PalletInstance: 42 },
+                { GeneralIndex: 69 },
+              ],
+            },
+            parents: 0,
+          },
+          amount: 200,
+        };
+
+        // @ts-ignore
+        expect(ReserveTransfer.withdrawAsset(asset, true)).toStrictEqual({
+          WithdrawAsset: [{
+            id: {
+              Concrete: {
+                interior: {
+                  X3: [
+                    { Parachain: 2000 },
+                    { PalletInstance: 42 },
+                    { GeneralIndex: 69 },
+                  ],
+                },
+                parents: 1
+              }
+            },
+            fun: {
+              Fungible: 200
+            }
+          }]
+        });
+      });
+
+      it("Works with relaychain origin", () => {
+        var asset: Fungible = {
+          multiAsset: {
+            interior: {
+              X3: [
+                { PalletInstance: 42 },
+                { GeneralIndex: 69 },
+              ],
+            },
+            parents: 0,
+          },
+          amount: 200,
+        };
+
+        // @ts-ignore
+        expect(ReserveTransfer.withdrawAsset(asset, false)).toStrictEqual({
+          WithdrawAsset: [{
+            id: {
+              Concrete: {
+                interior: {
+                  X2: [
+                    { PalletInstance: 42 },
+                    { GeneralIndex: 69 },
+                  ],
+                },
+                parents: 0
+              }
+            },
+            fun: {
+              Fungible: 200
+            }
+          }]
+        });
+
+        // Works with asset which has "Here" as interior.
+        var asset: Fungible = {
+          multiAsset: {
+            interior: "Here",
+            parents: 0
+          },
+          amount: 200,
+        };
+
+        // @ts-ignore
+        expect(ReserveTransfer.withdrawAsset(asset, false)).toStrictEqual({
+          WithdrawAsset: [{
+            id: {
+              Concrete: {
+                interior: "Here",
+                parents: 0
+              }
+            },
+            fun: {
+              Fungible: 200
+            }
+          }]
+        });
+      });
+    });
+
+    describe("buyExecution works", () => {
+      it("Works", () => {
+        // Works with asset which has "Here" as interior.
+        var asset: Fungible = {
+          multiAsset: {
+            interior: "Here",
+            parents: 0
+          },
+          amount: 200,
+        };
+
+        // @ts-ignore
+        expect(ReserveTransfer.buyExecution(asset.multiAsset, 500)).toStrictEqual({
+          BuyExecution: {
+            fees: {
+              id: {
+                Concrete: {
+                  interior: "Here",
+                  parents: 0
+                }
+              },
+              fun: {
+                Fungible: 500
+              }
+            },
+            weightLimit: "Unlimited"
+          }
+        })
+      });
+    });
+
+    describe("depositReserveAsset works", () => {
+      it("Works", () => {
+        // Works with asset which has "Here" as interior.
+        var asset: Fungible = {
+          multiAsset: {
+            interior: "Here",
+            parents: 0
+          },
+          amount: 200,
+        };
+
+
+        // @ts-ignore
+        expect(ReserveTransfer.depositReserveAsset(asset, 1, {
+          parents: 1,
+          interior: {
+            X1: {
+              Parachain: 2000
+            }
+          }
+          // @ts-ignore
+        }, [])).toStrictEqual({
+          DepositReserveAsset: {
+            assets: asset,
+            maxAssets: 1,
+            dest: {
+              parents: 1,
+              interior: {
+                X1: {
+                  Parachain: 2000
+                }
+              }
+            },
+            xcm: []
+          }
+        });
+      });
+    });
+
+    describe("depositAsset & getReceiverAccount work", () => {
+      it("Works with AccountId32", () => {
+        const bob = ecdsaKering.addFromUri("//Bob");
+
+        const receiver: Receiver = {
+          addressRaw: bob.addressRaw,
+          type: AccountType.accountId32,
+          network: 0,
+        };
+
+        // @ts-ignore
+        expect(ReserveTransfer.depositAsset({ Wild: "All" }, 1, receiver)).toStrictEqual({
+          DepositAsset: {
+            assets: { Wild: "All" },
+            maxAssets: 1,
+            beneficiary: {
+              interior: {
+                X1: {
+                  AccountId32: {
+                    id: receiver.addressRaw,
+                    network: "Any"
+                  }
+                }
+              },
+              parents: 0
+            }
+          }
+        });
+      });
+
+      it("Works with AccountKey20", () => {
+        const bob = ecdsaKering.addFromUri("//Bob");
+
+        const receiver: Receiver = {
+          addressRaw: bob.addressRaw,
+          type: AccountType.accountKey20,
+          network: 0,
+        };
+
+        // @ts-ignore
+        expect(ReserveTransfer.depositAsset({ Wild: "All" }, 1, receiver)).toStrictEqual({
+          DepositAsset: {
+            assets: { Wild: "All" },
+            maxAssets: 1,
+            beneficiary: {
+              interior: {
+                X1: {
+                  AccountKey20: {
+                    id: receiver.addressRaw,
+                    network: "Any"
+                  }
+                }
+              },
+              parents: 0
+            }
+          }
+        });
+      });
+    });
+
+    describe("getReserve works", () => {
+      it("works with origin para", () => {
+        // @ts-ignore
+        expect(ReserveTransfer.getReserve(1000, true)).toStrictEqual({
+          parents: 1,
+          interior: {
+            X1: {
+              Parachain: 1000
+            }
+          }
+        });
+      });
+
+      it("works with origin being the relaychain", () => {
+        // @ts-ignore
+        expect(ReserveTransfer.getReserve(1000, false)).toStrictEqual({
+          parents: 0,
+          interior: {
+            X1: {
+              Parachain: 1000
+            }
+          }
+        });
+      });
+
+      it("works with origin para and reserve relay", () => {
+        // @ts-ignore
+        expect(ReserveTransfer.getReserve(-1, true)).toStrictEqual({
+          parents: 1,
+          interior: "Here"
+        });
+      });
+    });
+
+    describe("assetFromReservePerspective works", () => {
+      it("Works with any number of junctions and 'Here'", () => {
+        const junctions = {
+          interior: {
+            X5: [
+              { Parachain: 1000 },
+              { GeneralIndex: 42 },
+              { GeneralIndex: 42 },
+              { GeneralIndex: 42 },
+              { GeneralIndex: 42 },
+              // Doesn't matter what is in here for testing...
+            ]
+          },
+          parents: 0
+        };
+        // @ts-ignore
+        ReserveTransfer.assetFromReservePerspective(junctions);
+        expect(junctions).toStrictEqual({
+          interior: {
+            X4: [
+              { GeneralIndex: 42 },
+              { GeneralIndex: 42 },
+              { GeneralIndex: 42 },
+              { GeneralIndex: 42 },
+            ]
+          },
+          parents: 0
+        });
+
+        const junctions2 = {
+          interior: {
+            X1: [
+              { Parachain: 1000 },
+              // Doesn't matter what is in here for testing this
+            ]
+          },
+          parents: 1
+        };
+        // @ts-ignore
+        ReserveTransfer.assetFromReservePerspective(junctions2);
+        expect(junctions2).toStrictEqual({
+          interior: "Here",
+          parents: 0
+        });
+      });
+    });
+
+    describe("extractJunctions works", () => {
+      it("Works with any number of junctions and 'Here'", () => {
+        // @ts-ignore
+        expect(ReserveTransfer.extractJunctions({
+          interior: {
+            X3: [
+              // Doesn't matter what is in here for testing this
+              { GeneralIndex: 42 },
+              { Parachain: 42 },
+              { GeneralIndex: 42 },
+            ]
+          },
+          parents: 1
+        })).toStrictEqual([
+          { GeneralIndex: 42 },
+          { Parachain: 42 },
+          { GeneralIndex: 42 },
+        ]);
+
+        // @ts-ignore
+        expect(ReserveTransfer.extractJunctions({
+          interior: "Here",
+          parents: 1
+        })).toStrictEqual("Here");
+      });
+    });
+
     describe("getSendToReserveChainInstructions works", () => {
       it("Works from parachain to parachain", () => {
         const bob = ecdsaKering.addFromUri("//Bob");
