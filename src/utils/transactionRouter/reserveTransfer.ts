@@ -179,7 +179,7 @@ class ReserveTransfer {
     let assetFromReservePerspective = JSON.parse(JSON.stringify(asset.multiAsset));
     if (reserveParaId > 0) {
       // The location of the asset will always start with the parachain if the reserve is a parachain.
-      this.removeParachainFromLocation(assetFromReservePerspective);
+      this.assetFromReservePerspective(assetFromReservePerspective);
     } else {
       // The reserve is the relay chain.
       assetFromReservePerspective.parents = 0;
@@ -236,7 +236,10 @@ class ReserveTransfer {
     let assetFromReservePerspective = JSON.parse(JSON.stringify(asset.multiAsset));
     if (destParaId >= 0) {
       // The location of the asset will always start with the parachain if the reserve is a parachain.
-      this.removeParachainFromLocation(assetFromReservePerspective);
+      this.assetFromReservePerspective(assetFromReservePerspective);
+    } else {
+      // The reserve is the relay chain.
+      assetFromReservePerspective.parents = 0;
     }
 
     return {
@@ -446,7 +449,7 @@ class ReserveTransfer {
   }
 
   // Helper function to remove a specific key from an object.
-  private static removeParachainFromLocation(location: any) {
+  private static assetFromReservePerspective(location: any) {
     const junctions = this.extractJunctions(location);
     junctions.splice(0, 1);
     delete location.interior[`X${junctions.length + 1}`];

@@ -144,6 +144,362 @@ describe("TransactionRouter unit tests", () => {
       )
     });
 
+    describe("getSendToReserveChainInstructions works", () => {
+      it("Works from parachain to parachain", () => {
+        const bob = ecdsaKering.addFromUri("//Bob");
+
+        const destParaId = 2002;
+        const beneficiary: Receiver = {
+          addressRaw: bob.addressRaw,
+          network: 1,
+          type: AccountType.accountId32
+        };
+
+        const asset: Fungible = {
+          multiAsset: {
+            interior: {
+              X3: [
+                { Parachain: destParaId },
+                { PalletInstance: 42 },
+                { GeneralIndex: 69 }
+              ]
+            },
+            parents: 0,
+          },
+          amount: 200
+        };
+
+        // @ts-ignore
+        expect(ReserveTransfer.getSendToReserveChainInstructions(
+          asset,
+          destParaId,
+          beneficiary,
+          true
+        )).toStrictEqual({
+          V2: [
+            {
+              WithdrawAsset: [
+                {
+                  fun: {
+                    Fungible: 200,
+                  },
+                  id: {
+                    Concrete: {
+                      interior: {
+                        X3: [
+                          {
+                            Parachain: destParaId,
+                          },
+                          {
+                            PalletInstance: 42,
+                          },
+                          {
+                            GeneralIndex: 69,
+                          },
+                        ],
+                      },
+                      parents: 1,
+                    },
+                  },
+                },
+              ]
+            },
+            {
+              InitiateReserveWithdraw: {
+                assets: {
+                  Wild: "All",
+                },
+                reserve: {
+                  interior: {
+                    X1: {
+                      Parachain: destParaId,
+                    },
+                  },
+                  parents: 1,
+                },
+                xcm: [
+                  {
+                    BuyExecution: {
+                      fees: {
+                        fun: {
+                          Fungible: 450000000000,
+                        },
+                        id: {
+                          Concrete: {
+                            interior: {
+                              X2: [
+                                {
+                                  PalletInstance: 42,
+                                },
+                                {
+                                  GeneralIndex: 69,
+                                },
+                              ],
+                            },
+                            parents: 0,
+                          },
+                        },
+                      },
+                      weightLimit: "Unlimited",
+                    },
+                  },
+                  {
+                    DepositAsset: {
+                      assets: {
+                        Wild: "All",
+                      },
+                      beneficiary: {
+                        interior: {
+                          X1: {
+                            AccountId32: {
+                              id: bob.addressRaw,
+                              network: "Any"
+                            }
+                          }
+                        },
+                        parents: 0
+                      },
+                      maxAssets: 1
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        });
+      });
+
+      it("Works from parachain to relaychain", () => {
+        const bob = ecdsaKering.addFromUri("//Bob");
+
+        const destParaId = -1;
+        const beneficiary: Receiver = {
+          addressRaw: bob.addressRaw,
+          network: 1,
+          type: AccountType.accountId32
+        };
+
+        const asset: Fungible = {
+          multiAsset: {
+            interior: {
+              X2: [
+                { PalletInstance: 42 },
+                { GeneralIndex: 69 }
+              ]
+            },
+            parents: 0,
+          },
+          amount: 200
+        };
+
+        // @ts-ignore
+        expect(ReserveTransfer.getSendToReserveChainInstructions(
+          asset,
+          destParaId,
+          beneficiary,
+          true
+        )).toStrictEqual({
+          V2: [
+            {
+              WithdrawAsset: [
+                {
+                  fun: {
+                    Fungible: 200,
+                  },
+                  id: {
+                    Concrete: {
+                      interior: {
+                        X2: [
+                          {
+                            PalletInstance: 42,
+                          },
+                          {
+                            GeneralIndex: 69,
+                          },
+                        ],
+                      },
+                      parents: 1,
+                    },
+                  },
+                },
+              ]
+            },
+            {
+              InitiateReserveWithdraw: {
+                assets: {
+                  Wild: "All",
+                },
+                reserve: {
+                  interior: "Here",
+                  parents: 1,
+                },
+                xcm: [
+                  {
+                    BuyExecution: {
+                      fees: {
+                        fun: {
+                          Fungible: 450000000000,
+                        },
+                        id: {
+                          Concrete: {
+                            interior: {
+                              X2: [
+                                {
+                                  PalletInstance: 42,
+                                },
+                                {
+                                  GeneralIndex: 69,
+                                },
+                              ],
+                            },
+                            parents: 0,
+                          },
+                        },
+                      },
+                      weightLimit: "Unlimited",
+                    },
+                  },
+                  {
+                    DepositAsset: {
+                      assets: {
+                        Wild: "All",
+                      },
+                      beneficiary: {
+                        interior: {
+                          X1: {
+                            AccountId32: {
+                              id: bob.addressRaw,
+                              network: "Any"
+                            }
+                          }
+                        },
+                        parents: 0
+                      },
+                      maxAssets: 1
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        });
+      });
+
+      it("Works from relaychain to parachain", () => {
+        const bob = ecdsaKering.addFromUri("//Bob");
+
+        const destParaId = 1000;
+        const beneficiary: Receiver = {
+          addressRaw: bob.addressRaw,
+          network: 1,
+          type: AccountType.accountId32
+        };
+
+        const asset: Fungible = {
+          multiAsset: {
+            interior: {
+              X2: [
+                { Parachain: destParaId },
+                { PalletInstance: 42 },
+                { GeneralIndex: 69 }
+              ]
+            },
+            parents: 0,
+          },
+          amount: 200
+        };
+
+        // @ts-ignore
+        expect(ReserveTransfer.getSendToReserveChainInstructions(
+          asset,
+          destParaId,
+          beneficiary,
+          false
+        )).toStrictEqual({
+          V2: [
+            {
+              WithdrawAsset: [
+                {
+                  fun: {
+                    Fungible: 200,
+                  },
+                  id: {
+                    Concrete: {
+                      interior: {
+                        X3: [
+                          { Parachain: destParaId },
+                          { PalletInstance: 42 },
+                          { GeneralIndex: 69 },
+                        ],
+                      },
+                      parents: 0,
+                    },
+                  },
+                },
+              ]
+            },
+            {
+              InitiateReserveWithdraw: {
+                assets: {
+                  Wild: "All",
+                },
+                reserve: {
+                  interior: { X1: { Parachain: destParaId } },
+                  parents: 0,
+                },
+                xcm: [
+                  {
+                    BuyExecution: {
+                      fees: {
+                        fun: {
+                          Fungible: 450000000000,
+                        },
+                        id: {
+                          Concrete: {
+                            interior: {
+                              X2: [
+                                {
+                                  PalletInstance: 42,
+                                },
+                                {
+                                  GeneralIndex: 69,
+                                },
+                              ],
+                            },
+                            parents: 0,
+                          },
+                        },
+                      },
+                      weightLimit: "Unlimited",
+                    },
+                  },
+                  {
+                    DepositAsset: {
+                      assets: {
+                        Wild: "All",
+                      },
+                      beneficiary: {
+                        interior: {
+                          X1: {
+                            AccountId32: {
+                              id: bob.addressRaw,
+                              network: "Any"
+                            }
+                          }
+                        },
+                        parents: 0
+                      },
+                      maxAssets: 1
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        });
+      });
+    });
+
     describe("getTwoHopTransferInstructions works", () => {
       it("Works with parachain reserve", () => {
         const bob = ecdsaKering.addFromUri("//Bob");
