@@ -331,15 +331,16 @@ class ReserveTransfer {
   }
 
   private static getReserve(reserveParaId: number, isOriginPara: boolean) {
+    const parents = isOriginPara ? 1 : 0;
+
     if (reserveParaId < 0) {
-      const parents = isOriginPara ? 1 : 0;
       return {
         parents,
         interior: "Here"
       }
     } else {
       return {
-        parents: 1,
+        parents,
         interior: {
           X1: {
             Parachain: reserveParaId
