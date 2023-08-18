@@ -23,7 +23,7 @@ class ReserveTransfer {
     const isOriginPara = originApi.query.hasOwnProperty("parachainInfo");
 
     const destination = this.getDestination(isOriginPara, destParaId, destParaId >= 0);
-    const beneficiary = this.getBeneficiary(receiver);
+    const beneficiary = this.getReserveTransferBeneficiary(receiver);
     const multiAsset = this.getMultiAsset(asset);
 
     const feeAssetItem = 0;
@@ -77,7 +77,7 @@ class ReserveTransfer {
 
     const destinationParaId = await this.getParaId(destinationApi);
 
-    const xcmProgram = this.transferReserveAssetInstruction(asset, destinationParaId, receiver);
+    const xcmProgram = this.sendToReserveChainInstructions(asset, destinationParaId, receiver);
 
     let reserveTransfer: any;
     if (originApi.tx.xcmPallet) {
@@ -123,7 +123,7 @@ class ReserveTransfer {
     const reserveParaId = await this.getParaId(reserveChainApi);
     const destinationParaId = await this.getParaId(destinationApi);
 
-    const xcmProgram = this.twoHopXcmInstruction(asset, reserveParaId, destinationParaId, receiver);
+    const xcmProgram = this.twoHopTransferInstructions(asset, reserveParaId, destinationParaId, receiver);
 
     let reserveTransfer: any;
     if (originApi.tx.xcmPallet) {
@@ -151,8 +151,20 @@ class ReserveTransfer {
     });
   }
 
-  // TODO: documentation
-  private static twoHopXcmInstruction(asset: Fungible, reserveParaId: number, destParaId: number, beneficiary: Receiver): any {
+  // Returns the xcm instruction for transferring an asset accross its reserve chain.
+  //
+  // This xcm program executes the following instructions:
+  //   1. `WithdrawAsset`, withdraw the amount the user wants to transfer from the sending chain
+  //      and put it into the holding register
+  //   2. `InitiateReserveWithdraw`, this will take all the assets in the holding register and burn 
+  //      them on the origin chain. This will put the appropriate amount into the holding register on 
+  //      the reserve chain.
+  //   3. `BuyExecution`, on the reserve chain
+  //   4. `DepositReserveAsset`, deposit into the parachain sovereign account. This will also notify the
+  //      destination chain that it received the tokens.
+  //   5. `DepositAsset`, this deposits the received assets on the destination chain into the receiver's
+  //      account.
+  private static twoHopTransferInstructions(asset: Fungible, reserveParaId: number, destParaId: number, beneficiary: Receiver): any {
     const reserve = this.getReserve(reserveParaId);
 
     // NOTE: we use parse and stringify to make a hard copy of the asset.
@@ -191,8 +203,17 @@ class ReserveTransfer {
     }
   }
 
-  // Returns the XCM instruction for transfering a reserve asset.
-  private static transferReserveAssetInstruction(asset: Fungible, destParaId: number, beneficiary: Receiver): any {
+  // Returns the XCM instruction for transfering an asset where the destination is the reserve chain of the asset.
+  //
+  // This xcm program executes the following instructions:
+  //   1. `WithdrawAsset`, withdraw the amount the user wants to transfer from the sending chain
+  //      and put it into the holding register
+  //   2. `InitiateReserveWithdraw`, this will take all the assets in the holding register and burn 
+  //      them on the origin chain. This will put the appropriate amount into the holding register on 
+  //      the reserve chain.
+  //   3. `BuyExecution`, on the reserve chain
+  //   4. `DepositAsset`, this deposits the received assets to the receiver on the reserve chain.
+  private static sendToReserveChainInstructions(asset: Fungible, destParaId: number, beneficiary: Receiver): any {
     const reserve = this.getReserve(destParaId);
 
     // NOTE: we use parse and stringify to make a hard copy of the asset.
@@ -309,12 +330,6 @@ class ReserveTransfer {
     }
   }
 
-  private static ensureContainsXcmPallet(api: ApiPromise) {
-    if (!(api.tx.xcmPallet || api.tx.polkadotXcm)) {
-      throw new Error("The blockchain does not support XCM");
-    }
-  }
-
   // Returns the destination of an xcm reserve transfer.
   //
   // The destination is an entity that will process the xcm message(i.e a relaychain or a parachain). 
@@ -346,7 +361,7 @@ class ReserveTransfer {
   // Returns the beneficiary of an xcm reserve transfer.
   //
   // The beneficiary is an interior entity of the destination that will actually receive the tokens.
-  private static getBeneficiary(receiver: Receiver) {
+  private static getReserveTransferBeneficiary(receiver: Receiver) {
     const receiverAccount = this.getReceiverAccount(receiver);
 
     return {
@@ -392,6 +407,12 @@ class ReserveTransfer {
           },
         },
       ]
+    }
+  }
+
+  private static ensureContainsXcmPallet(api: ApiPromise) {
+    if (!(api.tx.xcmPallet || api.tx.polkadotXcm)) {
+      throw new Error("The blockchain does not support XCM");
     }
   }
 

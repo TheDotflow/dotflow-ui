@@ -78,6 +78,7 @@ class TransferAsset {
       };
     }
 
+    // TODO: should this have `BuyExecution`?
     const xcmMessage = {
       V2: [
         {
