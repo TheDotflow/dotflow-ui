@@ -77,7 +77,8 @@ class ReserveTransfer {
 
     const destinationParaId = await this.getParaId(destinationApi);
 
-    const xcmProgram = this.sendToReserveChainInstructions(asset, destinationParaId, receiver);
+    const isOriginPara = originApi.query.hasOwnProperty("parachainInfo");
+    const xcmProgram = this.getSendToReserveChainInstructions(asset, destinationParaId, receiver, isOriginPara);
 
     let reserveTransfer: any;
     if (originApi.tx.xcmPallet) {
@@ -123,7 +124,8 @@ class ReserveTransfer {
     const reserveParaId = await this.getParaId(reserveChainApi);
     const destinationParaId = await this.getParaId(destinationApi);
 
-    const xcmProgram = this.twoHopTransferInstructions(asset, reserveParaId, destinationParaId, receiver);
+    const isOriginPara = originApi.query.hasOwnProperty("parachainInfo");
+    const xcmProgram = this.getTwoHopTransferInstructions(asset, reserveParaId, destinationParaId, receiver, isOriginPara);
 
     let reserveTransfer: any;
     if (originApi.tx.xcmPallet) {
@@ -164,19 +166,28 @@ class ReserveTransfer {
   //      destination chain that it received the tokens.
   //   5. `DepositAsset`, this deposits the received assets on the destination chain into the receiver's
   //      account.
-  private static twoHopTransferInstructions(asset: Fungible, reserveParaId: number, destParaId: number, beneficiary: Receiver): any {
-    const reserve = this.getReserve(reserveParaId);
+  private static getTwoHopTransferInstructions(
+    asset: Fungible,
+    reserveParaId: number,
+    destParaId: number,
+    beneficiary: Receiver,
+    isOriginPara: boolean
+  ): any {
+    const reserve = this.getReserve(reserveParaId, isOriginPara);
 
     // NOTE: we use parse and stringify to make a hard copy of the asset.
     let assetFromReservePerspective = JSON.parse(JSON.stringify(asset.multiAsset));
     if (reserveParaId > 0) {
       // The location of the asset will always start with the parachain if the reserve is a parachain.
-      this.removeParachainFromLocation(assetFromReservePerspective, reserveParaId);
+      this.removeParachainFromLocation(assetFromReservePerspective);
+    } else {
+      // The reserve is the relay chain.
+      assetFromReservePerspective.parents = 0;
     }
 
     return {
       V2: [
-        this.withdrawAsset(asset),
+        this.withdrawAsset(asset, isOriginPara),
         {
           InitiateReserveWithdraw: {
             assets: {
@@ -213,19 +224,24 @@ class ReserveTransfer {
   //      the reserve chain.
   //   3. `BuyExecution`, on the reserve chain
   //   4. `DepositAsset`, this deposits the received assets to the receiver on the reserve chain.
-  private static sendToReserveChainInstructions(asset: Fungible, destParaId: number, beneficiary: Receiver): any {
-    const reserve = this.getReserve(destParaId);
+  private static getSendToReserveChainInstructions(
+    asset: Fungible,
+    destParaId: number,
+    beneficiary: Receiver,
+    isOriginPara: boolean
+  ): any {
+    const reserve = this.getReserve(destParaId, isOriginPara);
 
     // NOTE: we use parse and stringify to make a hard copy of the asset.
     let assetFromReservePerspective = JSON.parse(JSON.stringify(asset.multiAsset));
     if (destParaId >= 0) {
       // The location of the asset will always start with the parachain if the reserve is a parachain.
-      this.removeParachainFromLocation(assetFromReservePerspective, destParaId);
+      this.removeParachainFromLocation(assetFromReservePerspective);
     }
 
     return {
       V2: [
-        this.withdrawAsset(asset),
+        this.withdrawAsset(asset, isOriginPara),
         {
           InitiateReserveWithdraw: {
             assets: {
@@ -243,13 +259,24 @@ class ReserveTransfer {
     }
   }
 
-  private static withdrawAsset(asset: Fungible): any {
+  private static withdrawAsset(asset: Fungible, isOriginPara: boolean): any {
+    const junctions = this.extractJunctions(asset.multiAsset);
+    let parents = 0;
+    if (isOriginPara) {
+      parents = 1;
+    }
+
+    let interior = junctions == "Here" ? "Here" : { [`X${junctions.length}`]: junctions };
+
     return {
       WithdrawAsset: [
         {
           id:
           {
-            Concrete: asset.multiAsset
+            Concrete: {
+              interior,
+              parents
+            },
           },
           fun: {
             Fungible: asset.amount
@@ -303,10 +330,11 @@ class ReserveTransfer {
     };
   }
 
-  private static getReserve(reserveParaId: number) {
+  private static getReserve(reserveParaId: number, isOriginPara: boolean) {
     if (reserveParaId < 0) {
+      const parents = isOriginPara ? 1 : 0;
       return {
-        parents: 0,
+        parents,
         interior: "Here"
       }
     } else {
@@ -417,17 +445,25 @@ class ReserveTransfer {
   }
 
   // Helper function to remove a specific key from an object.
-  private static removeParachainFromLocation(location: any, paraId: number) {
+  private static removeParachainFromLocation(location: any) {
+    const junctions = this.extractJunctions(location);
+    junctions.splice(0, 1);
+    delete location.interior[`X${junctions.length + 1}`];
+    location.interior[`X${junctions.length}`] = junctions;
+    location.parents = 0;
+  }
+
+  private static extractJunctions(location: any): any {
     const keyPattern = /^X\d$/;
+
+    if (location.interior == "Here") {
+      return "Here";
+    }
 
     const key = Object.keys(location.interior).find(key => keyPattern.test(key));
 
     if (key) {
-      const junctions: any[] = location.interior[key];
-      junctions.splice(0, 1);
-      delete location.interior[key];
-      location.interior[`X${junctions.length}`] = junctions;
-      location.parents = 0;
+      return location.interior[key];
     } else {
       throw Error("Couldn't get junctions of an asset's location");
     }

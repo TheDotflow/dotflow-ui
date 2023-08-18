@@ -17,7 +17,7 @@ describe("TransactionRouter unit tests", () => {
       // @ts-ignore
       expect(ReserveTransfer.getDestination(true, 69, false)).toStrictEqual(
         {
-          V1: {
+          V2: {
             parents: 1,
             interior: "Here"
           }
@@ -27,7 +27,7 @@ describe("TransactionRouter unit tests", () => {
       // @ts-ignore
       expect(ReserveTransfer.getDestination(false, 69, false)).toStrictEqual(
         {
-          V1: {
+          V2: {
             parents: 0,
             interior: "Here"
           }
@@ -39,7 +39,7 @@ describe("TransactionRouter unit tests", () => {
       // @ts-ignore
       expect(ReserveTransfer.getDestination(false, 2000, true)).toStrictEqual(
         {
-          V1: {
+          V2: {
             parents: 0,
             interior: {
               X1: { Parachain: 2000 }
@@ -51,7 +51,7 @@ describe("TransactionRouter unit tests", () => {
       // @ts-ignore
       expect(ReserveTransfer.getDestination(true, 2000, true)).toStrictEqual(
         {
-          V1: {
+          V2: {
             parents: 1,
             interior: {
               X1: { Parachain: 2000 }
@@ -62,7 +62,7 @@ describe("TransactionRouter unit tests", () => {
     });
   });
 
-  describe("getBeneficiary works", () => {
+  describe("getReserveTransferBeneficiary works", () => {
     it("Works with AccountId32", async () => {
       await cryptoWaitReady();
 
@@ -76,9 +76,9 @@ describe("TransactionRouter unit tests", () => {
       };
 
       // @ts-ignore
-      expect(ReserveTransfer.getBeneficiary(receiver)).toStrictEqual(
+      expect(ReserveTransfer.getReserveTransferBeneficiary(receiver)).toStrictEqual(
         {
-          V1: {
+          V2: {
             parents: 0,
             interior: {
               X1: {
@@ -99,9 +99,9 @@ describe("TransactionRouter unit tests", () => {
       };
 
       // @ts-ignore
-      expect(ReserveTransfer.getBeneficiary(receiver)).toStrictEqual(
+      expect(ReserveTransfer.getReserveTransferBeneficiary(receiver)).toStrictEqual(
         {
-          V1: {
+          V2: {
             parents: 0,
             interior: {
               X1: {
@@ -130,7 +130,7 @@ describe("TransactionRouter unit tests", () => {
       // @ts-ignore
       expect(ReserveTransfer.getMultiAsset(asset)).toStrictEqual(
         {
-          V1: [
+          V2: [
             {
               fun: {
                 Fungible: asset.amount
@@ -142,6 +142,264 @@ describe("TransactionRouter unit tests", () => {
           ]
         }
       )
+    });
+
+    describe("getTwoHopTransferInstructions works", () => {
+      test("Works with parachain reserve", () => {
+        const bob = ecdsaKering.addFromUri("//Bob");
+
+        const reserveParaId = 2000;
+        const destParaId = 2002;
+        const beneficiary: Receiver = {
+          addressRaw: bob.addressRaw,
+          network: 1,
+          type: AccountType.accountId32
+        };
+
+        const asset: Fungible = {
+          multiAsset: {
+            interior: {
+              X3: [
+                { Parachain: reserveParaId },
+                { PalletInstance: 42 },
+                { GeneralIndex: 69 }
+              ]
+            },
+            parents: 0,
+          },
+          amount: 200
+        };
+
+        // @ts-ignore
+        expect(ReserveTransfer.getTwoHopTransferInstructions(
+          asset,
+          reserveParaId,
+          destParaId,
+          beneficiary,
+          true
+        )).toStrictEqual({
+          V2: [
+            {
+              WithdrawAsset: [{
+                id:
+                {
+                  Concrete: {
+                    interior: {
+                      X3: [
+                        {
+                          Parachain: reserveParaId,
+                        },
+                        {
+                          PalletInstance: 42,
+                        },
+                        {
+                          GeneralIndex: 69,
+                        },
+                      ],
+                    },
+                    parents: 1,
+                  },
+                },
+                fun: {
+                  Fungible: asset.amount
+                }
+              }]
+            },
+            {
+              InitiateReserveWithdraw: {
+                assets: {
+                  Wild: "All",
+                },
+                reserve: {
+                  interior: {
+                    X1: {
+                      Parachain: reserveParaId,
+                    },
+                  },
+                  parents: 1,
+                },
+                xcm: [
+                  {
+                    BuyExecution: {
+                      fees: {
+                        fun: {
+                          Fungible: 450000000000,
+                        },
+                        id: {
+                          Concrete: {
+                            interior: {
+                              X2: [
+                                {
+                                  PalletInstance: 42,
+                                },
+                                {
+                                  GeneralIndex: 69,
+                                },
+                              ],
+                            },
+                            parents: 0,
+                          },
+                        },
+                      },
+                      weightLimit: "Unlimited",
+                    },
+                  },
+                  {
+                    DepositReserveAsset: {
+                      assets: {
+                        Wild: "All",
+                      },
+                      dest: {
+                        interior: {
+                          X1: {
+                            Parachain: destParaId,
+                          },
+                        },
+                        parents: 1,
+                      },
+                      maxAssets: 1,
+                      xcm: [
+                        {
+                          DepositAsset: {
+                            assets: {
+                              Wild: "All",
+                            },
+                            beneficiary: {
+                              interior: {
+                                X1: {
+                                  AccountId32: {
+                                    id: bob.addressRaw,
+                                    network: "Any"
+                                  }
+                                }
+                              },
+                              parents: 0
+                            },
+                            maxAssets: 1
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+          ]
+        });
+      });
+
+      test("Works with relaychain reserve", () => {
+        const bob = ecdsaKering.addFromUri("//Bob");
+
+        const reserveParaId = -1;
+        const destParaId = 2002;
+        const beneficiary: Receiver = {
+          addressRaw: bob.addressRaw,
+          network: 1,
+          type: AccountType.accountId32
+        };
+
+        const asset: Fungible = {
+          multiAsset: {
+            interior: "Here",
+            parents: 0,
+          },
+          amount: 200
+        };
+
+        // @ts-ignore
+        expect(ReserveTransfer.getTwoHopTransferInstructions(
+          asset,
+          reserveParaId,
+          destParaId,
+          beneficiary,
+          true
+        )).toStrictEqual({
+          V2: [
+            {
+              WithdrawAsset: [
+                {
+                  fun: {
+                    Fungible: 200,
+                  },
+                  id: {
+                    Concrete: {
+                      interior: "Here",
+                      parents: 1,
+                    },
+                  },
+                },
+              ],
+            },
+            {
+              InitiateReserveWithdraw: {
+                assets: {
+                  Wild: "All",
+                },
+                reserve: {
+                  interior: "Here",
+                  parents: 1,
+                },
+                xcm: [
+                  {
+                    BuyExecution: {
+                      fees: {
+                        fun: {
+                          Fungible: 450000000000,
+                        },
+                        id: {
+                          Concrete: {
+                            interior: "Here",
+                            parents: 0,
+                          },
+                        },
+                      },
+                      weightLimit: "Unlimited",
+                    }
+                  },
+                  {
+                    DepositReserveAsset: {
+                      assets: {
+                        Wild: "All",
+                      },
+                      dest: {
+                        interior: {
+                          X1: {
+                            Parachain: destParaId,
+                          },
+                        },
+                        parents: 1,
+                      },
+                      maxAssets: 1,
+                      xcm: [
+                        {
+                          DepositAsset: {
+                            assets: {
+                              Wild: "All",
+                            },
+                            beneficiary: {
+                              interior: {
+                                X1: {
+                                  AccountId32: {
+                                    id: bob.addressRaw,
+                                    network: "Any"
+                                  }
+                                }
+                              },
+                              parents: 0
+                            },
+                            maxAssets: 1
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        });
+      });
     });
   });
 });
