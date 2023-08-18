@@ -214,7 +214,7 @@ class ReserveTransfer {
             xcm: [
               // TODO: the hardcoded number isn't really accurate to what we actually need.
               this.buyExecution(assetFromReservePerspective, 450000000000),
-              this.depositAsset({ Wild: "All" }, 1, this.getReceiverAccount(beneficiary))
+              this.depositAsset({ Wild: "All" }, 1, beneficiary)
             ]
           }
         },
