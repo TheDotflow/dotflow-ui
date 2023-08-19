@@ -1,9 +1,9 @@
 import { ApiPromise, WsProvider } from "@polkadot/api";
 
+import ReserveTransfer from "./reserveTransfer";
 import TransferAsset from "./transferAsset";
 import { Fungible, Receiver, Sender } from "./types";
 import IdentityContract from "../../../types/contracts/identity";
-import ReserveTransfer from "./reserveTransfer";
 
 // Responsible for handling all the transfer logic.
 //

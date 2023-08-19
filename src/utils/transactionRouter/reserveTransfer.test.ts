@@ -2,11 +2,12 @@
 //
 // The e2e tests are placed in the `__tests__` directory in the root of the project.
 
-import { AccountType } from "../../../types/types-arguments/identity";
-import ReserveTransfer from "./reserveTransfer";
-import { Receiver, Fungible } from "./types";
 import { Keyring } from "@polkadot/api";
 import { cryptoWaitReady } from "@polkadot/util-crypto";
+
+import ReserveTransfer from "./reserveTransfer";
+import { Fungible, Receiver } from "./types";
+import { AccountType } from "../../../types/types-arguments/identity";
 
 const sr25519Keyring = new Keyring({ type: "sr25519" });
 const ecdsaKering = new Keyring({ type: "ecdsa" });
@@ -14,6 +15,7 @@ const ecdsaKering = new Keyring({ type: "ecdsa" });
 describe("TransactionRouter unit tests", () => {
   describe("getDestination works", () => {
     it("Works with the destination being the relay chain", () => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       expect(ReserveTransfer.getDestination(true, 69, false)).toStrictEqual({
         V2: {
@@ -22,6 +24,7 @@ describe("TransactionRouter unit tests", () => {
         },
       });
 
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       expect(ReserveTransfer.getDestination(false, 69, false)).toStrictEqual({
         V2: {
@@ -32,6 +35,7 @@ describe("TransactionRouter unit tests", () => {
     });
 
     it("Works with the destination being a parachain", () => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       expect(ReserveTransfer.getDestination(false, 2000, true)).toStrictEqual({
         V2: {
@@ -42,6 +46,7 @@ describe("TransactionRouter unit tests", () => {
         },
       });
 
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       expect(ReserveTransfer.getDestination(true, 2000, true)).toStrictEqual({
         V2: {
@@ -61,13 +66,14 @@ describe("TransactionRouter unit tests", () => {
       const alice = sr25519Keyring.addFromUri("//Alice");
       const bob = ecdsaKering.addFromUri("//Bob");
 
-      var receiver: Receiver = {
+      const receiverAccId32: Receiver = {
         addressRaw: alice.addressRaw,
         network: 0,
         type: AccountType.accountId32,
       };
 
       expect(
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         ReserveTransfer.getReserveTransferBeneficiary(receiver),
       ).toStrictEqual({
@@ -77,20 +83,21 @@ describe("TransactionRouter unit tests", () => {
             X1: {
               AccountId32: {
                 network: "Any",
-                id: receiver.addressRaw,
+                id: receiverAccId32.addressRaw,
               },
             },
           },
         },
       });
 
-      var receiver: Receiver = {
+      const receiverAccKey20: Receiver = {
         addressRaw: bob.addressRaw,
         network: 0,
         type: AccountType.accountKey20,
       };
 
       expect(
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         ReserveTransfer.getReserveTransferBeneficiary(receiver),
       ).toStrictEqual({
@@ -100,7 +107,7 @@ describe("TransactionRouter unit tests", () => {
             X1: {
               AccountKey20: {
                 network: "Any",
-                id: receiver.addressRaw,
+                id: receiverAccKey20.addressRaw,
               },
             },
           },
@@ -119,6 +126,7 @@ describe("TransactionRouter unit tests", () => {
         amount: 200,
       };
 
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       expect(ReserveTransfer.getMultiAsset(asset)).toStrictEqual({
         V2: [
@@ -150,6 +158,7 @@ describe("TransactionRouter unit tests", () => {
           amount: 200,
         };
 
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         expect(ReserveTransfer.withdrawAsset(asset, true)).toStrictEqual({
           WithdrawAsset: [{
@@ -173,10 +182,10 @@ describe("TransactionRouter unit tests", () => {
       });
 
       it("Works with relaychain origin", () => {
-        var asset: Fungible = {
+        const complexAsset: Fungible = {
           multiAsset: {
             interior: {
-              X3: [
+              X2: [
                 { PalletInstance: 42 },
                 { GeneralIndex: 69 },
               ],
@@ -186,8 +195,9 @@ describe("TransactionRouter unit tests", () => {
           amount: 200,
         };
 
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        expect(ReserveTransfer.withdrawAsset(asset, false)).toStrictEqual({
+        expect(ReserveTransfer.withdrawAsset(complexAsset, false)).toStrictEqual({
           WithdrawAsset: [{
             id: {
               Concrete: {
@@ -207,7 +217,7 @@ describe("TransactionRouter unit tests", () => {
         });
 
         // Works with asset which has "Here" as interior.
-        var asset: Fungible = {
+        const simpleAsset: Fungible = {
           multiAsset: {
             interior: "Here",
             parents: 0
@@ -215,8 +225,9 @@ describe("TransactionRouter unit tests", () => {
           amount: 200,
         };
 
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        expect(ReserveTransfer.withdrawAsset(asset, false)).toStrictEqual({
+        expect(ReserveTransfer.withdrawAsset(simpleAsset, false)).toStrictEqual({
           WithdrawAsset: [{
             id: {
               Concrete: {
@@ -235,7 +246,7 @@ describe("TransactionRouter unit tests", () => {
     describe("buyExecution works", () => {
       it("Works", () => {
         // Works with asset which has "Here" as interior.
-        var asset: Fungible = {
+        const asset: Fungible = {
           multiAsset: {
             interior: "Here",
             parents: 0
@@ -243,6 +254,7 @@ describe("TransactionRouter unit tests", () => {
           amount: 200,
         };
 
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         expect(ReserveTransfer.buyExecution(asset.multiAsset, 500)).toStrictEqual({
           BuyExecution: {
@@ -266,7 +278,7 @@ describe("TransactionRouter unit tests", () => {
     describe("depositReserveAsset works", () => {
       it("Works", () => {
         // Works with asset which has "Here" as interior.
-        var asset: Fungible = {
+        const asset: Fungible = {
           multiAsset: {
             interior: "Here",
             parents: 0
@@ -275,6 +287,7 @@ describe("TransactionRouter unit tests", () => {
         };
 
 
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         expect(ReserveTransfer.depositReserveAsset(asset, 1, {
           parents: 1,
@@ -283,6 +296,7 @@ describe("TransactionRouter unit tests", () => {
               Parachain: 2000
             }
           }
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
         }, [])).toStrictEqual({
           DepositReserveAsset: {
@@ -312,6 +326,7 @@ describe("TransactionRouter unit tests", () => {
           network: 0,
         };
 
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         expect(ReserveTransfer.depositAsset({ Wild: "All" }, 1, receiver)).toStrictEqual({
           DepositAsset: {
@@ -341,6 +356,7 @@ describe("TransactionRouter unit tests", () => {
           network: 0,
         };
 
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         expect(ReserveTransfer.depositAsset({ Wild: "All" }, 1, receiver)).toStrictEqual({
           DepositAsset: {
@@ -364,6 +380,7 @@ describe("TransactionRouter unit tests", () => {
 
     describe("getReserve works", () => {
       it("works with origin para", () => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         expect(ReserveTransfer.getReserve(1000, true)).toStrictEqual({
           parents: 1,
@@ -376,6 +393,7 @@ describe("TransactionRouter unit tests", () => {
       });
 
       it("works with origin being the relaychain", () => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         expect(ReserveTransfer.getReserve(1000, false)).toStrictEqual({
           parents: 0,
@@ -388,6 +406,7 @@ describe("TransactionRouter unit tests", () => {
       });
 
       it("works with origin para and reserve relay", () => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         expect(ReserveTransfer.getReserve(-1, true)).toStrictEqual({
           parents: 1,
@@ -411,6 +430,7 @@ describe("TransactionRouter unit tests", () => {
           },
           parents: 0
         };
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         ReserveTransfer.assetFromReservePerspective(junctions);
         expect(junctions).toStrictEqual({
@@ -434,6 +454,7 @@ describe("TransactionRouter unit tests", () => {
           },
           parents: 1
         };
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         ReserveTransfer.assetFromReservePerspective(junctions2);
         expect(junctions2).toStrictEqual({
@@ -445,6 +466,7 @@ describe("TransactionRouter unit tests", () => {
 
     describe("extractJunctions works", () => {
       it("Works with any number of junctions and 'Here'", () => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         expect(ReserveTransfer.extractJunctions({
           interior: {
@@ -462,6 +484,7 @@ describe("TransactionRouter unit tests", () => {
           { GeneralIndex: 42 },
         ]);
 
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         expect(ReserveTransfer.extractJunctions({
           interior: "Here",
@@ -496,6 +519,7 @@ describe("TransactionRouter unit tests", () => {
         };
 
         expect(
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           ReserveTransfer.getSendToReserveChainInstructions(
             asset,
@@ -608,6 +632,7 @@ describe("TransactionRouter unit tests", () => {
         };
 
         expect(
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           ReserveTransfer.getSendToReserveChainInstructions(
             asset,
@@ -719,6 +744,7 @@ describe("TransactionRouter unit tests", () => {
         };
 
         expect(
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           ReserveTransfer.getSendToReserveChainInstructions(
             asset,
@@ -834,6 +860,7 @@ describe("TransactionRouter unit tests", () => {
         };
 
         expect(
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           ReserveTransfer.getTwoHopTransferInstructions(
             asset,
@@ -964,6 +991,7 @@ describe("TransactionRouter unit tests", () => {
         };
 
         expect(
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           ReserveTransfer.getTwoHopTransferInstructions(
             asset,
@@ -1085,6 +1113,7 @@ describe("TransactionRouter unit tests", () => {
         };
 
         expect(
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           ReserveTransfer.getTwoHopTransferInstructions(
             asset,

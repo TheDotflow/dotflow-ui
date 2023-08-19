@@ -20,6 +20,7 @@ class ReserveTransfer {
 
     const destParaId = await this.getParaId(destinationApi);
 
+    // eslint-disable-next-line no-prototype-builtins
     const isOriginPara = originApi.query.hasOwnProperty("parachainInfo");
 
     const destination = this.getDestination(isOriginPara, destParaId, destParaId >= 0);
@@ -77,6 +78,7 @@ class ReserveTransfer {
 
     const destinationParaId = await this.getParaId(destinationApi);
 
+    // eslint-disable-next-line no-prototype-builtins
     const isOriginPara = originApi.query.hasOwnProperty("parachainInfo");
     const xcmProgram = this.getSendToReserveChainInstructions(asset, destinationParaId, receiver, isOriginPara);
 
@@ -124,6 +126,7 @@ class ReserveTransfer {
     const reserveParaId = await this.getParaId(reserveChainApi);
     const destinationParaId = await this.getParaId(destinationApi);
 
+    // eslint-disable-next-line no-prototype-builtins
     const isOriginPara = originApi.query.hasOwnProperty("parachainInfo");
     const xcmProgram = this.getTwoHopTransferInstructions(asset, reserveParaId, destinationParaId, receiver, isOriginPara);
 
@@ -176,7 +179,7 @@ class ReserveTransfer {
     const reserve = this.getReserve(reserveParaId, isOriginPara);
 
     // NOTE: we use parse and stringify to make a hard copy of the asset.
-    let assetFromReservePerspective = JSON.parse(JSON.stringify(asset.multiAsset));
+    const assetFromReservePerspective = JSON.parse(JSON.stringify(asset.multiAsset));
     if (reserveParaId > 0) {
       // The location of the asset will always start with the parachain if the reserve is a parachain.
       this.assetFromReservePerspective(assetFromReservePerspective);
@@ -233,7 +236,7 @@ class ReserveTransfer {
     const reserve = this.getReserve(destParaId, isOriginPara);
 
     // NOTE: we use parse and stringify to make a hard copy of the asset.
-    let assetFromReservePerspective = JSON.parse(JSON.stringify(asset.multiAsset));
+    const assetFromReservePerspective = JSON.parse(JSON.stringify(asset.multiAsset));
     if (destParaId >= 0) {
       // The location of the asset will always start with the parachain if the reserve is a parachain.
       this.assetFromReservePerspective(assetFromReservePerspective);
@@ -269,7 +272,7 @@ class ReserveTransfer {
       parents = 1;
     }
 
-    let interior = junctions == "Here" ? "Here" : { [`X${junctions.length}`]: junctions };
+    const interior = junctions == "Here" ? "Here" : { [`X${junctions.length}`]: junctions };
 
     return {
       WithdrawAsset: [
@@ -366,7 +369,7 @@ class ReserveTransfer {
   //
   // The destination is an entity that will process the xcm message(i.e a relaychain or a parachain). 
   private static getDestination(isOriginPara: boolean, destParaId: number, isDestPara: boolean): any {
-    let parents = isOriginPara ? 1 : 0;
+    const parents = isOriginPara ? 1 : 0;
 
     if (isDestPara) {
       return {
