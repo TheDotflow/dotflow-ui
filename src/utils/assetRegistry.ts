@@ -1,5 +1,9 @@
 import axios from 'axios';
 
+type ChainId = number | string;
+
+type RelayChain = 'polkadot' | 'kusama';
+
 type Asset = {
   asset: any;
   name: string;
@@ -29,13 +33,13 @@ const xcmGAR =
 
 class AssetRegistry {
   public static async getAssetsOnBlockchain(
-    network: 'polkadot' | 'kusama',
-    chain: string
+    relay: RelayChain,
+    chain: ChainId
   ): Promise<Asset[]> {
     const blockchains = (await axios.get(xcmGAR)).data;
 
-    const blockchain = blockchains.assets[network].find(
-      (b: any) => b.id.toLowerCase() == chain.toLowerCase()
+    const blockchain = blockchains.assets[relay].find(
+      (b: any) => (typeof chain === 'string') ? b.id.toLowerCase() == chain.toLowerCase() : b.paraID === chain
     );
 
     if (!blockchain) {
@@ -138,23 +142,23 @@ class AssetRegistry {
   }
 
   public static async isSupportedOnBothChains(
-    network: 'polkadot' | 'kusama',
-    chainA: string,
-    chainB: string,
+    relay: RelayChain,
+    chainA: ChainId,
+    chainB: ChainId,
     asset: any
   ): Promise<boolean> {
-    const foundOnChainA = await this.isSupportedOnChain(network, chainA, asset);
-    const foundOnChainB = await this.isSupportedOnChain(network, chainB, asset);
+    const foundOnChainA = await this.isSupportedOnChain(relay, chainA, asset);
+    const foundOnChainB = await this.isSupportedOnChain(relay, chainB, asset);
 
     return foundOnChainA && foundOnChainB;
   }
 
   public static async isSupportedOnChain(
-    network: 'polkadot' | 'kusama',
-    chain: string,
+    relay: RelayChain,
+    chain: ChainId,
     asset: any
   ): Promise<boolean> {
-    const assets = await this.getAssetsOnBlockchain(network, chain);
+    const assets = await this.getAssetsOnBlockchain(relay, chain);
 
     const found = assets.find(
       (el: Asset) =>
