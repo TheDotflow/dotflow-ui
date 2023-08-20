@@ -13,10 +13,15 @@ type Asset = {
 type MultiAsset = {
   parents: number;
   interior:
-    | 'Here'
-    | {
-        [key: string]: Asset[];
-      };
+  | 'Here'
+  | {
+    [key: string]: Asset[];
+  };
+};
+
+type ReserveChain = {
+  parachainId: number;
+  junctionIndex: number;
 };
 
 const xcmGAR =
@@ -52,17 +57,40 @@ class AssetRegistry {
 
   public static xcmInteriorToMultiAsset(
     xcmInteriorKey: any[],
-    isParachain: boolean
+    isParachain: boolean,
+    paraId?: number
   ): MultiAsset {
-    // The first 'junction' is actually just the specifying the network and we
+    // The first `junction` is actually just the specifying the network and we
     // don't need that in `MultiAsset`.
     const junctionCount = xcmInteriorKey.length - 1;
+    const { parachainId: assetParaId, junctionIndex } =
+      this.getAssetReserveParachainId(xcmInteriorKey);
+
+    if (assetParaId >= 0 && assetParaId == paraId) {
+      xcmInteriorKey.splice(junctionIndex, 1);
+      const junctionCount = xcmInteriorKey.length - 1;
+
+      if (this.isHere(xcmInteriorKey, junctionCount)) {
+        return {
+          parents: 0,
+          interior: 'Here',
+        };
+      } else {
+        const junctions = this.getJunctions(xcmInteriorKey, junctionCount);
+        const x = `X${junctionCount}`;
+
+        return {
+          parents: 0,
+          interior: {
+            [x]: junctions,
+          },
+        };
+      }
+    }
+
     const parents = isParachain ? 1 : 0;
 
-    if (
-      junctionCount == 1 &&
-      xcmInteriorKey[1].toString().toLowerCase() == 'here'
-    ) {
+    if (this.isHere(xcmInteriorKey, junctionCount)) {
       return {
         parents,
         interior: 'Here',
@@ -80,13 +108,35 @@ class AssetRegistry {
     };
   }
 
+  private static getAssetReserveParachainId(
+    xcmInteriorKey: any[]
+  ): ReserveChain {
+    // -1 will indicate that the reserve chain is actually the relay chain.
+    let parachainId = -1;
+    let index = -1;
+    xcmInteriorKey.forEach((junction, i) => {
+      if (junction.parachain) {
+        parachainId = junction.parachain;
+        index = i;
+      }
+    });
+
+    return { parachainId, junctionIndex: index };
+  }
+
+  private static isHere(xcmInteriorKey: any[], junctionCount: number): boolean {
+    return (
+      junctionCount == 1 && xcmInteriorKey[1].toString().toLowerCase() == 'here'
+    );
+  }
+
   private static getJunctions(
     xcmInteriorKey: any[],
     junctionCount: number
   ): any[] {
     return xcmInteriorKey.slice(1, junctionCount + 1);
   }
-  
+
   public static async isSupportedOnBothChains(
     network: 'polkadot' | 'kusama',
     chainA: string,
