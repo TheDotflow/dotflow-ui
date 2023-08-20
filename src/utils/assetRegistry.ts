@@ -20,8 +20,8 @@ type MultiAsset = {
 };
 
 type ReserveChain = {
-  parachainId: number,
-  junctionIndex: number,
+  parachainId: number;
+  junctionIndex: number;
 };
 
 const xcmGAR =
@@ -58,12 +58,13 @@ class AssetRegistry {
   public static xcmInteriorToMultiAsset(
     xcmInteriorKey: any[],
     isParachain: boolean,
-    paraId?: number,
+    paraId?: number
   ): MultiAsset {
-    // The first 'junction' is actually just the specifying the network and we
+    // The first `junction` is actually just the specifying the network and we
     // don't need that in `MultiAsset`.
     const junctionCount = xcmInteriorKey.length - 1;
-    const { parachainId: assetParaId, junctionIndex } = this.getAssetReserveParchainId(xcmInteriorKey);
+    const { parachainId: assetParaId, junctionIndex } =
+      this.getAssetReserveParachainId(xcmInteriorKey);
 
     if (assetParaId >= 0 && assetParaId == paraId) {
       xcmInteriorKey.splice(junctionIndex, 1);
@@ -81,9 +82,9 @@ class AssetRegistry {
         return {
           parents: 0,
           interior: {
-            [x]: junctions
-          }
-        }
+            [x]: junctions,
+          },
+        };
       }
     }
 
@@ -107,7 +108,9 @@ class AssetRegistry {
     };
   }
 
-  private static getAssetReserveParchainId(xcmInteriorKey: any[]): ReserveChain {
+  private static getAssetReserveParachainId(
+    xcmInteriorKey: any[]
+  ): ReserveChain {
     // -1 will indicate that the reserve chain is actually the relay chain.
     let parachainId = -1;
     let index = -1;
@@ -122,9 +125,9 @@ class AssetRegistry {
   }
 
   private static isHere(xcmInteriorKey: any[], junctionCount: number): boolean {
-
-    return junctionCount == 1 &&
-      xcmInteriorKey[1].toString().toLowerCase() == 'here'
+    return (
+      junctionCount == 1 && xcmInteriorKey[1].toString().toLowerCase() == 'here'
+    );
   }
 
   private static getJunctions(
