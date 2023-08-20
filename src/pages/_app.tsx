@@ -14,6 +14,7 @@ import theme from '@/utils/muiTheme';
 
 import { Layout } from '@/components/Layout';
 
+import { RelayApiContextProvider } from '@/contexts/RelayApi';
 import { ToastProvider } from '@/contexts/Toast';
 import { IdentityContractProvider } from '@/contracts';
 import { AddressBookContractProvider } from '@/contracts/addressbook/context';
@@ -42,19 +43,21 @@ export default function MyApp(props: MyAppProps) {
         {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
         <CssBaseline />
         <ToastProvider>
-          <UseInkathonProvider
-            appName='DotFlow UI'
-            connectOnInit={false}
-            defaultChain={shibuya}
-          >
-            <IdentityContractProvider>
-              <AddressBookContractProvider>
-                <ConfirmProvider>
-                  {getLayout(<Component {...pageProps} />)}
-                </ConfirmProvider>
-              </AddressBookContractProvider>
-            </IdentityContractProvider>
-          </UseInkathonProvider>
+          <RelayApiContextProvider>
+            <UseInkathonProvider
+              appName='DotFlow UI'
+              connectOnInit={false}
+              defaultChain={shibuya}
+            >
+              <IdentityContractProvider>
+                <AddressBookContractProvider>
+                  <ConfirmProvider>
+                    {getLayout(<Component {...pageProps} />)}
+                  </ConfirmProvider>
+                </AddressBookContractProvider>
+              </IdentityContractProvider>
+            </UseInkathonProvider>
+          </RelayApiContextProvider>
         </ToastProvider>
       </ThemeProvider>
     </CacheProvider>
