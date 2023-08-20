@@ -1,3 +1,4 @@
+import { ApiPromise } from "@polkadot/api";
 import { isHex } from "@polkadot/util";
 import { validateAddress } from '@polkadot/util-crypto';
 
@@ -20,3 +21,12 @@ export const isValidAddress = (networkAddress: string, ss58Prefix: number) => {
     return false;
   }
 };
+
+export const getParaId = async (api: ApiPromise): Promise<number> => {
+  if (api.query.parachainInfo) {
+    const response = (await api.query.parachainInfo.parachainId()).toJSON();
+    return Number(response);
+  } else {
+    return -1;
+  }
+}

@@ -30,9 +30,9 @@ For details regarding the contract deployment go to this [page](https://github.c
 Some tests require a zombienet network to be run in the background. The steps to take before running the tests are the following:
 
 1. Run a local [swanky](https://github.com/AstarNetwork/swanky-node) test node. This is where the contracts will be deployed to locally. The command to run: `./swanky-node --dev --tmp`
-2. Run the local zombienet network: `zombienet-macos -p native spawn local_network.toml`
+2. Follow the instructions on [trappist](https://github.com/paritytech/trappist) and run the [full_network.toml](https://github.com/paritytech/trappist/blob/main/zombienet/full_network.toml) network.
 
-After the swanky node and the zombienet is running you can run all the tests:
+After the swanky node and the zombienet network is running you can run all the tests:
 
 ```
 yarn test

@@ -11,17 +11,11 @@ class TransferAsset {
     receiver: Receiver,
     asset: Fungible
   ): Promise<void> {
-    // We use XCM even for transfers that are occurring on the same chain. The
-    // reason for this is that we cannot know what is the pallet and function
-    // for transferring tokens since it can be different on each chain. For that
-    // reason we will use the XCM `TransferAsset` instruction which is
-    // standardized and as far as the chain has an XCM executor the transaction
-    // will be executed correctly.
-
-    const chainInfo = api.registry.getChainProperties();
-    if (!chainInfo) {
-      throw new Error("Failed to get chain info");
-    }
+    // We use XCM even for transfers that are occurring on the same chain. The reason for
+    // this is that we cannot know what is the pallet and function for transferring tokens 
+    // since it can be different on each chain. For that reason we will use the XCM `TransferAsset` 
+    // instruction which is standardized and as far as the chain has an XCM executor the 
+    // transaction will be executed correctly.
 
     const xcm = this.xcmTransferAssetMessage(
       receiver.addressRaw,
@@ -30,41 +24,17 @@ class TransferAsset {
       asset.amount
     );
 
-    let xcmExecute: any;
+    const xcmPallet = api.tx.xcmPallet || api.tx.polkadotXcm;
 
-    if (api.tx.xcmPallet) {
-      const paymentInfo = (await api.tx.xcmPallet
-        .execute(xcm, 0)
-        .paymentInfo(sender)).toHuman();
-
-      if (!paymentInfo || !paymentInfo.weight) {
-        throw new Error("Couldn't estimate transaction fee");
-      }
-
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      const xcmMaxRefTime = parseInt(paymentInfo.weight.refTime.replace(/,/g, ""));
-
-      // TODO: don't hardcode the max weight.
-      xcmExecute = api.tx.xcmPallet.execute(xcm, xcmMaxRefTime * 10);
-    } else if (api.tx.polkadotXcm) {
-      const paymentInfo = (await api.tx.polkadotXcm
-        .execute(xcm, 0)
-        .paymentInfo(sender)).toHuman();
-
-      if (!paymentInfo || !paymentInfo.weight) {
-        throw new Error("Couldn't estimate transaction fee");
-      }
-
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      const xcmMaxRefTime = parseInt(paymentInfo.weight.refTime.replace(/,/g, ""));
-
-      // TODO: don't hardcode the max weight.
-      xcmExecute = api.tx.polkadotXcm.execute(xcm, xcmMaxRefTime * 10);
-    } else {
+    if (!xcmPallet) {
       throw new Error("The blockchain does not support XCM");
-    }
+    };
+
+    // TODO: come up with more precise weight estimations.
+    const xcmExecute = xcmPallet.execute(xcm, {
+      refTime: Math.pow(10, 9),
+      proofSize: 10000,
+    });
 
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve) => {
@@ -102,6 +72,7 @@ class TransferAsset {
       };
     }
 
+    // TODO: should this have `BuyExecution`?
     const xcmMessage = {
       V2: [
         {

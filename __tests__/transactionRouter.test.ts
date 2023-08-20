@@ -11,7 +11,7 @@ import { AccountType, NetworkInfo } from "../types/types-arguments/identity";
 const wsProvider = new WsProvider("ws://127.0.0.1:9944");
 const keyring = new Keyring({ type: "sr25519" });
 
-describe("TransactionRouter", () => {
+describe("TransactionRouter e2e tests", () => {
   let swankyApi: ApiPromise;
   let alice: KeyringPair;
   let bob: KeyringPair;
@@ -37,7 +37,7 @@ describe("TransactionRouter", () => {
     // First lets add a network and create an identity.
 
     await addNetwork(identityContract, alice, {
-      rpcUrl: "ws://127.0.0.1:4242",
+      rpcUrl: "ws://127.0.0.1:9910",
       accountType: AccountType.accountId32,
     });
 
@@ -57,11 +57,14 @@ describe("TransactionRouter", () => {
       amount: 1000
     };
 
+    const assetReserveChainId = 0;
+
     await expect(
       TransactionRouter.sendTokens(
         identityContract,
         sender,
         receiver,
+        assetReserveChainId,
         asset
       )
     ).rejects.toThrow("Cannot send tokens to yourself");
@@ -79,17 +82,17 @@ describe("TransactionRouter", () => {
       network: 0,
     };
 
-    const westendProvider = new WsProvider("ws://127.0.0.1:4242");
-    const westendApi = await ApiPromise.create({ provider: westendProvider });
+    const rococoProvider = new WsProvider("ws://127.0.0.1:9900");
+    const rococoApi = await ApiPromise.create({ provider: rococoProvider });
 
-    const { data: balance } = (await westendApi.query.system.account(
+    const { data: balance } = (await rococoApi.query.system.account(
       receiver.addressRaw
     )) as any;
     const receiverBalance = parseInt(balance.free.toHuman().replace(/,/g, ""));
 
     // First lets add a network.
     await addNetwork(identityContract, alice, {
-      rpcUrl: "ws://127.0.0.1:4242",
+      rpcUrl: "ws://127.0.0.1:9900",
       accountType: AccountType.accountId32,
     });
 
@@ -102,15 +105,17 @@ describe("TransactionRouter", () => {
       },
       amount
     };
+    const assetReserveChainId = 0;
 
     await TransactionRouter.sendTokens(
       identityContract,
       sender,
       receiver,
+      assetReserveChainId,
       asset
     );
 
-    const { data: newBalance } = (await westendApi.query.system.account(
+    const { data: newBalance } = (await rococoApi.query.system.account(
       receiver.addressRaw
     )) as any;
     const newReceiverBalance = parseInt(
@@ -132,29 +137,34 @@ describe("TransactionRouter", () => {
       network: 0,
     };
 
-    const assetHubProvider = new WsProvider("ws://127.0.0.1:4243");
-    const assetHubApi = await ApiPromise.create({
-      provider: assetHubProvider,
+    const trappitProvider = new WsProvider("ws://127.0.0.1:9920");
+    const trappistApi = await ApiPromise.create({
+      provider: trappitProvider,
     });
 
+    const lockdownMode = await getLockdownMode(trappistApi);
+    if (lockdownMode) {
+      await deactivateLockdown(trappistApi, alice);
+    }
+
     // First create an asset.
-    if (!(await getAsset(assetHubApi, 0))) {
-      await createAsset(assetHubApi, sender.keypair, 0);
+    if (!(await getAsset(trappistApi, 0))) {
+      await createAsset(trappistApi, sender.keypair, 0);
     }
 
     // Mint some assets to the creator.
-    await mintAsset(assetHubApi, sender.keypair, 0, 500);
+    await mintAsset(trappistApi, sender.keypair, 0, 500);
 
     const amount = 200;
 
-    const senderAccountBefore: any = (await assetHubApi.query.assets.account(
+    const senderAccountBefore: any = (await trappistApi.query.assets.account(
       0,
       sender.keypair.address
     )).toHuman();
 
     const senderBalanceBefore = parseInt(senderAccountBefore.balance.replace(/,/g, ""));
 
-    const receiverAccountBefore: any = (await assetHubApi.query.assets.account(
+    const receiverAccountBefore: any = (await trappistApi.query.assets.account(
       0,
       bob.address
     )).toHuman();
@@ -163,7 +173,7 @@ describe("TransactionRouter", () => {
 
     // First lets add a network.
     await addNetwork(identityContract, alice, {
-      rpcUrl: "ws://127.0.0.1:4243",
+      rpcUrl: "ws://127.0.0.1:9920",
       accountType: AccountType.accountId32,
     });
 
@@ -171,7 +181,7 @@ describe("TransactionRouter", () => {
       multiAsset: {
         interior: {
           X2: [
-            { PalletInstance: 50 }, // assets pallet
+            { PalletInstance: 41 }, // assets pallet
             { GeneralIndex: 0 },
           ],
         },
@@ -179,32 +189,35 @@ describe("TransactionRouter", () => {
       },
       amount
     };
+    const assetReserveChainId = 0;
 
     await TransactionRouter.sendTokens(
       identityContract,
       sender,
       receiver,
+      assetReserveChainId,
       asset
     );
 
-    const senderAccountAfter: any = (await assetHubApi.query.assets.account(
+    const senderAccountAfter: any = (await trappistApi.query.assets.account(
       0,
       sender.keypair.address
     )).toHuman();
 
     const senderBalanceAfter = parseInt(senderAccountAfter.balance.replace(/,/g, ""));
 
-    const receiverAccountAfter: any = (await assetHubApi.query.assets.account(
+    const receiverAccountAfter: any = (await trappistApi.query.assets.account(
       0,
       bob.address
     )).toHuman();
 
+    console.log(receiverAccountAfter);
     const receiverBalanceAfter = parseInt(receiverAccountAfter.balance.replace(/,/g, ""));
 
     expect(senderBalanceAfter).toBe(senderBalanceBefore - amount);
     expect(receiverBalanceAfter).toBe(receiverBalanceBefore + amount);
 
-  }, 120000);
+  }, 180000);
 });
 
 const addNetwork = async (
@@ -265,4 +278,22 @@ const mintAsset = async (
 
 const getAsset = async (api: ApiPromise, id: number): Promise<any> => {
   return (await api.query.assets.asset(id)).toHuman();
+};
+
+const deactivateLockdown = async (api: ApiPromise, signer: KeyringPair): Promise<void> => {
+  const callTx = async (resolve: () => void) => {
+    const forceDisable = api.tx.lockdownMode.deactivateLockdownMode();
+    const unsub = await api.tx.sudo.sudo(forceDisable)
+      .signAndSend(signer, (result: any) => {
+        if (result.status.isInBlock) {
+          unsub();
+          resolve();
+        }
+      });
+  };
+  return new Promise(callTx);
+}
+
+const getLockdownMode = async (api: ApiPromise): Promise<any> => {
+  return (await api.query.lockdownMode.lockdownModeStatus()).toJSON();
 };
