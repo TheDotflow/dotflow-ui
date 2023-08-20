@@ -27,6 +27,32 @@ describe('AssetRegistry', () => {
     ]);
   });
 
+  test('Getting assets by para id works', async () => { 
+    const assets = await AssetRegistry.getAssetsOnBlockchain(
+      'polkadot',
+      0
+    );
+
+    expect(assets).toStrictEqual([
+      {
+        asset: {
+          Token: 'DOT',
+        },
+        name: 'DOT',
+        symbol: 'DOT',
+        decimals: 10,
+        xcmInteriorKey: [
+          {
+            network: 'polkadot',
+          },
+          'here',
+        ],
+        inferred: true,
+        confidence: 0,
+      },
+    ]);
+  });
+
   test("Checking whether an asset exists on both chains works", async () => {
     const GLMR = [
       {
