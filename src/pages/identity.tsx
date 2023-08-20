@@ -10,6 +10,7 @@ import {
   Typography,
 } from '@mui/material';
 import { useState } from 'react';
+import '@styles/pages/identity.module.scss';
 
 import { CreateIdentity, RemoveIdentity } from '@/components/Buttons';
 import { AddressCard } from '@/components/Cards';
@@ -34,14 +35,7 @@ const IdentityPage = () => {
 
   return (
     <>
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: '32px',
-        }}
-      >
+      <Box className='identity-container'>
         <Typography variant='h4' fontWeight={700}>
           My Identity
         </Typography>
