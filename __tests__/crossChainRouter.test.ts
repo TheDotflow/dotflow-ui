@@ -2,9 +2,9 @@ import { ApiPromise, Keyring, WsProvider } from "@polkadot/api";
 import { KeyringPair } from "@polkadot/keyring/types";
 import { u8aToHex } from '@polkadot/util';
 
+import TransactionRouter from "@/utils/transactionRouter";
 import { Fungible, Receiver, Sender } from "@/utils/transactionRouter/types";
 
-import TransactionRouter from "../src/utils/transactionRouter";
 import IdentityContractFactory from "../types/constructors/identity";
 import IdentityContract from "../types/contracts/identity";
 import { AccountType, NetworkInfo } from "../types/types-arguments/identity";
@@ -13,6 +13,10 @@ const wsProvider = new WsProvider("ws://127.0.0.1:9944");
 const keyring = new Keyring({ type: "sr25519" });
 
 const USDT_ASSET_ID = 1984;
+
+const WS_ROROCO_LOCAL = "ws://127.0.0.1:9900";
+const WS_ASSET_HUB_LOCAL = "ws://127.0.0.1:9910";
+const WS_TRAPPIST_LOCAL = "ws://127.0.0.1:9920";
 
 describe("TransactionRouter Cross-chain", () => {
   let swankyApi: ApiPromise;
@@ -38,12 +42,12 @@ describe("TransactionRouter Cross-chain", () => {
     );
 
     await addNetwork(identityContract, alice, {
-      rpcUrl: "ws://127.0.0.1:9910",
+      rpcUrl: WS_ASSET_HUB_LOCAL,
       accountType: AccountType.accountId32,
     });
 
     await addNetwork(identityContract, alice, {
-      rpcUrl: "ws://127.0.0.1:9920",
+      rpcUrl: WS_TRAPPIST_LOCAL,
       accountType: AccountType.accountId32,
     });
 
@@ -65,17 +69,17 @@ describe("TransactionRouter Cross-chain", () => {
       network: 1,
     };
 
-    const rococoProvider = new WsProvider("ws://127.0.0.1:9900");
+    const rococoProvider = new WsProvider(WS_ROROCO_LOCAL);
     const rococoApi = await ApiPromise.create({
       provider: rococoProvider,
     });
 
-    const assetHubProvider = new WsProvider("ws://127.0.0.1:9910");
+    const assetHubProvider = new WsProvider(WS_ASSET_HUB_LOCAL);
     const assetHubApi = await ApiPromise.create({
       provider: assetHubProvider,
     });
 
-    const trappistProvider = new WsProvider("ws://127.0.0.1:9920");
+    const trappistProvider = new WsProvider(WS_TRAPPIST_LOCAL);
     const trappistApi = await ApiPromise.create({
       provider: trappistProvider,
     });
@@ -152,17 +156,17 @@ describe("TransactionRouter Cross-chain", () => {
   test("Transferring cross-chain to asset's reserve chain works", async () => {
     // NOTE this test depends on the success of the first test.
 
-    const rococoProvider = new WsProvider("ws://127.0.0.1:9900");
+    const rococoProvider = new WsProvider(WS_ROROCO_LOCAL);
     const rococoApi = await ApiPromise.create({
       provider: rococoProvider,
     });
 
-    const assetHubProvider = new WsProvider("ws://127.0.0.1:9910");
+    const assetHubProvider = new WsProvider(WS_ASSET_HUB_LOCAL);
     const assetHubApi = await ApiPromise.create({
       provider: assetHubProvider,
     });
 
-    const trappistProvider = new WsProvider("ws://127.0.0.1:9920");
+    const trappistProvider = new WsProvider(WS_TRAPPIST_LOCAL);
     const trappistApi = await ApiPromise.create({
       provider: trappistProvider,
     });
@@ -244,17 +248,17 @@ describe("TransactionRouter Cross-chain", () => {
   test("Transferring cross-chain accross reserve chain works", async () => {
     // NOTE this test depends on the success of the first test.
 
-    const rococoProvider = new WsProvider("ws://127.0.0.1:9900");
+    const rococoProvider = new WsProvider(WS_ROROCO_LOCAL);
     const rococoApi = await ApiPromise.create({
       provider: rococoProvider,
     });
 
-    const assetHubProvider = new WsProvider("ws://127.0.0.1:9910");
+    const assetHubProvider = new WsProvider(WS_ASSET_HUB_LOCAL);
     const assetHubApi = await ApiPromise.create({
       provider: assetHubProvider,
     });
 
-    const trappistProvider = new WsProvider("ws://127.0.0.1:9920");
+    const trappistProvider = new WsProvider(WS_TRAPPIST_LOCAL);
     const trappistApi = await ApiPromise.create({
       provider: trappistProvider,
     });

@@ -24,23 +24,17 @@ class TransferAsset {
       asset.amount
     );
 
-    let xcmExecute: any;
+    const xcmPallet = api.tx.xcmPallet || api.tx.polkadotXcm;
 
-    if (api.tx.xcmPallet) {
-      // TODO: come up with more precise weight estimations.
-      xcmExecute = api.tx.xcmPallet.execute(xcm, {
-        refTime: Math.pow(10, 9),
-        proofSize: 10000,
-      });
-    } else if (api.tx.polkadotXcm) {
-      // TODO: come up with more precise weight estimations.
-      xcmExecute = api.tx.polkadotXcm.execute(xcm, {
-        refTime: Math.pow(10, 9),
-        proofSize: 10000,
-      });
-    } else {
+    if (!xcmPallet) {
       throw new Error("The blockchain does not support XCM");
-    }
+    };
+
+    // TODO: come up with more precise weight estimations.
+    const xcmExecute = xcmPallet.execute(xcm, {
+      refTime: Math.pow(10, 9),
+      proofSize: 10000,
+    });
 
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve) => {

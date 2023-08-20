@@ -10,7 +10,7 @@ import { Fungible, Receiver } from "./types";
 import { AccountType } from "../../../types/types-arguments/identity";
 
 const sr25519Keyring = new Keyring({ type: "sr25519" });
-const ecdsaKering = new Keyring({ type: "ecdsa" });
+const ecdsaKeyring = new Keyring({ type: "ecdsa" });
 
 describe("TransactionRouter unit tests", () => {
   describe("getDestination works", () => {
@@ -64,7 +64,7 @@ describe("TransactionRouter unit tests", () => {
       await cryptoWaitReady();
 
       const alice = sr25519Keyring.addFromUri("//Alice");
-      const bob = ecdsaKering.addFromUri("//Bob");
+      const bob = ecdsaKeyring.addFromUri("//Bob");
 
       const receiverAccId32: Receiver = {
         addressRaw: alice.addressRaw,
@@ -318,7 +318,7 @@ describe("TransactionRouter unit tests", () => {
 
     describe("depositAsset & getReceiverAccount work", () => {
       it("Works with AccountId32", () => {
-        const bob = ecdsaKering.addFromUri("//Bob");
+        const bob = ecdsaKeyring.addFromUri("//Bob");
 
         const receiver: Receiver = {
           addressRaw: bob.addressRaw,
@@ -348,7 +348,7 @@ describe("TransactionRouter unit tests", () => {
       });
 
       it("Works with AccountKey20", () => {
-        const bob = ecdsaKering.addFromUri("//Bob");
+        const bob = ecdsaKeyring.addFromUri("//Bob");
 
         const receiver: Receiver = {
           addressRaw: bob.addressRaw,
@@ -495,7 +495,7 @@ describe("TransactionRouter unit tests", () => {
 
     describe("getSendToReserveChainInstructions works", () => {
       it("Works from parachain to parachain", () => {
-        const bob = ecdsaKering.addFromUri("//Bob");
+        const bob = ecdsaKeyring.addFromUri("//Bob");
 
         const destParaId = 2002;
         const beneficiary: Receiver = {
@@ -612,7 +612,7 @@ describe("TransactionRouter unit tests", () => {
       });
 
       it("Works from parachain to relaychain", () => {
-        const bob = ecdsaKering.addFromUri("//Bob");
+        const bob = ecdsaKeyring.addFromUri("//Bob");
 
         const destParaId = -1;
         const beneficiary: Receiver = {
@@ -720,7 +720,7 @@ describe("TransactionRouter unit tests", () => {
       });
 
       it("Works from relaychain to parachain", () => {
-        const bob = ecdsaKering.addFromUri("//Bob");
+        const bob = ecdsaKeyring.addFromUri("//Bob");
 
         const destParaId = 1000;
         const beneficiary: Receiver = {
@@ -835,7 +835,7 @@ describe("TransactionRouter unit tests", () => {
 
     describe("getTwoHopTransferInstructions works", () => {
       it("Works with parachain reserve", () => {
-        const bob = ecdsaKering.addFromUri("//Bob");
+        const bob = ecdsaKeyring.addFromUri("//Bob");
 
         const reserveParaId = 2000;
         const destParaId = 2002;
@@ -972,7 +972,7 @@ describe("TransactionRouter unit tests", () => {
       });
 
       it("Works with relaychain being the reserve chain", () => {
-        const bob = ecdsaKering.addFromUri("//Bob");
+        const bob = ecdsaKeyring.addFromUri("//Bob");
 
         const reserveParaId = -1;
         const destParaId = 2002;
@@ -1088,7 +1088,7 @@ describe("TransactionRouter unit tests", () => {
       });
 
       test("Sending from relaychain to a parachain through a reserve parachain", () => {
-        const bob = ecdsaKering.addFromUri("//Bob");
+        const bob = ecdsaKeyring.addFromUri("//Bob");
 
         const reserveParaId = 1000;
         const destParaId = 2000;

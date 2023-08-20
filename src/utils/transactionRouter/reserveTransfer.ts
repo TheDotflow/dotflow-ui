@@ -2,12 +2,13 @@ import { ApiPromise } from "@polkadot/api";
 import { KeyringPair } from "@polkadot/keyring/types";
 
 import { Fungible, Receiver } from "./types";
+import { getParaId } from "..";
 import { AccountType } from "../../../types/types-arguments/identity";
 
 class ReserveTransfer {
   // Transfers assets from the sender to the receiver.
   // 
-  // This function assumes that the chain from which the sending is ocurring is the reserve chain of the asset.
+  // This function assumes that the sender chain is the reserve chain of the asset.
   public static async sendFromReserveChain(
     originApi: ApiPromise,
     destinationApi: ApiPromise,
@@ -18,7 +19,7 @@ class ReserveTransfer {
     this.ensureContainsXcmPallet(originApi);
     this.ensureContainsXcmPallet(destinationApi);
 
-    const destParaId = await this.getParaId(destinationApi);
+    const destParaId = await getParaId(destinationApi);
 
     // eslint-disable-next-line no-prototype-builtins
     const isOriginPara = originApi.query.hasOwnProperty("parachainInfo");
@@ -30,26 +31,15 @@ class ReserveTransfer {
     const feeAssetItem = 0;
     const weightLimit = "Unlimited";
 
-    let reserveTransfer: any;
-    if (originApi.tx.xcmPallet) {
-      reserveTransfer = originApi.tx.xcmPallet.limitedReserveTransferAssets(
-        destination,
-        beneficiary,
-        multiAsset,
-        feeAssetItem,
-        weightLimit
-      );
-    } else if (originApi.tx.polkadotXcm) {
-      reserveTransfer = originApi.tx.polkadotXcm.limitedReserveTransferAssets(
-        destination,
-        beneficiary,
-        multiAsset,
-        feeAssetItem,
-        weightLimit
-      );
-    } else {
-      throw new Error("The blockchain does not support XCM");
-    }
+    const xcmPallet = (originApi.tx.xcmPallet || originApi.tx.polkadotXcm);
+
+    const reserveTransfer = xcmPallet.limitedReserveTransferAssets(
+      destination,
+      beneficiary,
+      multiAsset,
+      feeAssetItem,
+      weightLimit
+    );
 
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve) => {
@@ -76,26 +66,18 @@ class ReserveTransfer {
     this.ensureContainsXcmPallet(originApi);
     this.ensureContainsXcmPallet(destinationApi);
 
-    const destinationParaId = await this.getParaId(destinationApi);
+    const destinationParaId = await getParaId(destinationApi);
 
     // eslint-disable-next-line no-prototype-builtins
     const isOriginPara = originApi.query.hasOwnProperty("parachainInfo");
     const xcmProgram = this.getSendToReserveChainInstructions(asset, destinationParaId, receiver, isOriginPara);
 
-    let reserveTransfer: any;
-    if (originApi.tx.xcmPallet) {
-      reserveTransfer = originApi.tx.xcmPallet.execute(xcmProgram, {
-        refTime: 3 * Math.pow(10, 11),
-        proofSize: Math.pow(10, 6),
-      });
-    } else if (originApi.tx.polkadotXcm) {
-      reserveTransfer = originApi.tx.polkadotXcm.execute(xcmProgram, {
-        refTime: 3 * Math.pow(10, 11),
-        proofSize: Math.pow(10, 6),
-      });
-    } else {
-      throw new Error("The blockchain does not support XCM");
-    }
+    const xcmPallet = originApi.tx.xcmPallet || originApi.tx.polkadotXcm;
+
+    const reserveTransfer = xcmPallet.execute(xcmProgram, {
+      refTime: 3 * Math.pow(10, 11),
+      proofSize: Math.pow(10, 6),
+    });
 
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve) => {
@@ -123,28 +105,19 @@ class ReserveTransfer {
     this.ensureContainsXcmPallet(destinationApi);
     this.ensureContainsXcmPallet(reserveChainApi);
 
-    const reserveParaId = await this.getParaId(reserveChainApi);
-    const destinationParaId = await this.getParaId(destinationApi);
+    const reserveParaId = await getParaId(reserveChainApi);
+    const destinationParaId = await getParaId(destinationApi);
 
     // eslint-disable-next-line no-prototype-builtins
     const isOriginPara = originApi.query.hasOwnProperty("parachainInfo");
     const xcmProgram = this.getTwoHopTransferInstructions(asset, reserveParaId, destinationParaId, receiver, isOriginPara);
 
-    let reserveTransfer: any;
-    if (originApi.tx.xcmPallet) {
-      reserveTransfer = originApi.tx.xcmPallet.execute(xcmProgram, {
-        refTime: 3 * Math.pow(10, 11),
-        proofSize: Math.pow(10, 6),
-      });
-    } else if (originApi.tx.polkadotXcm) {
-      reserveTransfer = originApi.tx.polkadotXcm.execute(xcmProgram, {
-        refTime: 3 * Math.pow(10, 11),
-        proofSize: Math.pow(10, 6),
-      });
-    } else {
-      throw new Error("The blockchain does not support XCM");
-    }
+    const xcmPallet = originApi.tx.xcmPallet || originApi.tx.polkadotXcm;
 
+    const reserveTransfer = xcmPallet.execute(xcmProgram, {
+      refTime: 3 * Math.pow(10, 11),
+      proofSize: Math.pow(10, 6),
+    });
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve) => {
       const unsub = await reserveTransfer.signAndSend(sender, (result: any) => {
@@ -267,10 +240,7 @@ class ReserveTransfer {
 
   private static withdrawAsset(asset: Fungible, isOriginPara: boolean): any {
     const junctions = this.extractJunctions(asset.multiAsset);
-    let parents = 0;
-    if (isOriginPara) {
-      parents = 1;
-    }
+    const parents = isOriginPara ? 1 : 0;
 
     const interior = junctions == "Here" ? "Here" : { [`X${junctions.length}`]: junctions };
 
@@ -353,15 +323,6 @@ class ReserveTransfer {
           }
         }
       }
-    }
-  }
-
-  private static async getParaId(api: ApiPromise): Promise<number> {
-    if (api.query.parachainInfo) {
-      const response = (await api.query.parachainInfo.parachainId()).toJSON();
-      return Number(response);
-    } else {
-      return -1;
     }
   }
 
