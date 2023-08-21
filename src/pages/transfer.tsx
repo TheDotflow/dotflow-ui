@@ -4,12 +4,17 @@ import {
   CircularProgress,
   FormControl,
   FormLabel,
+  List,
+  ListItem,
   MenuItem,
   TextField,
 } from '@mui/material';
 import styles from '@styles/pages/transfer.module.scss';
 import { useCallback, useEffect, useState } from 'react';
 
+import AssetRegistry, { Asset } from '@/utils/assetRegistry';
+
+import { RELAY_CHAIN } from '@/consts';
 import { useRelayApi } from '@/contexts/RelayApi';
 import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
@@ -21,8 +26,9 @@ const TransferPage = () => {
   const {
     state: { api: relayApi },
   } = useRelayApi();
-  const { toastSuccess, toastError } = useToast();
+  const { toastError } = useToast();
   const [loadingAssets, setLoadingAssets] = useState(false);
+  const [assets, setAssets] = useState<Asset[]>([]);
 
   const loadAssets = useCallback(async () => {
     if (sourceChainId === undefined || destChainId === undefined) return;
@@ -38,7 +44,21 @@ const TransferPage = () => {
         toastError(
           "There's no HRMP channel open between the source and destination chain"
         );
+        setAssets([]);
+      } else {
+        const _assets = await AssetRegistry.getSharedAssets(
+          RELAY_CHAIN,
+          sourceChainId,
+          destChainId
+        );
+        setAssets(_assets);
       }
+    } else {
+      const _assets = await AssetRegistry.getAssetsOnBlockchain(
+        RELAY_CHAIN,
+        sourceChainId
+      );
+      setAssets(_assets);
     }
 
     setLoadingAssets(false);
@@ -85,6 +105,13 @@ const TransferPage = () => {
             ))}
           </TextField>
         </FormControl>
+        {!loadingAssets && (
+          <List>
+            {assets.map((asset, index) => (
+              <ListItem key={index}>{asset.name}</ListItem>
+            ))}
+          </List>
+        )}
       </Box>
       <Backdrop
         sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}

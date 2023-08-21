@@ -1,4 +1,4 @@
-type RELAY_CHAIN_OPTION = 'polkadot' | 'kusama';
+export type RELAY_CHAIN_OPTION = 'polkadot' | 'kusama';
 const RELAY_CHAIN_ENDPOINTS = {
   polkadot: "wss://polkadot.api.onfinality.io/public-ws",
   kusama: "wss://kusama.api.onfinality.io/public-ws"

@@ -1,10 +1,9 @@
 import axios from 'axios';
 
+import { RELAY_CHAIN_OPTION } from '@/consts';
 type ChainId = number | string;
 
-type RelayChain = 'polkadot' | 'kusama';
-
-type Asset = {
+export type Asset = {
   asset: any;
   name: string;
   symbol: string;
@@ -14,7 +13,7 @@ type Asset = {
   confidence: number;
 };
 
-type MultiAsset = {
+export type MultiAsset = {
   parents: number;
   interior:
   | 'Here'
@@ -33,13 +32,13 @@ const xcmGAR =
 
 class AssetRegistry {
   public static async getAssetsOnBlockchain(
-    relay: RelayChain,
+    relay: RELAY_CHAIN_OPTION,
     chain: ChainId
   ): Promise<Asset[]> {
     const blockchains = (await axios.get(xcmGAR)).data;
 
     const blockchain = blockchains.assets[relay].find(
-      (b: any) => (typeof chain === 'string') ? b.id.toLowerCase() == chain.toLowerCase() : b.paraID === chain
+      (b: any) => (typeof chain === 'string') ? b.id.toLowerCase() === chain.toLowerCase() : b.paraID === chain
     );
 
     if (!blockchain) {
@@ -142,7 +141,7 @@ class AssetRegistry {
   }
 
   public static async isSupportedOnBothChains(
-    relay: RelayChain,
+    relay: RELAY_CHAIN_OPTION,
     chainA: ChainId,
     chainB: ChainId,
     asset: any
@@ -154,11 +153,11 @@ class AssetRegistry {
   }
 
   public static async isSupportedOnChain(
-    relay: RelayChain,
-    chain: ChainId,
+    relay: RELAY_CHAIN_OPTION,
+    chainId: ChainId,
     asset: any
   ): Promise<boolean> {
-    const assets = await this.getAssetsOnBlockchain(relay, chain);
+    const assets = await this.getAssetsOnBlockchain(relay, chainId);
 
     const found = assets.find(
       (el: Asset) =>
@@ -169,6 +168,22 @@ class AssetRegistry {
     if (found) return true;
 
     return false;
+  }
+
+  public static async getSharedAssets(network: RELAY_CHAIN_OPTION, chainA: ChainId, chainB: ChainId): Promise<Asset[]> {
+    const assetsA = await this.getAssetsOnBlockchain(network, chainA);
+    const assetsB = await this.getAssetsOnBlockchain(network, chainB);
+    const assets: Asset[] = [];
+
+    assetsA.forEach((asset) => {
+      const found = assetsB.find(
+        (el: Asset) =>
+          el.xcmInteriorKey &&
+          JSON.stringify(el.xcmInteriorKey) === JSON.stringify(asset)
+      );
+      if (found) assets.push(asset);
+    });
+    return assets;
   }
 }
 
