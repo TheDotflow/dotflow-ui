@@ -27,9 +27,15 @@ class ReserveTransfer {
 
     const destination = this.getDestination(isOriginPara, destParaId, destParaId >= 0);
     const beneficiary = this.getReserveTransferBeneficiary(receiver);
-    const multiAsset = this.getMultiAsset(asset);
+    const multiAsset = this.getMultiAsset(asset, {
+      multiAsset: {
+        parents: isOriginPara ? 1 : 0,
+        interior: "Here"
+      },
+      amount: 4500000000
+    });
 
-    const feeAssetItem = 0;
+    const feeAssetItem = feePayment == FeePayment.RelayChainNative ? 1 : 0;
     const weightLimit = "Unlimited";
 
     const xcmPallet = (originApi.tx.xcmPallet || originApi.tx.polkadotXcm);
@@ -175,7 +181,7 @@ class ReserveTransfer {
             reserve,
             xcm: [
               // TODO: the hardcoded number isn't really accurate to what we actually need.
-              this.buyExecution(feeAsset, 4500000000000),
+              this.buyExecution(feeAsset, 450000000000),
               this.depositReserveAsset({ Wild: "All" }, 1, {
                 parents: 1,
                 interior: {
@@ -387,18 +393,33 @@ class ReserveTransfer {
   }
 
   // Returns a proper MultiAsset.
-  private static getMultiAsset(asset: Fungible): any {
-    return {
-      V2: [
+  private static getMultiAsset(asset: Fungible, feeAsset?: Fungible): any {
+    const assets = [
+      {
+        fun: {
+          Fungible: asset.amount,
+        },
+        id: {
+          Concrete: asset.multiAsset,
+        },
+      },
+    ];
+
+    if (feeAsset) {
+      assets.push(
         {
           fun: {
-            Fungible: asset.amount,
+            Fungible: feeAsset.amount,
           },
           id: {
-            Concrete: asset.multiAsset,
+            Concrete: feeAsset.multiAsset,
           },
-        },
-      ]
+        }
+      )
+    }
+
+    return {
+      V2: assets
     }
   }
 
@@ -426,17 +447,10 @@ class ReserveTransfer {
 
   private static getFeePaymentAsset(feePayment: FeePayment, asset: Fungible, isOriginPara: boolean, reserveParaId: number): any {
     if (feePayment == FeePayment.RelayChainNative) {
-      if (isOriginPara) {
-        return {
-          parents: 1,
-          interior: "Here"
-        };
-      } else {
-        return {
-          parents: 0,
-          interior: "Here"
-        }
-      }
+      return {
+        parents: isOriginPara ? 1 : 0,
+        interior: "Here"
+      };
     } else if (feePayment == FeePayment.Asset) {
       // NOTE: we use parse and stringify to make a hard copy of the asset.
       const assetFromReservePerspective = JSON.parse(JSON.stringify(asset.multiAsset));
