@@ -20,3 +20,14 @@ export type Fungible = {
   multiAsset: any,
   amount: number
 }
+
+export enum FeePayment {
+  // Pay with the asset you are transfering.
+  //
+  // NOTE: the asset has to be sufficient to be able to pay for fees.
+  Asset,
+  // Pay with the relay chain token.
+  //
+  // The relay chain native token is usually allowed for fee payment on parachains.
+  RelayChainNative,
+}
