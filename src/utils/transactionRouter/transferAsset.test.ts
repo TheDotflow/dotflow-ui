@@ -5,9 +5,9 @@
 import { Keyring } from "@polkadot/api";
 import { cryptoWaitReady } from "@polkadot/util-crypto";
 
-import { AccountType } from "../../../types/types-arguments/identity";
-import { Fungible } from "./types";
 import TransferAsset from "./transferAsset";
+import { Fungible } from "./types";
+import { AccountType } from "../../../types/types-arguments/identity";
 
 const sr25519Keyring = new Keyring({ type: "sr25519" });
 const ecdsaKeyring = new Keyring({ type: "ecdsa" });
