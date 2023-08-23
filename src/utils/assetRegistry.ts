@@ -141,7 +141,7 @@ class AssetRegistry {
   }
 
   public static async assetsSupportedOnBothChains(
-    relay: RelayChain,
+    relay: RELAY_CHAIN_OPTION,
     chainA: ChainId,
     chainB: ChainId,
   ): Promise<any[]> {
@@ -179,7 +179,7 @@ class AssetRegistry {
     chain: ChainId,
     xcmAsset: any
   ): Promise<boolean> {
-    const assets = await this.getAssetsOnBlockchain(relay, chainId);
+    const assets = await this.getAssetsOnBlockchain(relay, chain);
 
     return this.isSupported(xcmAsset, assets);
   }
