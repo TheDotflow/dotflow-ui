@@ -124,7 +124,7 @@ const TransferPage = () => {
             select
             sx={{ mt: '8px' }}
             required
-            value={sourceChainId || ''}
+            value={sourceChainId === undefined ? '' : sourceChainId}
             onChange={(e) => setSourceChainId(Number(e.target.value))}
           >
             {Object.entries(networks).map(([chainId, network], index) => (
@@ -141,7 +141,7 @@ const TransferPage = () => {
             select
             sx={{ mt: '8px' }}
             required
-            value={destChainId || ''}
+            value={destChainId === undefined ? '' : destChainId}
             onChange={(e) => setDestChainId(Number(e.target.value))}
           >
             {Object.entries(networks).map(([chainId, network], index) => (
