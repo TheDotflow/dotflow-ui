@@ -99,7 +99,7 @@ describe("ReserveTransfer unit tests", () => {
       expect(
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        ReserveTransfer.getReserveTransferBeneficiary(receiver),
+        ReserveTransfer.getReserveTransferBeneficiary(receiverAccKey20),
       ).toStrictEqual({
         V2: {
           parents: 0,
