@@ -140,6 +140,28 @@ class AssetRegistry {
     return xcmInteriorKey.slice(1, junctionCount + 1);
   }
 
+  public static async assetsSupportedOnBothChains(
+    relay: RelayChain,
+    chainA: ChainId,
+    chainB: ChainId,
+  ): Promise<any[]> {
+    const assetsOnChainA = await this.getAssetsOnBlockchain(relay, chainA);
+    const assetsOnChainB = await this.getAssetsOnBlockchain(relay, chainB);
+
+    const assetsOnBoth: Asset[] = [];
+    for (let i = 0; i < assetsOnChainA.length; i++) {
+      const asset: Asset = assetsOnChainA[i];
+
+      const isSupported = this.isSupported(asset.xcmInteriorKey, assetsOnChainB);
+
+      if (isSupported) {
+        assetsOnBoth.push(asset);
+      }
+    }
+
+    return assetsOnBoth;
+  }
+
   public static async isSupportedOnBothChains(
     relay: RELAY_CHAIN_OPTION,
     chainA: ChainId,
@@ -154,15 +176,19 @@ class AssetRegistry {
 
   public static async isSupportedOnChain(
     relay: RELAY_CHAIN_OPTION,
-    chainId: ChainId,
-    asset: any
+    chain: ChainId,
+    xcmAsset: any
   ): Promise<boolean> {
     const assets = await this.getAssetsOnBlockchain(relay, chainId);
 
+    return this.isSupported(xcmAsset, assets);
+  }
+
+  private static isSupported(xcmAsset: any, assets: Asset[]): boolean {
     const found = assets.find(
       (el: Asset) =>
         el.xcmInteriorKey &&
-        JSON.stringify(el.xcmInteriorKey) === JSON.stringify(asset)
+        JSON.stringify(el.xcmInteriorKey) === JSON.stringify(xcmAsset)
     );
 
     if (found) return true;
