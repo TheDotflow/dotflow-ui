@@ -2,7 +2,7 @@ import { ApiPromise, WsProvider } from "@polkadot/api";
 
 import ReserveTransfer from "./reserveTransfer";
 import TransferAsset from "./transferAsset";
-import { Fungible, Receiver, Sender } from "./types";
+import { FeePayment, Fungible, Receiver, Sender } from "./types";
 import IdentityContract from "../../../types/contracts/identity";
 
 // Responsible for handling all the transfer logic.
@@ -32,7 +32,8 @@ class TransactionRouter {
     sender: Sender,
     receiver: Receiver,
     reserveChainId: number,
-    asset: Fungible
+    asset: Fungible,
+    feePayment: FeePayment = FeePayment.Asset,
   ): Promise<void> {
     if (sender.network === receiver.network && sender.keypair.addressRaw === receiver.addressRaw) {
       throw new Error("Cannot send tokens to yourself");
@@ -63,7 +64,8 @@ class TransactionRouter {
         destApi,
         sender.keypair,
         receiver,
-        asset
+        asset,
+        feePayment
       );
     } else if (receiver.network == reserveChainId) {
       // The destination chain is the reserve chain of the asset:
@@ -72,7 +74,8 @@ class TransactionRouter {
         destApi,
         sender.keypair,
         receiver,
-        asset
+        asset,
+        feePayment
       );
     } else {
       // The most complex case, the reserve chain is neither the sender or the destination chain.
@@ -86,7 +89,8 @@ class TransactionRouter {
         reserveChain,
         sender.keypair,
         receiver,
-        asset
+        asset,
+        feePayment
       );
     }
   }

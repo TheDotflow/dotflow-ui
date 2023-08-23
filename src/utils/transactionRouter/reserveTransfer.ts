@@ -1,7 +1,7 @@
 import { ApiPromise } from "@polkadot/api";
 import { KeyringPair } from "@polkadot/keyring/types";
 
-import { Fungible, Receiver } from "./types";
+import { FeePayment, Fungible, Receiver } from "./types";
 import { getParaId } from "..";
 import { AccountType } from "../../../types/types-arguments/identity";
 
@@ -14,7 +14,8 @@ class ReserveTransfer {
     destinationApi: ApiPromise,
     sender: KeyringPair,
     receiver: Receiver,
-    asset: Fungible
+    asset: Fungible,
+    feePayment: FeePayment
   ): Promise<void> {
     this.ensureContainsXcmPallet(originApi);
     this.ensureContainsXcmPallet(destinationApi);
@@ -26,9 +27,15 @@ class ReserveTransfer {
 
     const destination = this.getDestination(isOriginPara, destParaId, destParaId >= 0);
     const beneficiary = this.getReserveTransferBeneficiary(receiver);
-    const multiAsset = this.getMultiAsset(asset);
+    const multiAsset = this.getMultiAsset(asset, {
+      multiAsset: {
+        parents: isOriginPara ? 1 : 0,
+        interior: "Here"
+      },
+      amount: 4500000000
+    });
 
-    const feeAssetItem = 0;
+    const feeAssetItem = feePayment == FeePayment.RelayChainNative ? 1 : 0;
     const weightLimit = "Unlimited";
 
     const xcmPallet = (originApi.tx.xcmPallet || originApi.tx.polkadotXcm);
@@ -61,7 +68,8 @@ class ReserveTransfer {
     destinationApi: ApiPromise,
     sender: KeyringPair,
     receiver: Receiver,
-    asset: Fungible
+    asset: Fungible,
+    feePayment: FeePayment
   ): Promise<void> {
     this.ensureContainsXcmPallet(originApi);
     this.ensureContainsXcmPallet(destinationApi);
@@ -70,7 +78,7 @@ class ReserveTransfer {
 
     // eslint-disable-next-line no-prototype-builtins
     const isOriginPara = originApi.query.hasOwnProperty("parachainInfo");
-    const xcmProgram = this.getSendToReserveChainInstructions(asset, destinationParaId, receiver, isOriginPara);
+    const xcmProgram = this.getSendToReserveChainInstructions(asset, destinationParaId, receiver, isOriginPara, feePayment);
 
     const xcmPallet = originApi.tx.xcmPallet || originApi.tx.polkadotXcm;
 
@@ -99,7 +107,8 @@ class ReserveTransfer {
     reserveChainApi: ApiPromise,
     sender: KeyringPair,
     receiver: Receiver,
-    asset: Fungible
+    asset: Fungible,
+    feePayment: FeePayment
   ): Promise<void> {
     this.ensureContainsXcmPallet(originApi);
     this.ensureContainsXcmPallet(destinationApi);
@@ -110,7 +119,14 @@ class ReserveTransfer {
 
     // eslint-disable-next-line no-prototype-builtins
     const isOriginPara = originApi.query.hasOwnProperty("parachainInfo");
-    const xcmProgram = this.getTwoHopTransferInstructions(asset, reserveParaId, destinationParaId, receiver, isOriginPara);
+    const xcmProgram = this.getTwoHopTransferInstructions(
+      asset,
+      reserveParaId,
+      destinationParaId,
+      receiver,
+      isOriginPara,
+      feePayment
+    );
 
     const xcmPallet = originApi.tx.xcmPallet || originApi.tx.polkadotXcm;
 
@@ -147,19 +163,12 @@ class ReserveTransfer {
     reserveParaId: number,
     destParaId: number,
     beneficiary: Receiver,
-    isOriginPara: boolean
+    isOriginPara: boolean,
+    feePayment: FeePayment
   ): any {
     const reserve = this.getReserve(reserveParaId, isOriginPara);
 
-    // NOTE: we use parse and stringify to make a hard copy of the asset.
-    const assetFromReservePerspective = JSON.parse(JSON.stringify(asset.multiAsset));
-    if (reserveParaId > 0) {
-      // The location of the asset will always start with the parachain if the reserve is a parachain.
-      this.assetFromReservePerspective(assetFromReservePerspective);
-    } else {
-      // The reserve is the relay chain.
-      assetFromReservePerspective.parents = 0;
-    }
+    const feeAsset = this.getFeePaymentAsset(feePayment, asset, isOriginPara, reserveParaId);
 
     return {
       V2: [
@@ -172,7 +181,7 @@ class ReserveTransfer {
             reserve,
             xcm: [
               // TODO: the hardcoded number isn't really accurate to what we actually need.
-              this.buyExecution(assetFromReservePerspective, 450000000000),
+              this.buyExecution(feeAsset, 450000000000),
               this.depositReserveAsset({ Wild: "All" }, 1, {
                 parents: 1,
                 interior: {
@@ -204,19 +213,12 @@ class ReserveTransfer {
     asset: Fungible,
     destParaId: number,
     beneficiary: Receiver,
-    isOriginPara: boolean
+    isOriginPara: boolean,
+    feePayment: FeePayment
   ): any {
     const reserve = this.getReserve(destParaId, isOriginPara);
 
-    // NOTE: we use parse and stringify to make a hard copy of the asset.
-    const assetFromReservePerspective = JSON.parse(JSON.stringify(asset.multiAsset));
-    if (destParaId >= 0) {
-      // The location of the asset will always start with the parachain if the reserve is a parachain.
-      this.assetFromReservePerspective(assetFromReservePerspective);
-    } else {
-      // The reserve is the relay chain.
-      assetFromReservePerspective.parents = 0;
-    }
+    const feeAsset = this.getFeePaymentAsset(feePayment, asset, isOriginPara, destParaId);
 
     return {
       V2: [
@@ -229,7 +231,7 @@ class ReserveTransfer {
             reserve,
             xcm: [
               // TODO: the hardcoded number isn't really accurate to what we actually need.
-              this.buyExecution(assetFromReservePerspective, 450000000000),
+              this.buyExecution(feeAsset, 450000000000),
               this.depositAsset({ Wild: "All" }, 1, beneficiary)
             ]
           }
@@ -391,18 +393,33 @@ class ReserveTransfer {
   }
 
   // Returns a proper MultiAsset.
-  private static getMultiAsset(asset: Fungible): any {
-    return {
-      V2: [
+  private static getMultiAsset(asset: Fungible, feeAsset?: Fungible): any {
+    const assets = [
+      {
+        fun: {
+          Fungible: asset.amount,
+        },
+        id: {
+          Concrete: asset.multiAsset,
+        },
+      },
+    ];
+
+    if (feeAsset) {
+      assets.push(
         {
           fun: {
-            Fungible: asset.amount,
+            Fungible: feeAsset.amount,
           },
           id: {
-            Concrete: asset.multiAsset,
+            Concrete: feeAsset.multiAsset,
           },
-        },
-      ]
+        }
+      )
+    }
+
+    return {
+      V2: assets
     }
   }
 
@@ -426,6 +443,27 @@ class ReserveTransfer {
     delete location.interior[`X${junctions.length + 1}`];
     location.interior[`X${junctions.length}`] = junctions;
     location.parents = 0;
+  }
+
+  private static getFeePaymentAsset(feePayment: FeePayment, asset: Fungible, isOriginPara: boolean, reserveParaId: number): any {
+    if (feePayment == FeePayment.RelayChainNative) {
+      return {
+        parents: isOriginPara ? 1 : 0,
+        interior: "Here"
+      };
+    } else if (feePayment == FeePayment.Asset) {
+      // NOTE: we use parse and stringify to make a hard copy of the asset.
+      const assetFromReservePerspective = JSON.parse(JSON.stringify(asset.multiAsset));
+      if (reserveParaId > 0) {
+        // The location of the asset will always start with the parachain if the reserve is a parachain.
+        this.assetFromReservePerspective(assetFromReservePerspective);
+      } else {
+        // The reserve is the relay chain.
+        assetFromReservePerspective.parents = 0;
+      }
+
+      return assetFromReservePerspective;
+    }
   }
 
   private static extractJunctions(location: any): any {

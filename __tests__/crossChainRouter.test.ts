@@ -2,8 +2,8 @@ import { ApiPromise, Keyring, WsProvider } from "@polkadot/api";
 import { KeyringPair } from "@polkadot/keyring/types";
 import { u8aToHex } from '@polkadot/util';
 
-import TransactionRouter from "@/utils/transactionRouter";
-import { Fungible, Receiver, Sender } from "@/utils/transactionRouter/types";
+import TransactionRouter from "../src/utils/transactionRouter";
+import { FeePayment, Fungible, Receiver, Sender } from "../src/utils/transactionRouter/types";
 
 import IdentityContractFactory from "../types/constructors/identity";
 import IdentityContract from "../types/contracts/identity";
@@ -13,6 +13,7 @@ const wsProvider = new WsProvider("ws://127.0.0.1:9944");
 const keyring = new Keyring({ type: "sr25519" });
 
 const USDT_ASSET_ID = 1984;
+const DUMMY_ASSET_ID = 42;
 
 const WS_ROROCO_LOCAL = "ws://127.0.0.1:9900";
 const WS_ASSET_HUB_LOCAL = "ws://127.0.0.1:9910";
@@ -57,295 +58,473 @@ describe("TransactionRouter Cross-chain", () => {
     });
   });
 
-  test("Transferring cross-chain from asset's reserve chain works", async () => {
-    const sender: Sender = {
-      keypair: alice,
-      network: 0
-    };
+  describe("Transferring cross-chain from asset's reserve chain", () => {
+    test("Transferring USDT cross-chain and paying with it for fees works", async () => {
+      const sender: Sender = {
+        keypair: alice,
+        network: 0
+      };
 
-    const receiver: Receiver = {
-      addressRaw: bob.addressRaw,
-      type: AccountType.accountId32,
-      network: 1,
-    };
+      const receiver: Receiver = {
+        addressRaw: bob.addressRaw,
+        type: AccountType.accountId32,
+        network: 1,
+      };
 
-    const rococoProvider = new WsProvider(WS_ROROCO_LOCAL);
-    const rococoApi = await ApiPromise.create({
-      provider: rococoProvider,
-    });
-
-    const assetHubProvider = new WsProvider(WS_ASSET_HUB_LOCAL);
-    const assetHubApi = await ApiPromise.create({
-      provider: assetHubProvider,
-    });
-
-    const trappistProvider = new WsProvider(WS_TRAPPIST_LOCAL);
-    const trappistApi = await ApiPromise.create({
-      provider: trappistProvider,
-    });
-
-    const lockdownMode = await getLockdownMode(trappistApi);
-    if (lockdownMode) {
-      await deactivateLockdown(trappistApi, alice);
-    }
-
-    // Create assets on both networks
-
-    if (!(await getAsset(assetHubApi, USDT_ASSET_ID))) {
-      await forceCreateAsset(rococoApi, assetHubApi, 1000, alice, USDT_ASSET_ID);
-    }
-
-    if (!(await getAsset(trappistApi, USDT_ASSET_ID))) {
-      await createAsset(trappistApi, alice, USDT_ASSET_ID);
-    }
-
-    // If the asset is not already registered in the registry make sure we add it.
-    if (!(await getAssetIdMultiLocation(trappistApi, USDT_ASSET_ID))) {
-      await registerReserveAsset(trappistApi, alice, USDT_ASSET_ID, {
-        parents: 1,
-        interior: {
-          X3: [
-            { Parachain: 1000 },
-            { PalletInstance: 50 },
-            { GeneralIndex: USDT_ASSET_ID }
-          ]
-        }
+      const rococoProvider = new WsProvider(WS_ROROCO_LOCAL);
+      const rococoApi = await ApiPromise.create({
+        provider: rococoProvider,
       });
-    }
 
-    const mintAmount = 5000000000000;
-    // Mint some assets to the creator.
-    await mintAsset(assetHubApi, sender.keypair, USDT_ASSET_ID, mintAmount);
-
-    const senderBalanceBefore = await getAssetBalance(assetHubApi, USDT_ASSET_ID, alice.address);
-    const receiverBalanceBefore = await getAssetBalance(trappistApi, USDT_ASSET_ID, bob.address);
-
-    const amount = 4000000000000;
-    const assetReserveChainId = 0;
-
-    const asset: Fungible = {
-      multiAsset: {
-        interior: {
-          X2: [
-            { PalletInstance: 50 },
-            { GeneralIndex: USDT_ASSET_ID }
-          ]
-        },
-        parents: 0,
-      },
-      amount
-    };
-
-    await TransactionRouter.sendTokens(
-      identityContract,
-      sender,
-      receiver,
-      assetReserveChainId,
-      asset
-    );
-
-    const senderBalanceAfter = await getAssetBalance(assetHubApi, USDT_ASSET_ID, alice.address);
-    const receiverBalanceAfter = await getAssetBalance(trappistApi, USDT_ASSET_ID, bob.address);
-
-    expect(senderBalanceAfter).toBe(senderBalanceBefore - amount);
-    // The `receiverBalanceAfter` won't be exactly equal to `receiverBalanceBefore + amount` since some of the tokens are
-    // used for `BuyExecution`.
-    expect(receiverBalanceAfter).toBeGreaterThan(receiverBalanceBefore);
-  }, 180000);
-
-  test("Transferring cross-chain to asset's reserve chain works", async () => {
-    // NOTE this test depends on the success of the first test.
-
-    const rococoProvider = new WsProvider(WS_ROROCO_LOCAL);
-    const rococoApi = await ApiPromise.create({
-      provider: rococoProvider,
-    });
-
-    const assetHubProvider = new WsProvider(WS_ASSET_HUB_LOCAL);
-    const assetHubApi = await ApiPromise.create({
-      provider: assetHubProvider,
-    });
-
-    const trappistProvider = new WsProvider(WS_TRAPPIST_LOCAL);
-    const trappistApi = await ApiPromise.create({
-      provider: trappistProvider,
-    });
-
-    const lockdownMode = await getLockdownMode(trappistApi);
-    if (lockdownMode) {
-      await deactivateLockdown(trappistApi, alice);
-    }
-
-    // Create assets on both networks.
-
-    if (!(await getAsset(assetHubApi, USDT_ASSET_ID))) {
-      await forceCreateAsset(rococoApi, assetHubApi, 1000, alice, USDT_ASSET_ID);
-    }
-
-    if (!(await getAsset(trappistApi, USDT_ASSET_ID))) {
-      await createAsset(trappistApi, alice, USDT_ASSET_ID);
-    }
-
-    // If the asset is not already registered in the registry make sure we add it.
-    if (!(await getAssetIdMultiLocation(trappistApi, USDT_ASSET_ID))) {
-      await registerReserveAsset(trappistApi, alice, USDT_ASSET_ID, {
-        parents: 1,
-        interior: {
-          X3: [
-            { Parachain: 1000 },
-            { PalletInstance: 50 },
-            { GeneralIndex: USDT_ASSET_ID }
-          ]
-        }
+      const assetHubProvider = new WsProvider(WS_ASSET_HUB_LOCAL);
+      const assetHubApi = await ApiPromise.create({
+        provider: assetHubProvider,
       });
-    }
 
-    const amount = 950000000000;
-
-    const sender: Sender = {
-      keypair: bob,
-      network: 1
-    };
-
-    const receiver: Receiver = {
-      addressRaw: charlie.addressRaw,
-      type: AccountType.accountId32,
-      network: 0,
-    };
-
-    const asset: Fungible = {
-      multiAsset: {
-        interior: {
-          X3: [
-            { Parachain: 1000 },
-            { PalletInstance: 50 },
-            { GeneralIndex: USDT_ASSET_ID }
-          ]
-        },
-        parents: 1,
-      },
-      amount
-    };
-
-    const senderBalanceBefore = await getAssetBalance(trappistApi, USDT_ASSET_ID, bob.address);
-    const receiverBalanceBefore = await getAssetBalance(assetHubApi, USDT_ASSET_ID, charlie.address);
-
-    // Transfer the tokens to charlies's account on asset hub:
-    await TransactionRouter.sendTokens(identityContract, sender, receiver, receiver.network, asset);
-
-    // We need to wait a bit more to actually receive the assets on the base chain.
-    await delay(5000);
-
-    const senderBalanceAfter = await getAssetBalance(trappistApi, USDT_ASSET_ID, bob.address);
-    const receiverBalanceAfter = await getAssetBalance(assetHubApi, USDT_ASSET_ID, charlie.address);
-
-    // Some tolerance since part of the tokens will be used for fee payment.
-    const tolerance = 100000;
-    expect(senderBalanceAfter).toBeLessThanOrEqual(senderBalanceBefore - amount);
-    expect(receiverBalanceAfter).toBeGreaterThanOrEqual(receiverBalanceBefore + amount - tolerance);
-  }, 120000);
-
-  test("Transferring cross-chain accross reserve chain works", async () => {
-    // NOTE this test depends on the success of the first test.
-
-    const rococoProvider = new WsProvider(WS_ROROCO_LOCAL);
-    const rococoApi = await ApiPromise.create({
-      provider: rococoProvider,
-    });
-
-    const assetHubProvider = new WsProvider(WS_ASSET_HUB_LOCAL);
-    const assetHubApi = await ApiPromise.create({
-      provider: assetHubProvider,
-    });
-
-    const trappistProvider = new WsProvider(WS_TRAPPIST_LOCAL);
-    const trappistApi = await ApiPromise.create({
-      provider: trappistProvider,
-    });
-
-    const baseProvider = new WsProvider("ws://127.0.0.1:9930");
-    const baseApi = await ApiPromise.create({
-      provider: baseProvider,
-    });
-
-    const lockdownMode = await getLockdownMode(trappistApi);
-    if (lockdownMode) {
-      await deactivateLockdown(trappistApi, alice);
-    }
-
-    // Create assets on all networks.
-
-    if (!(await getAsset(assetHubApi, USDT_ASSET_ID))) {
-      await forceCreateAsset(rococoApi, assetHubApi, 1000, alice, USDT_ASSET_ID);
-    }
-
-    if (!(await getAsset(trappistApi, USDT_ASSET_ID))) {
-      await createAsset(trappistApi, alice, USDT_ASSET_ID);
-    }
-
-    if (!(await getAsset(baseApi, USDT_ASSET_ID))) {
-      await createAsset(baseApi, alice, USDT_ASSET_ID);
-    }
-
-    // If the asset is not already registered in the registry make sure we add it.
-    if (!(await getAssetIdMultiLocation(trappistApi, USDT_ASSET_ID))) {
-      await registerReserveAsset(trappistApi, alice, USDT_ASSET_ID, {
-        parents: 1,
-        interior: {
-          X3: [
-            { Parachain: 1000 },
-            { PalletInstance: 50 },
-            { GeneralIndex: USDT_ASSET_ID }
-          ]
-        }
+      const trappistProvider = new WsProvider(WS_TRAPPIST_LOCAL);
+      const trappistApi = await ApiPromise.create({
+        provider: trappistProvider,
       });
-    }
 
-    const amount = 950000000000;
-    const assetReserveChainId = 0;
+      const lockdownMode = await getLockdownMode(trappistApi);
+      if (lockdownMode) {
+        await deactivateLockdown(trappistApi, alice);
+      }
 
-    const sender: Sender = {
-      keypair: bob,
-      network: 1
-    };
+      // Create assets on both networks
 
-    const receiver: Receiver = {
-      addressRaw: bob.addressRaw,
-      type: AccountType.accountId32,
-      network: 2,
-    };
+      if (!(await getAsset(assetHubApi, DUMMY_ASSET_ID))) {
+        await forceCreateAsset(rococoApi, assetHubApi, 1000, alice, USDT_ASSET_ID);
+      }
 
-    const asset: Fungible = {
-      multiAsset: {
-        interior: {
-          X3: [
-            { Parachain: 1000 },
-            { PalletInstance: 50 },
-            { GeneralIndex: USDT_ASSET_ID }
-          ]
+      if (!(await getAsset(trappistApi, USDT_ASSET_ID))) {
+        await createAsset(trappistApi, alice, USDT_ASSET_ID);
+      }
+
+      // If the asset is not already registered in the registry make sure we add it.
+      if (!(await getAssetIdMultiLocation(trappistApi, USDT_ASSET_ID))) {
+        await registerReserveAsset(trappistApi, alice, USDT_ASSET_ID, {
+          parents: 1,
+          interior: {
+            X3: [
+              { Parachain: 1000 },
+              { PalletInstance: 50 },
+              { GeneralIndex: USDT_ASSET_ID }
+            ]
+          }
+        });
+      }
+
+      const mintAmount = 5000000000000;
+      // Mint some assets to the creator.
+      await mintAsset(assetHubApi, sender.keypair, USDT_ASSET_ID, mintAmount);
+
+      const senderBalanceBefore = await getAssetBalance(assetHubApi, USDT_ASSET_ID, alice.address);
+      const receiverBalanceBefore = await getAssetBalance(trappistApi, USDT_ASSET_ID, bob.address);
+
+      const amount = 4000000000000;
+      const assetReserveChainId = 0;
+
+      const asset: Fungible = {
+        multiAsset: {
+          interior: {
+            X2: [
+              { PalletInstance: 50 },
+              { GeneralIndex: USDT_ASSET_ID }
+            ]
+          },
+          parents: 0,
         },
-        parents: 1,
-      },
-      amount
-    };
+        amount
+      };
 
-    const senderBalanceBefore = await getAssetBalance(trappistApi, USDT_ASSET_ID, bob.address);
-    const receiverBalanceBefore = await getAssetBalance(baseApi, USDT_ASSET_ID, bob.address);
+      await TransactionRouter.sendTokens(
+        identityContract,
+        sender,
+        receiver,
+        assetReserveChainId,
+        asset
+      );
 
-    // Transfer the tokens to bob's account on base:
-    await TransactionRouter.sendTokens(identityContract, sender, receiver, assetReserveChainId, asset);
+      const senderBalanceAfter = await getAssetBalance(assetHubApi, USDT_ASSET_ID, alice.address);
+      const receiverBalanceAfter = await getAssetBalance(trappistApi, USDT_ASSET_ID, bob.address);
 
-    // We need to wait a bit more to actually receive the assets on the base chain.
-    await delay(12000);
+      expect(senderBalanceAfter).toBe(senderBalanceBefore - amount);
+      // The `receiverBalanceAfter` won't be exactly equal to `receiverBalanceBefore + amount` since some of the tokens are
+      // used for `BuyExecution`.
+      expect(receiverBalanceAfter).toBeGreaterThanOrEqual(receiverBalanceBefore);
+    }, 180000);
 
-    const senderBalanceAfter = await getAssetBalance(trappistApi, USDT_ASSET_ID, bob.address);
-    const receiverBalanceAfter = await getAssetBalance(baseApi, USDT_ASSET_ID, bob.address);
+    test("Transferring cross-chain from asset's reserve and pay for fees with ROC", async () => {
+      const sender: Sender = {
+        keypair: alice,
+        network: 0
+      };
 
-    // Some tolerance since part of the tokens will be used for fee payment.
-    const tolerance = 100000;
-    expect(senderBalanceAfter).toBeLessThanOrEqual(senderBalanceBefore - amount);
-    expect(receiverBalanceAfter).toBeGreaterThanOrEqual(receiverBalanceBefore + amount - tolerance);
-  }, 180000);
+      const receiver: Receiver = {
+        addressRaw: bob.addressRaw,
+        type: AccountType.accountId32,
+        network: 1,
+      };
+
+      const rococoProvider = new WsProvider(WS_ROROCO_LOCAL);
+      const rococoApi = await ApiPromise.create({
+        provider: rococoProvider,
+      });
+
+      const assetHubProvider = new WsProvider(WS_ASSET_HUB_LOCAL);
+      const assetHubApi = await ApiPromise.create({
+        provider: assetHubProvider,
+      });
+
+      const trappistProvider = new WsProvider(WS_TRAPPIST_LOCAL);
+      const trappistApi = await ApiPromise.create({
+        provider: trappistProvider,
+      });
+
+      const lockdownMode = await getLockdownMode(trappistApi);
+      if (lockdownMode) {
+        await deactivateLockdown(trappistApi, alice);
+      }
+
+      // Create assets on both networks
+
+      if (!(await getAsset(assetHubApi, DUMMY_ASSET_ID))) {
+        await forceCreateAsset(rococoApi, assetHubApi, 1000, alice, DUMMY_ASSET_ID);
+      }
+
+      if (!(await getAsset(trappistApi, DUMMY_ASSET_ID))) {
+        await createAsset(trappistApi, alice, DUMMY_ASSET_ID);
+      }
+
+      // If the asset is not already registered in the registry make sure we add it.
+      if (!(await getAssetIdMultiLocation(trappistApi, DUMMY_ASSET_ID))) {
+        await registerReserveAsset(trappistApi, alice, DUMMY_ASSET_ID, {
+          parents: 1,
+          interior: {
+            X3: [
+              { Parachain: 1000 },
+              { PalletInstance: 50 },
+              { GeneralIndex: DUMMY_ASSET_ID }
+            ]
+          }
+        });
+      }
+
+      const mintAmount = 5000;
+      // Mint some assets to the creator.
+      await mintAsset(assetHubApi, sender.keypair, DUMMY_ASSET_ID, mintAmount);
+
+      const senderBalanceBefore = await getAssetBalance(assetHubApi, DUMMY_ASSET_ID, alice.address);
+      const receiverBalanceBefore = await getAssetBalance(trappistApi, DUMMY_ASSET_ID, bob.address);
+
+      const amount = 500;
+      const assetReserveChainId = 0;
+
+      const asset: Fungible = {
+        multiAsset: {
+          interior: {
+            X2: [
+              { PalletInstance: 50 },
+              { GeneralIndex: DUMMY_ASSET_ID }
+            ]
+          },
+          parents: 0,
+        },
+        amount
+      };
+
+      await TransactionRouter.sendTokens(
+        identityContract,
+        sender,
+        receiver,
+        assetReserveChainId,
+        asset,
+        FeePayment.RelayChainNative
+      );
+
+      const senderBalanceAfter = await getAssetBalance(assetHubApi, DUMMY_ASSET_ID, alice.address);
+      const receiverBalanceAfter = await getAssetBalance(trappistApi, DUMMY_ASSET_ID, bob.address);
+
+      expect(senderBalanceAfter).toBe(senderBalanceBefore - amount);
+      expect(receiverBalanceAfter).toBe(receiverBalanceBefore);
+    }, 180000);
+  });
+
+  describe("Transferring cross-chain to asset's reserve chain", () => {
+    test("Transferring USDT and paying with it for fees works", async () => {
+      // NOTE this test depends on the success of the first test.
+
+      const rococoProvider = new WsProvider(WS_ROROCO_LOCAL);
+      const rococoApi = await ApiPromise.create({
+        provider: rococoProvider,
+      });
+
+      const assetHubProvider = new WsProvider(WS_ASSET_HUB_LOCAL);
+      const assetHubApi = await ApiPromise.create({
+        provider: assetHubProvider,
+      });
+
+      const trappistProvider = new WsProvider(WS_TRAPPIST_LOCAL);
+      const trappistApi = await ApiPromise.create({
+        provider: trappistProvider,
+      });
+
+      const lockdownMode = await getLockdownMode(trappistApi);
+      if (lockdownMode) {
+        await deactivateLockdown(trappistApi, alice);
+      }
+
+      // Create assets on both networks.
+
+      if (!(await getAsset(assetHubApi, USDT_ASSET_ID))) {
+        await forceCreateAsset(rococoApi, assetHubApi, 1000, alice, USDT_ASSET_ID);
+      }
+
+      if (!(await getAsset(trappistApi, USDT_ASSET_ID))) {
+        await createAsset(trappistApi, alice, USDT_ASSET_ID);
+      }
+
+      // If the asset is not already registered in the registry make sure we add it.
+      if (!(await getAssetIdMultiLocation(trappistApi, USDT_ASSET_ID))) {
+        await registerReserveAsset(trappistApi, alice, USDT_ASSET_ID, {
+          parents: 1,
+          interior: {
+            X3: [
+              { Parachain: 1000 },
+              { PalletInstance: 50 },
+              { GeneralIndex: USDT_ASSET_ID }
+            ]
+          }
+        });
+      }
+
+      const amount = 950000000000;
+
+      const sender: Sender = {
+        keypair: bob,
+        network: 1
+      };
+
+      const receiver: Receiver = {
+        addressRaw: charlie.addressRaw,
+        type: AccountType.accountId32,
+        network: 0,
+      };
+
+      const asset: Fungible = {
+        multiAsset: {
+          interior: {
+            X3: [
+              { Parachain: 1000 },
+              { PalletInstance: 50 },
+              { GeneralIndex: USDT_ASSET_ID }
+            ]
+          },
+          parents: 1,
+        },
+        amount
+      };
+
+      const senderBalanceBefore = await getAssetBalance(trappistApi, USDT_ASSET_ID, bob.address);
+      const receiverBalanceBefore = await getAssetBalance(assetHubApi, USDT_ASSET_ID, charlie.address);
+
+      // Transfer the tokens to charlies's account on asset hub:
+      await TransactionRouter.sendTokens(identityContract, sender, receiver, receiver.network, asset);
+
+      // We need to wait a bit more to actually receive the assets on the base chain.
+      await delay(5000);
+
+      const senderBalanceAfter = await getAssetBalance(trappistApi, USDT_ASSET_ID, bob.address);
+      const receiverBalanceAfter = await getAssetBalance(assetHubApi, USDT_ASSET_ID, charlie.address);
+
+      // Some tolerance since part of the tokens will be used for fee payment.
+      const tolerance = 100000;
+      expect(senderBalanceAfter).toBeLessThanOrEqual(senderBalanceBefore - amount);
+      expect(receiverBalanceAfter).toBeGreaterThanOrEqual(receiverBalanceBefore + amount - tolerance);
+    }, 120000);
+
+    test("Transferring USDT and paying with ROC for fees works", async () => {
+      /*
+      const assetHubProvider = new WsProvider(WS_ASSET_HUB_LOCAL);
+      const assetHubApi = await ApiPromise.create({
+        provider: assetHubProvider,
+      });
+
+      const trappistProvider = new WsProvider(WS_TRAPPIST_LOCAL);
+      const trappistApi = await ApiPromise.create({
+        provider: trappistProvider,
+      });
+
+      const lockdownMode = await getLockdownMode(trappistApi);
+      if (lockdownMode) {
+        await deactivateLockdown(trappistApi, alice);
+      }
+
+      // Create dummy assets on both networks.
+
+      if (!(await getAsset(assetHubApi, DUMMY_ASSET_ID))) {
+        await createAsset(assetHubApi, alice, DUMMY_ASSET_ID);
+      }
+
+      if (!(await getAsset(trappistApi, DUMMY_ASSET_ID))) {
+        await createAsset(trappistApi, alice, DUMMY_ASSET_ID);
+      }
+
+      const mintAmount = 50000;
+      // Mint some assets to the alice.
+      await mintAsset(assetHubApi, alice, DUMMY_ASSET_ID, mintAmount);
+
+      // If the asset is not already registered in the registry make sure we add it.
+      if (!(await getAssetIdMultiLocation(trappistApi, DUMMY_ASSET_ID))) {
+        await registerReserveAsset(trappistApi, alice, DUMMY_ASSET_ID, {
+          parents: 1,
+          interior: {
+            X3: [
+              { Parachain: 1000 },
+              { PalletInstance: 50 },
+              { GeneralIndex: DUMMY_ASSET_ID }
+            ]
+          }
+        });
+      }
+
+      const amount = 500;
+
+      const sender: Sender = {
+        keypair: alice,
+        network: 0
+      };
+
+      const receiver: Receiver = {
+        addressRaw: bob.addressRaw,
+        type: AccountType.accountId32,
+        network: 1,
+      };
+
+      const asset: Fungible = {
+        multiAsset: {
+          interior: {
+            X3: [
+              { Parachain: 1000 },
+              { PalletInstance: 50 },
+              { GeneralIndex: DUMMY_ASSET_ID }
+            ]
+          },
+          parents: 0,
+        },
+        amount
+      };
+
+      // Transfer the tokens to charlies's account on asset hub:
+      await TransactionRouter.sendTokens(identityContract, sender, receiver, receiver.network, asset, FeePayment.RelayChainNative);
+      */
+    }, 180000)
+  });
+
+  describe("Transferring cross-chain accross reserve chain ", () => {
+    test("Transferring USDT and paying with it for fees works", async () => {
+      // NOTE this test depends on the success of the first test.
+
+      const rococoProvider = new WsProvider(WS_ROROCO_LOCAL);
+      const rococoApi = await ApiPromise.create({
+        provider: rococoProvider,
+      });
+
+      const assetHubProvider = new WsProvider(WS_ASSET_HUB_LOCAL);
+      const assetHubApi = await ApiPromise.create({
+        provider: assetHubProvider,
+      });
+
+      const trappistProvider = new WsProvider(WS_TRAPPIST_LOCAL);
+      const trappistApi = await ApiPromise.create({
+        provider: trappistProvider,
+      });
+
+      const baseProvider = new WsProvider("ws://127.0.0.1:9930");
+      const baseApi = await ApiPromise.create({
+        provider: baseProvider,
+      });
+
+      const lockdownMode = await getLockdownMode(trappistApi);
+      if (lockdownMode) {
+        await deactivateLockdown(trappistApi, alice);
+      }
+
+      // Create assets on all networks.
+
+      if (!(await getAsset(assetHubApi, USDT_ASSET_ID))) {
+        await forceCreateAsset(rococoApi, assetHubApi, 1000, alice, USDT_ASSET_ID);
+      }
+
+      if (!(await getAsset(trappistApi, USDT_ASSET_ID))) {
+        await createAsset(trappistApi, alice, USDT_ASSET_ID);
+      }
+
+      if (!(await getAsset(baseApi, USDT_ASSET_ID))) {
+        await createAsset(baseApi, alice, USDT_ASSET_ID);
+      }
+
+      // If the asset is not already registered in the registry make sure we add it.
+      if (!(await getAssetIdMultiLocation(trappistApi, USDT_ASSET_ID))) {
+        await registerReserveAsset(trappistApi, alice, USDT_ASSET_ID, {
+          parents: 1,
+          interior: {
+            X3: [
+              { Parachain: 1000 },
+              { PalletInstance: 50 },
+              { GeneralIndex: USDT_ASSET_ID }
+            ]
+          }
+        });
+      }
+
+      const amount = 950000000000;
+      const assetReserveChainId = 0;
+
+      const sender: Sender = {
+        keypair: bob,
+        network: 1
+      };
+
+      const receiver: Receiver = {
+        addressRaw: bob.addressRaw,
+        type: AccountType.accountId32,
+        network: 2,
+      };
+
+      const asset: Fungible = {
+        multiAsset: {
+          interior: {
+            X3: [
+              { Parachain: 1000 },
+              { PalletInstance: 50 },
+              { GeneralIndex: USDT_ASSET_ID }
+            ]
+          },
+          parents: 1,
+        },
+        amount
+      };
+
+      const senderBalanceBefore = await getAssetBalance(trappistApi, USDT_ASSET_ID, bob.address);
+      const receiverBalanceBefore = await getAssetBalance(baseApi, USDT_ASSET_ID, bob.address);
+
+      // Transfer the tokens to bob's account on base:
+      await TransactionRouter.sendTokens(identityContract, sender, receiver, assetReserveChainId, asset);
+
+      // We need to wait a bit more to actually receive the assets on the base chain.
+      await delay(12000);
+
+      const senderBalanceAfter = await getAssetBalance(trappistApi, USDT_ASSET_ID, bob.address);
+      const receiverBalanceAfter = await getAssetBalance(baseApi, USDT_ASSET_ID, bob.address);
+
+      // Some tolerance since part of the tokens will be used for fee payment.
+      const tolerance = 100000;
+      expect(senderBalanceAfter).toBeLessThanOrEqual(senderBalanceBefore - amount);
+      expect(receiverBalanceAfter).toBeGreaterThanOrEqual(receiverBalanceBefore + amount - tolerance);
+    }, 180000);
+  });
 });
 
 const addNetwork = async (
