@@ -7,3 +7,9 @@
   min-width: 500px;
   padding: 24px 16px;
 }
+
+.balanceContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}

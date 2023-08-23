@@ -4,7 +4,7 @@ type ChainId = number | string;
 
 type RelayChain = 'polkadot' | 'kusama';
 
-type Asset = {
+export type Asset = {
   asset: any;
   name: string;
   symbol: string;
@@ -145,7 +145,7 @@ class AssetRegistry {
     relay: RelayChain,
     chainA: ChainId,
     chainB: ChainId,
-  ): Promise<any[]> {
+  ): Promise<Asset[]> {
     const assetsOnChainA = await this.getAssetsOnBlockchain(relay, chainA);
     const assetsOnChainB = await this.getAssetsOnBlockchain(relay, chainB);
 

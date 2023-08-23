@@ -5,3 +5,4 @@ const RELAY_CHAIN_ENDPOINTS = {
 };
 export const RELAY_CHAIN = (process.env.RELAY_CHAIN || 'polkadot') as RELAY_CHAIN_OPTION;
 export const RELAY_CHAIN_ENDPOINT = RELAY_CHAIN_ENDPOINTS[RELAY_CHAIN];
+export const ZERO = BigInt(0);
