@@ -1,6 +1,7 @@
 import {
   Backdrop,
   Box,
+  Button,
   CircularProgress,
   FormControl,
   FormLabel,
@@ -19,23 +20,43 @@ import { RELAY_CHAIN, ZERO } from '@/consts';
 import { useRelayApi } from '@/contexts/RelayApi';
 import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
+import { useAddressBook } from '@/contracts/addressbook/context';
 
 const TransferPage = () => {
-  const { networks } = useIdentity();
+  const {
+    networks,
+    getAddresses,
+    addresses,
+    contract: identityContract,
+  } = useIdentity();
   const { activeAccount } = useInkathon();
+  const { toastError } = useToast();
+  const { identities } = useAddressBook();
+
   const [sourceChainId, setSourceChainId] = useState<number>();
   const [destChainId, setDestChainId] = useState<number>();
   const {
     state: { api: relayApi },
   } = useRelayApi();
-  const { toastError } = useToast();
+
   const [loadingAssets, setLoadingAssets] = useState(false);
   const [assets, setAssets] = useState<Asset[]>([]);
-  const [tokenId, setTokenId] = useState<string>('');
-  const canWork =
-    !loadingAssets && sourceChainId !== undefined && destChainId !== undefined;
+  const [tokenId, setTokenId] = useState<string>();
   const [loadingBalance, setLoadingBalance] = useState(false);
   const [sourceBalance, setSourceBalance] = useState<bigint>(ZERO);
+  const [recipientId, setRecipientId] = useState<number>();
+  const [recipientOk, setRecipientOk] = useState(false);
+  const [recipientAddress, setRecipientAddress] = useState<string>();
+
+  const chainsSelected =
+    !loadingAssets && sourceChainId !== undefined && destChainId !== undefined;
+  const assetSelected = chainsSelected && Boolean(tokenId);
+
+  const canTransfer = assetSelected && recipientId !== undefined;
+
+  useEffect(() => setTokenId(undefined), [chainsSelected]);
+
+  useEffect(() => setRecipientId(undefined), [assetSelected]);
 
   const loadAssets = useCallback(async () => {
     if (sourceChainId === undefined || destChainId === undefined) return;
@@ -92,12 +113,19 @@ const TransferPage = () => {
         const res = await api.query.assets?.account(tokenId, account);
         if (res.isEmpty) callback(ZERO);
         else callback(BigInt(res.toString()));
+
+        await api.disconnect();
       } catch {
         callback(ZERO);
       }
     };
     const fetchBalances = async () => {
-      if (sourceChainId === undefined || !activeAccount) return;
+      if (
+        sourceChainId === undefined ||
+        !activeAccount ||
+        tokenId === undefined
+      )
+        return;
 
       setLoadingBalance(true);
 
@@ -113,6 +141,62 @@ const TransferPage = () => {
 
     fetchBalances();
   }, [tokenId]);
+
+  useEffect(() => {
+    if (sourceChainId === undefined) return;
+    const index = addresses.findIndex(
+      (address) => address.networkId === sourceChainId
+    );
+    index === -1 &&
+      toastError(`You don't have ${networks[sourceChainId].name} address`);
+  }, [sourceChainId]);
+
+  useEffect(() => {
+    const checkIdentity = async () => {
+      if (recipientId === undefined || destChainId === undefined) return;
+      const addresses = await getAddresses(recipientId);
+      const index = addresses.findIndex(
+        (address) => address.networkId === destChainId
+      );
+      setRecipientOk(index !== -1);
+      setRecipientAddress(addresses[index].address);
+
+      index === -1 &&
+        toastError(
+          `${identities[recipientId].nickName} does not have ${networks[destChainId].name} address.`
+        );
+    };
+    setRecipientOk(false);
+    checkIdentity();
+  }, [recipientId]);
+
+  const transferAsset = () => {
+    if (
+      recipientAddress === undefined ||
+      destChainId === undefined ||
+      identityContract === undefined
+    )
+      return;
+    // TODO:
+    // TransactionRouter.sendTokens(
+    //   identityContract,
+    //   {
+    //     keypair: activeAccount,
+    //     network: sourceChainId,
+    //   } as Sender,
+    //   {
+    //     addressRaw: decodeAddress(recipientAddress),
+    //     type: networks[destChainId].accountType,
+    //     network: destChainId,
+    //   } as Receiver,
+    //   0, // FIXME:
+    //   {
+    //     // FIXME:
+    //     multiAsset: 0,
+    //     amount: 1,
+    //   }
+    // );
+  };
 
   return (
     <Box className={styles.transferContainer}>
@@ -151,7 +235,7 @@ const TransferPage = () => {
             ))}
           </TextField>
         </FormControl>
-        {canWork &&
+        {chainsSelected &&
           (assets.length > 0 ? (
             <FormControl fullWidth className='form-item'>
               <FormLabel>Select asset to transfer</FormLabel>
@@ -169,11 +253,36 @@ const TransferPage = () => {
           ) : (
             <div>There are no assets supported on both networks.</div>
           ))}
-        {canWork && !loadingBalance && tokenId && (
+        {assetSelected && !loadingBalance && (
           <div className={styles.balanceContainer}>
             <div>Balance: </div>
             <div>{sourceBalance.toString()}</div>
           </div>
+        )}
+        {assetSelected && (
+          <FormControl fullWidth className='form-item'>
+            <FormLabel>Select recipient</FormLabel>
+            <Select
+              value={recipientId || ''}
+              onChange={(e) => setRecipientId(Number(e.target.value))}
+            >
+              {identities.map((identity, index) => (
+                <MenuItem value={identity.identityNo} key={index}>
+                  {identity.nickName}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        )}
+        {canTransfer && (
+          <Button
+            fullWidth
+            variant='contained'
+            disabled={!recipientOk}
+            onClick={transferAsset}
+          >
+            Transfer
+          </Button>
         )}
       </Box>
       <Backdrop

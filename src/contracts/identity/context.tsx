@@ -34,6 +34,7 @@ interface IdentityContract {
   contract: ContractPromise | undefined;
   fetchIdentityNo: () => Promise<void>;
   fetchAddresses: () => Promise<void>;
+  getAddresses: (_id: number) => Promise<Address[]>;
   loading: boolean;
 }
 
@@ -48,6 +49,9 @@ const defaultIdentity: IdentityContract = {
   },
   fetchAddresses: async () => {
     /* */
+  },
+  getAddresses: async (): Promise<Address[]> => {
+    return [];
   },
   loading: true,
 };
@@ -166,7 +170,7 @@ const IdentityContractProvider = ({ children }: Props) => {
     setLoadingNetworks(false);
   }, [api, contract, toastError]);
 
-  const getAddresses = async (no: number) => {
+  const getAddresses = async (no: number): Promise<Address[]> => {
     if (!api || !contract) return [];
     try {
       const result = await contractQuery(api, '', contract, 'identity', {}, [
@@ -230,6 +234,7 @@ const IdentityContractProvider = ({ children }: Props) => {
         fetchAddresses,
         fetchIdentityNo,
         loading: loadingIdentityNo || loadingNetworks,
+        getAddresses,
       }}
     >
       {children}
