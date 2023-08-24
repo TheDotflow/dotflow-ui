@@ -117,6 +117,8 @@ const IdentityContractProvider = ({ children }: Props) => {
           await api.query.parachainInfo.parachainId()
         ).toPrimitive() as number;
 
+        await api.disconnect();
+
         return {
           name,
           ss58Prefix,

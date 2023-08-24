@@ -120,7 +120,7 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
                 select
                 sx={{ mt: '8px' }}
                 required
-                value={networkId}
+                value={networkId || ""}
                 onChange={(e) => setNetworkId(Number(e.target.value))}
               >
                 {Object.entries(networks).map(([id, network], index) => (
@@ -151,7 +151,7 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
                   maxLength: 64,
                 }}
                 required
-                value={networkAddress}
+                value={networkAddress || ""}
                 error={networkAddress === ''}
                 onChange={(e) => setNetworkAddress(e.target.value)}
               />
