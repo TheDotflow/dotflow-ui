@@ -5,10 +5,10 @@
 import { Keyring } from "@polkadot/api";
 import { cryptoWaitReady } from "@polkadot/util-crypto";
 
+import { getDestination, getMultiAsset, getTransferBeneficiary } from ".";
 import ReserveTransfer from "./reserveTransfer";
 import { Fungible, Receiver } from "./types";
 import { AccountType } from "../../../types/types-arguments/identity";
-import { getDestination, getMultiAsset, getTransferBeneficiary } from ".";
 
 const sr25519Keyring = new Keyring({ type: "sr25519" });
 const ecdsaKeyring = new Keyring({ type: "ecdsa" });

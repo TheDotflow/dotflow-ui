@@ -1,13 +1,13 @@
 import { ApiPromise, WsProvider } from "@polkadot/api";
 
 import ReserveTransfer from "./reserveTransfer";
+import { TeleportableRoute, teleportableRoutes } from "./teleportableRoutes";
 import TeleportTransfer from "./teleportTransfer";
 import TransferAsset from "./transferAsset";
 import { Fungible, Receiver, Sender } from "./types";
+import { getParaId } from "..";
 import IdentityContract from "../../../types/contracts/identity";
 import { AccountType } from "../../../types/types-arguments/identity";
-import { TeleportableRoute, teleportableRoutes } from "./teleportableRoutes";
-import { getParaId } from "..";
 
 // Responsible for handling all the transfer logic.
 //

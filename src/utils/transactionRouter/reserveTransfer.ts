@@ -1,9 +1,8 @@
 import { ApiPromise } from "@polkadot/api";
 import { KeyringPair } from "@polkadot/keyring/types";
 
-import { Fungible, Receiver } from "./types";
-import { getParaId } from "..";
 import { getDestination, getMultiAsset, getReceiverAccount, getTransferBeneficiary } from ".";
+import { Fungible, Receiver } from "./types";
 
 class ReserveTransfer {
   // Transfers assets from the sender to the receiver.
