@@ -16,7 +16,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import AssetRegistry, { Asset } from '@/utils/assetRegistry';
 
-import { RELAY_CHAIN, ZERO } from '@/consts';
+import { RELAY_CHAIN, ZERO, chainsSupportingXcmExecute } from '@/consts';
 import { useRelayApi } from '@/contexts/RelayApi';
 import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
@@ -170,32 +170,59 @@ const TransferPage = () => {
     checkIdentity();
   }, [recipientId]);
 
+  const isTransferSupported = (
+    originParaId: number,
+    reserveParaId: number,
+  ): boolean => {
+    // If the origin is the reserve chain that means that we can use the existing
+    // `limitedReserveTransferAssets` or `limitedTeleportAssets` extrinsics which are
+    // supported on all chains that have the xcm pallet.
+    if (originParaId == reserveParaId) {
+      return true;
+    }
+
+    const isOriginSupportingLocalXCM = chainsSupportingXcmExecute.findIndex(
+      (chain) => chain.paraId == originParaId && chain.relayChain == RELAY_CHAIN,
+    );
+
+    // We only need the origin chain to support XCM for any other type of transfer to
+    // work.
+    if (isOriginSupportingLocalXCM) {
+      return true;
+    }
+
+    return false;
+  };
+
   const transferAsset = () => {
     if (
       recipientAddress === undefined ||
       destChainId === undefined ||
       identityContract === undefined
-    )
+    ) {
       return;
-    // TODO:
-    // TransactionRouter.sendTokens(
-    //   identityContract,
-    //   {
-    //     keypair: activeAccount,
-    //     network: sourceChainId,
-    //   } as Sender,
-    //   {
-    //     addressRaw: decodeAddress(recipientAddress),
-    //     type: networks[destChainId].accountType,
-    //     network: destChainId,
-    //   } as Receiver,
-    //   0, // FIXME:
-    //   {
-    //     // FIXME:
-    //     multiAsset: 0,
-    //     amount: 1,
-    //   }
-    // );
+    }
+
+    /*
+    await TransactionRouter.sendTokens(
+      identityContract,
+      {
+        keypair: activeAccount,
+        network: sourceChainId,
+      } as Sender,
+      {
+        addressRaw: decodeAddress(recipientAddress),
+        type: networks[destChainId].accountType,
+        network: destChainId,
+      } as Receiver,
+      0, // Reserve paraId, FIXME
+      {
+        // FIXME:
+        multiAsset: 0,
+        amount: 1,
+      }
+    );
+    */
   };
 
   return (
