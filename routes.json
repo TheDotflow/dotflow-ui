@@ -1,9 +1,0 @@
-[
-  {
-    "xcAsset": "[{\"network\":\"polkadot\"},\"here\"]",
-    "originParaId": 0,
-    "destParaId": 1000,
-    "outcome": "success",
-    "lastTest": "1692949324972"
-  }
-]
