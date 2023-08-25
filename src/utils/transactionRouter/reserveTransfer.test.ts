@@ -8,6 +8,7 @@ import { cryptoWaitReady } from "@polkadot/util-crypto";
 import ReserveTransfer from "./reserveTransfer";
 import { Fungible, Receiver } from "./types";
 import { AccountType } from "../../../types/types-arguments/identity";
+import { getDestination, getMultiAsset, getTransferBeneficiary } from ".";
 
 const sr25519Keyring = new Keyring({ type: "sr25519" });
 const ecdsaKeyring = new Keyring({ type: "ecdsa" });
@@ -15,18 +16,14 @@ const ecdsaKeyring = new Keyring({ type: "ecdsa" });
 describe("TransactionRouter unit tests", () => {
   describe("getDestination works", () => {
     it("Works with the destination being the relay chain", () => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      expect(ReserveTransfer.getDestination(true, 69, false)).toStrictEqual({
+      expect(getDestination(true, 69, false)).toStrictEqual({
         V2: {
           parents: 1,
           interior: "Here",
         },
       });
 
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      expect(ReserveTransfer.getDestination(false, 69, false)).toStrictEqual({
+      expect(getDestination(false, 69, false)).toStrictEqual({
         V2: {
           parents: 0,
           interior: "Here",
@@ -35,9 +32,7 @@ describe("TransactionRouter unit tests", () => {
     });
 
     it("Works with the destination being a parachain", () => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      expect(ReserveTransfer.getDestination(false, 2000, true)).toStrictEqual({
+      expect(getDestination(false, 2000, true)).toStrictEqual({
         V2: {
           parents: 0,
           interior: {
@@ -46,9 +41,7 @@ describe("TransactionRouter unit tests", () => {
         },
       });
 
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      expect(ReserveTransfer.getDestination(true, 2000, true)).toStrictEqual({
+      expect(getDestination(true, 2000, true)).toStrictEqual({
         V2: {
           parents: 1,
           interior: {
@@ -59,7 +52,7 @@ describe("TransactionRouter unit tests", () => {
     });
   });
 
-  describe("getReserveTransferBeneficiary works", () => {
+  describe("getTransferBeneficiary works", () => {
     it("Works with AccountId32", async () => {
       await cryptoWaitReady();
 
@@ -73,9 +66,7 @@ describe("TransactionRouter unit tests", () => {
       };
 
       expect(
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        ReserveTransfer.getReserveTransferBeneficiary(receiver),
+        getTransferBeneficiary(receiverAccId32),
       ).toStrictEqual({
         V2: {
           parents: 0,
@@ -97,9 +88,7 @@ describe("TransactionRouter unit tests", () => {
       };
 
       expect(
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        ReserveTransfer.getReserveTransferBeneficiary(receiver),
+        getTransferBeneficiary(receiverAccKey20),
       ).toStrictEqual({
         V2: {
           parents: 0,
@@ -126,9 +115,7 @@ describe("TransactionRouter unit tests", () => {
         amount: 200,
       };
 
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      expect(ReserveTransfer.getMultiAsset(asset)).toStrictEqual({
+      expect(getMultiAsset(asset)).toStrictEqual({
         V2: [
           {
             fun: {

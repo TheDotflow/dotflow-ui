@@ -3,7 +3,7 @@ import { KeyringPair } from "@polkadot/keyring/types";
 
 import { Fungible, Receiver } from "./types";
 import { getParaId } from "..";
-import { AccountType } from "../../../types/types-arguments/identity";
+import { getDestination, getMultiAsset, getReceiverAccount, getTransferBeneficiary } from ".";
 
 class ReserveTransfer {
   // Transfers assets from the sender to the receiver.
@@ -11,22 +11,17 @@ class ReserveTransfer {
   // This function assumes that the sender chain is the reserve chain of the asset.
   public static async sendFromReserveChain(
     originApi: ApiPromise,
-    destinationApi: ApiPromise,
+    destParaId: number,
     sender: KeyringPair,
     receiver: Receiver,
     asset: Fungible
   ): Promise<void> {
-    this.ensureContainsXcmPallet(originApi);
-    this.ensureContainsXcmPallet(destinationApi);
-
-    const destParaId = await getParaId(destinationApi);
-
     // eslint-disable-next-line no-prototype-builtins
     const isOriginPara = originApi.query.hasOwnProperty("parachainInfo");
 
-    const destination = this.getDestination(isOriginPara, destParaId, destParaId >= 0);
-    const beneficiary = this.getReserveTransferBeneficiary(receiver);
-    const multiAsset = this.getMultiAsset(asset);
+    const destination = getDestination(isOriginPara, destParaId, destParaId >= 0);
+    const beneficiary = getTransferBeneficiary(receiver);
+    const multiAsset = getMultiAsset(asset);
 
     const feeAssetItem = 0;
     const weightLimit = "Unlimited";
@@ -58,19 +53,15 @@ class ReserveTransfer {
   // reserve chain of the asset.
   public static async sendToReserveChain(
     originApi: ApiPromise,
-    destinationApi: ApiPromise,
+    destParaId: number,
     sender: KeyringPair,
     receiver: Receiver,
     asset: Fungible
   ): Promise<void> {
-    this.ensureContainsXcmPallet(originApi);
-    this.ensureContainsXcmPallet(destinationApi);
-
-    const destinationParaId = await getParaId(destinationApi);
 
     // eslint-disable-next-line no-prototype-builtins
     const isOriginPara = originApi.query.hasOwnProperty("parachainInfo");
-    const xcmProgram = this.getSendToReserveChainInstructions(asset, destinationParaId, receiver, isOriginPara);
+    const xcmProgram = this.getSendToReserveChainInstructions(asset, destParaId, receiver, isOriginPara);
 
     const xcmPallet = originApi.tx.xcmPallet || originApi.tx.polkadotXcm;
 
@@ -95,22 +86,16 @@ class ReserveTransfer {
   // For this reason we are gonna need to transfer the asset across the reserve chain.
   public static async sendAcrossReserveChain(
     originApi: ApiPromise,
-    destinationApi: ApiPromise,
-    reserveChainApi: ApiPromise,
+    destParaId: number,
+    reserveParaId: number,
     sender: KeyringPair,
     receiver: Receiver,
     asset: Fungible
   ): Promise<void> {
-    this.ensureContainsXcmPallet(originApi);
-    this.ensureContainsXcmPallet(destinationApi);
-    this.ensureContainsXcmPallet(reserveChainApi);
-
-    const reserveParaId = await getParaId(reserveChainApi);
-    const destinationParaId = await getParaId(destinationApi);
 
     // eslint-disable-next-line no-prototype-builtins
     const isOriginPara = originApi.query.hasOwnProperty("parachainInfo");
-    const xcmProgram = this.getTwoHopTransferInstructions(asset, reserveParaId, destinationParaId, receiver, isOriginPara);
+    const xcmProgram = this.getTwoHopTransferInstructions(asset, reserveParaId, destParaId, receiver, isOriginPara);
 
     const xcmPallet = originApi.tx.xcmPallet || originApi.tx.polkadotXcm;
 
@@ -293,7 +278,7 @@ class ReserveTransfer {
     const beneficiary = {
       parents: 0,
       interior: {
-        X1: this.getReceiverAccount(receiver)
+        X1: getReceiverAccount(receiver)
       }
     };
 
@@ -323,92 +308,6 @@ class ReserveTransfer {
           }
         }
       }
-    }
-  }
-
-  // Returns the destination of an xcm reserve transfer.
-  //
-  // The destination is an entity that will process the xcm message(i.e a relaychain or a parachain). 
-  private static getDestination(isOriginPara: boolean, destParaId: number, isDestPara: boolean): any {
-    const parents = isOriginPara ? 1 : 0;
-
-    if (isDestPara) {
-      return {
-        V2:
-        {
-          parents,
-          interior: {
-            X1: { Parachain: destParaId }
-          }
-        }
-      }
-    } else {
-      // If the destination is not a parachain it is basically a relay chain.
-      return {
-        V2:
-        {
-          parents,
-          interior: "Here"
-        }
-      }
-    }
-  }
-
-  // Returns the beneficiary of an xcm reserve transfer.
-  //
-  // The beneficiary is an interior entity of the destination that will actually receive the tokens.
-  private static getReserveTransferBeneficiary(receiver: Receiver) {
-    const receiverAccount = this.getReceiverAccount(receiver);
-
-    return {
-      V2: {
-        parents: 0,
-        interior: {
-          X1: {
-            ...receiverAccount
-          }
-        }
-      }
-    };
-  }
-
-  private static getReceiverAccount(receiver: Receiver): any {
-    if (receiver.type == AccountType.accountId32) {
-      return {
-        AccountId32: {
-          network: "Any",
-          id: receiver.addressRaw,
-        },
-      };
-    } else if (receiver.type == AccountType.accountKey20) {
-      return {
-        AccountKey20: {
-          network: "Any",
-          id: receiver.addressRaw,
-        },
-      };
-    }
-  }
-
-  // Returns a proper MultiAsset.
-  private static getMultiAsset(asset: Fungible): any {
-    return {
-      V2: [
-        {
-          fun: {
-            Fungible: asset.amount,
-          },
-          id: {
-            Concrete: asset.multiAsset,
-          },
-        },
-      ]
-    }
-  }
-
-  private static ensureContainsXcmPallet(api: ApiPromise) {
-    if (!(api.tx.xcmPallet || api.tx.polkadotXcm)) {
-      throw new Error("The blockchain does not support XCM");
     }
   }
 

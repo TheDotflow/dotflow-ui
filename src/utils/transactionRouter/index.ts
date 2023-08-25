@@ -1,9 +1,13 @@
 import { ApiPromise, WsProvider } from "@polkadot/api";
 
 import ReserveTransfer from "./reserveTransfer";
+import TeleportTransfer from "./teleportTransfer";
 import TransferAsset from "./transferAsset";
 import { Fungible, Receiver, Sender } from "./types";
 import IdentityContract from "../../../types/contracts/identity";
+import { AccountType } from "../../../types/types-arguments/identity";
+import { TeleportableRoute, teleportableRoutes } from "../../../teleportableRoutes";
+import { getParaId } from "..";
 
 // Responsible for handling all the transfer logic.
 //
@@ -55,12 +59,26 @@ class TransactionRouter {
     const originApi = await this.getApi(identityContract, sender.network);
     const destApi = await this.getApi(identityContract, receiver.network);
 
+    ensureContainsXcmPallet(destApi);
+
+    const originParaId = await getParaId(originApi);
+    const destParaId = await getParaId(destApi);
+
+    const teleportableRoute: TeleportableRoute = {
+      relayChain: process.env.RELAY_CHAIN ? process.env.RELAY_CHAIN : "",
+      destParaId: destParaId,
+      originParaId: originParaId,
+      xcAsset: asset.multiAsset
+    };
+
+    // if (TeleportableRoutes.indexOf())
+
     // The sender chain is the reserve chain of the asset. This will simply use the existing
     // `limitedReserveTransferAssets` extrinsic
     if (sender.network == reserveChainId) {
       await ReserveTransfer.sendFromReserveChain(
         originApi,
-        destApi,
+        destParaId,
         sender.keypair,
         receiver,
         asset
@@ -69,7 +87,7 @@ class TransactionRouter {
       // The destination chain is the reserve chain of the asset:
       await ReserveTransfer.sendToReserveChain(
         originApi,
-        destApi,
+        destParaId,
         sender.keypair,
         receiver,
         asset
@@ -79,11 +97,14 @@ class TransactionRouter {
       // For this we will have to send tokens accross the reserve chain. 
 
       const reserveChain = await this.getApi(identityContract, reserveChainId);
+      ensureContainsXcmPallet(reserveChain);
+
+      const reserveParaId = await getParaId(reserveChain);
 
       await ReserveTransfer.sendAcrossReserveChain(
         originApi,
-        destApi,
-        reserveChain,
+        destParaId,
+        reserveParaId,
         sender.keypair,
         receiver,
         asset
@@ -104,3 +125,89 @@ class TransactionRouter {
 }
 
 export default TransactionRouter;
+
+// Returns the destination of an xcm transfer.
+//
+// The destination is an entity that will process the xcm message(i.e a relaychain or a parachain). 
+export const getDestination = (isOriginPara: boolean, destParaId: number, isDestPara: boolean): any => {
+  const parents = isOriginPara ? 1 : 0;
+
+  if (isDestPara) {
+    return {
+      V2:
+      {
+        parents,
+        interior: {
+          X1: { Parachain: destParaId }
+        }
+      }
+    }
+  } else {
+    // If the destination is not a parachain it is basically a relay chain.
+    return {
+      V2:
+      {
+        parents,
+        interior: "Here"
+      }
+    }
+  }
+}
+
+// Returns the beneficiary of an xcm reserve or teleport transfer.
+//
+// The beneficiary is an interior entity of the destination that will actually receive the tokens.
+export const getTransferBeneficiary = (receiver: Receiver): any => {
+  const receiverAccount = getReceiverAccount(receiver);
+
+  return {
+    V2: {
+      parents: 0,
+      interior: {
+        X1: {
+          ...receiverAccount
+        }
+      }
+    }
+  };
+}
+
+export const getReceiverAccount = (receiver: Receiver): any => {
+  if (receiver.type == AccountType.accountId32) {
+    return {
+      AccountId32: {
+        network: "Any",
+        id: receiver.addressRaw,
+      },
+    };
+  } else if (receiver.type == AccountType.accountKey20) {
+    return {
+      AccountKey20: {
+        network: "Any",
+        id: receiver.addressRaw,
+      },
+    };
+  }
+}
+
+// Returns a proper MultiAsset.
+export const getMultiAsset = (asset: Fungible): any => {
+  return {
+    V2: [
+      {
+        fun: {
+          Fungible: asset.amount,
+        },
+        id: {
+          Concrete: asset.multiAsset,
+        },
+      },
+    ]
+  }
+}
+
+const ensureContainsXcmPallet = (api: ApiPromise) => {
+  if (!(api.tx.xcmPallet || api.tx.polkadotXcm)) {
+    throw new Error("The blockchain does not support XCM");
+  }
+}

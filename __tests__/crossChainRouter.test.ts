@@ -2,8 +2,8 @@ import { ApiPromise, Keyring, WsProvider } from "@polkadot/api";
 import { KeyringPair } from "@polkadot/keyring/types";
 import { u8aToHex } from '@polkadot/util';
 
-import TransactionRouter from "@/utils/transactionRouter";
-import { Fungible, Receiver, Sender } from "@/utils/transactionRouter/types";
+import TransactionRouter from "../src/utils/transactionRouter";
+import { Fungible, Receiver, Sender } from "../src/utils/transactionRouter/types";
 
 import IdentityContractFactory from "../types/constructors/identity";
 import IdentityContract from "../types/contracts/identity";
@@ -18,7 +18,7 @@ const WS_ROROCO_LOCAL = "ws://127.0.0.1:9900";
 const WS_ASSET_HUB_LOCAL = "ws://127.0.0.1:9910";
 const WS_TRAPPIST_LOCAL = "ws://127.0.0.1:9920";
 
-describe("TransactionRouter Cross-chain", () => {
+describe("TransactionRouter Cross-chain reserve transfer", () => {
   let swankyApi: ApiPromise;
   let alice: KeyringPair;
   let bob: KeyringPair;
