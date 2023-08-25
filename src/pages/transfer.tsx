@@ -15,6 +15,8 @@ import styles from '@styles/pages/transfer.module.scss';
 import { useCallback, useEffect, useState } from 'react';
 
 import AssetRegistry, { Asset } from '@/utils/assetRegistry';
+import IdentityKey from '@/utils/identityKey';
+import KeyStore from '@/utils/keyStore';
 
 import { RELAY_CHAIN, ZERO, chainsSupportingXcmExecute } from '@/consts';
 import { useRelayApi } from '@/contexts/RelayApi';
@@ -47,6 +49,7 @@ const TransferPage = () => {
   const [recipientId, setRecipientId] = useState<number>();
   const [recipientOk, setRecipientOk] = useState(false);
   const [recipientAddress, setRecipientAddress] = useState<string>();
+  const [amount, setAmount] = useState<number>();
 
   const chainsSelected =
     !loadingAssets && sourceChainId !== undefined && destChainId !== undefined;
@@ -154,17 +157,29 @@ const TransferPage = () => {
   useEffect(() => {
     const checkIdentity = async () => {
       if (recipientId === undefined || destChainId === undefined) return;
-      const addresses = await getAddresses(recipientId);
+      const addresses = await getAddresses(identities[recipientId].identityNo);
       const index = addresses.findIndex(
         (address) => address.networkId === destChainId
       );
       setRecipientOk(index !== -1);
-      setRecipientAddress(addresses[index].address);
-
-      index === -1 &&
+      if (index === -1) {
         toastError(
           `${identities[recipientId].nickName} does not have ${networks[destChainId].name} address.`
         );
+      } else {
+        const identityKey = KeyStore.readIdentityKey(recipientId) || '';
+        const destAddressRaw = addresses[index].address;
+        if (IdentityKey.containsNetworkId(identityKey, destChainId)) {
+          const decryptedAddress = IdentityKey.decryptAddress(
+            identityKey,
+            destChainId,
+            destAddressRaw
+          );
+          setRecipientAddress(decryptedAddress);
+        } else {
+          toastError('Cannot find identity key for the recipient');
+        }
+      }
     };
     setRecipientOk(false);
     checkIdentity();
@@ -290,11 +305,11 @@ const TransferPage = () => {
           <FormControl fullWidth className='form-item'>
             <FormLabel>Select recipient</FormLabel>
             <Select
-              value={recipientId || ''}
+              value={recipientId === undefined ? '': recipientId}
               onChange={(e) => setRecipientId(Number(e.target.value))}
             >
               {identities.map((identity, index) => (
-                <MenuItem value={identity.identityNo} key={index}>
+                <MenuItem value={index} key={index}>
                   {identity.nickName}
                 </MenuItem>
               ))}
@@ -302,14 +317,21 @@ const TransferPage = () => {
           </FormControl>
         )}
         {canTransfer && (
-          <Button
-            fullWidth
-            variant='contained'
-            disabled={!recipientOk}
-            onClick={transferAsset}
-          >
-            Transfer
-          </Button>
+          <>
+            <TextField
+              value={amount || ''}
+              type='number'
+              onChange={(e) => setAmount(parseFloat(e.target.value))}
+            />
+            <Button
+              fullWidth
+              variant='contained'
+              disabled={!recipientOk}
+              onClick={transferAsset}
+            >
+              Transfer
+            </Button>
+          </>
         )}
       </Box>
       <Backdrop
