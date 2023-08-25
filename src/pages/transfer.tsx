@@ -18,7 +18,7 @@ import AssetRegistry, { Asset } from '@/utils/assetRegistry';
 import IdentityKey from '@/utils/identityKey';
 import KeyStore from '@/utils/keyStore';
 
-import { RELAY_CHAIN, ZERO, chainsSupportingXcmExecute } from '@/consts';
+import { chainsSupportingXcmExecute, RELAY_CHAIN, ZERO } from '@/consts';
 import { useRelayApi } from '@/contexts/RelayApi';
 import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
@@ -60,6 +60,7 @@ const TransferPage = () => {
   useEffect(() => setTokenId(undefined), [chainsSelected]);
 
   useEffect(() => setRecipientId(undefined), [assetSelected]);
+  useEffect(() => setAmount(undefined), [assetSelected]);
 
   const loadAssets = useCallback(async () => {
     if (sourceChainId === undefined || destChainId === undefined) return;
@@ -185,9 +186,10 @@ const TransferPage = () => {
     checkIdentity();
   }, [recipientId]);
 
+  // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
   const isTransferSupported = (
     originParaId: number,
-    reserveParaId: number,
+    reserveParaId: number
   ): boolean => {
     // If the origin is the reserve chain that means that we can use the existing
     // `limitedReserveTransferAssets` or `limitedTeleportAssets` extrinsics which are
@@ -197,7 +199,7 @@ const TransferPage = () => {
     }
 
     const isOriginSupportingLocalXCM = chainsSupportingXcmExecute.findIndex(
-      (chain) => chain.paraId == originParaId && chain.relayChain == RELAY_CHAIN,
+      (chain) => chain.paraId == originParaId && chain.relayChain == RELAY_CHAIN
     );
 
     // We only need the origin chain to support XCM for any other type of transfer to
@@ -305,7 +307,7 @@ const TransferPage = () => {
           <FormControl fullWidth className='form-item'>
             <FormLabel>Select recipient</FormLabel>
             <Select
-              value={recipientId === undefined ? '': recipientId}
+              value={recipientId === undefined ? '' : recipientId}
               onChange={(e) => setRecipientId(Number(e.target.value))}
             >
               {identities.map((identity, index) => (
