@@ -27,6 +27,6 @@ export const getParaId = async (api: ApiPromise): Promise<number> => {
     const response = (await api.query.parachainInfo.parachainId()).toJSON();
     return Number(response);
   } else {
-    return -1;
+    return 0;
   }
 }
