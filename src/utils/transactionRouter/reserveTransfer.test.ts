@@ -601,7 +601,7 @@ describe("TransactionRouter unit tests", () => {
       it("Works from parachain to relaychain", () => {
         const bob = ecdsaKeyring.addFromUri("//Bob");
 
-        const destParaId = -1;
+        const destParaId = 0;
         const beneficiary: Receiver = {
           addressRaw: bob.addressRaw,
           network: 1,
@@ -961,7 +961,7 @@ describe("TransactionRouter unit tests", () => {
       it("Works with relaychain being the reserve chain", () => {
         const bob = ecdsaKeyring.addFromUri("//Bob");
 
-        const reserveParaId = -1;
+        const reserveParaId = 0;
         const destParaId = 2002;
         const beneficiary: Receiver = {
           addressRaw: bob.addressRaw,

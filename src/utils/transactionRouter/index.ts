@@ -6,7 +6,7 @@ import TransferAsset from "./transferAsset";
 import { Fungible, Receiver, Sender } from "./types";
 import IdentityContract from "../../../types/contracts/identity";
 import { AccountType } from "../../../types/types-arguments/identity";
-import { TeleportableRoute, teleportableRoutes } from "../../../teleportableRoutes";
+import { TeleportableRoute, teleportableRoutes } from "./teleportableRoutes";
 import { getParaId } from "..";
 
 // Responsible for handling all the transfer logic.
@@ -64,14 +64,18 @@ class TransactionRouter {
     const originParaId = await getParaId(originApi);
     const destParaId = await getParaId(destApi);
 
-    const teleportableRoute: TeleportableRoute = {
-      relayChain: process.env.RELAY_CHAIN ? process.env.RELAY_CHAIN : "",
-      destParaId: destParaId,
+    const maybeTeleportableRoute: TeleportableRoute = {
+      relayChain: process.env.RELAY_CHAIN ? process.env.RELAY_CHAIN : "rococo",
       originParaId: originParaId,
-      xcAsset: asset.multiAsset
+      destParaId: destParaId,
+      multiAsset: asset.multiAsset
     };
 
-    // if (TeleportableRoutes.indexOf())
+    if (teleportableRoutes.some(route => JSON.stringify(route) === JSON.stringify(maybeTeleportableRoute))) {
+      // The asset is allowed to be teleported between the origin and the destination.
+      await TeleportTransfer.send(originApi, destApi, sender.keypair, receiver, asset);
+      return;
+    }
 
     // The sender chain is the reserve chain of the asset. This will simply use the existing
     // `limitedReserveTransferAssets` extrinsic

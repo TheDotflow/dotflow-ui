@@ -19,7 +19,7 @@ class ReserveTransfer {
     // eslint-disable-next-line no-prototype-builtins
     const isOriginPara = originApi.query.hasOwnProperty("parachainInfo");
 
-    const destination = getDestination(isOriginPara, destParaId, destParaId >= 0);
+    const destination = getDestination(isOriginPara, destParaId, destParaId > 0);
     const beneficiary = getTransferBeneficiary(receiver);
     const multiAsset = getMultiAsset(asset);
 
@@ -195,7 +195,7 @@ class ReserveTransfer {
 
     // NOTE: we use parse and stringify to make a hard copy of the asset.
     const assetFromReservePerspective = JSON.parse(JSON.stringify(asset.multiAsset));
-    if (destParaId >= 0) {
+    if (destParaId > 0) {
       // The location of the asset will always start with the parachain if the reserve is a parachain.
       this.assetFromReservePerspective(assetFromReservePerspective);
     } else {

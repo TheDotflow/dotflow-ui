@@ -7,7 +7,7 @@ import { getDestination, getMultiAsset, getTransferBeneficiary } from ".";
 class TeleportTransfer {
   public static async send(
     originApi: ApiPromise,
-    destinationApi: ApiPromise,
+    destApi: ApiPromise,
     sender: KeyringPair,
     receiver: Receiver,
     asset: Fungible
@@ -21,9 +21,9 @@ class TeleportTransfer {
     // eslint-disable-next-line no-prototype-builtins
     const isOriginPara = originApi.query.hasOwnProperty("parachainInfo");
 
-    const destParaId = await getParaId(destinationApi);
+    const destParaId = await getParaId(destApi);
 
-    const destination = getDestination(isOriginPara, destParaId, destParaId >= 0);
+    const destination = getDestination(isOriginPara, destParaId, destParaId > 0);
     const beneficiary = getTransferBeneficiary(receiver);
     const multiAsset = getMultiAsset(asset);
 

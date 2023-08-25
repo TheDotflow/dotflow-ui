@@ -72,14 +72,15 @@ describe("TransactionRouter Cross-chain teleport", () => {
       provider: assetHubProvider,
     });
 
-    const receiverBalanceBefore = await getBalance(rococoApi, bob.address);
-    const senderBalanceBefore = await getBalance(assetHubApi, alice.address);
+    const senderBalanceBefore = await getBalance(rococoApi, alice.address);
+    const receiverBalanceBefore = await getBalance(assetHubApi, bob.address);
 
-    const amount = 4000000000000;
+    const amount = 4 * Math.pow(10, 12); // 4 KSM
     const assetReserveChainId = 0;
 
     const asset: Fungible = {
       multiAsset: {
+        parents: 0,
         interior: "Here"
       },
       amount
@@ -92,7 +93,21 @@ describe("TransactionRouter Cross-chain teleport", () => {
       assetReserveChainId,
       asset
     );
-  });
+
+    // Delay a bit just to be safe.
+    await delay(5000);
+
+    const senderBalanceAfter = await getBalance(rococoApi, alice.address);
+    const receiverBalanceAfter = await getBalance(assetHubApi, bob.address);
+
+    // Expect the balance to be possibly lower than `senderBalanceBefore - amount` since 
+    // the fees also need to be paid.
+    expect(Number(senderBalanceAfter)).toBeLessThanOrEqual(senderBalanceBefore - amount);
+
+    // Tolerance for fee payment on the receiver side.
+    const tolerance = 50000000;
+    expect(Number(receiverBalanceAfter)).toBeGreaterThanOrEqual((receiverBalanceBefore + amount) - tolerance);
+  }, 120000);
 });
 
 const addNetwork = async (
@@ -106,9 +121,11 @@ const addNetwork = async (
 };
 
 const getBalance = async (api: ApiPromise, who: string): Promise<any> => {
-  const maybeBalance: any = (await api.query.system.account(who)).toJSON();
+  const maybeBalance: any = (await api.query.system.account(who)).toPrimitive();
   if (maybeBalance && maybeBalance.data) {
     return maybeBalance.data.free;
   }
   return 0;
 }
+
+const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
