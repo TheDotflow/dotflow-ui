@@ -64,10 +64,9 @@ export const AddressCard = ({ data, onEdit }: AddressCardProps) => {
       fetchAddresses();
     } catch (e: any) {
       toastError(
-        `Failed to remove address. Error: ${
-          e.errorMessage === 'Error'
-            ? 'Please check your balance.'
-            : e.errorMessage
+        `Failed to remove address. Error: ${e.errorMessage === 'Error'
+          ? 'Please check your balance.'
+          : e.errorMessage
         }`
       );
     }

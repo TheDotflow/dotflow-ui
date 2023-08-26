@@ -57,39 +57,39 @@ export default class Methods {
 	}
 
 	/**
-	 * networkInfoOf
+	 * chainInfoOf
 	 *
-	 * @param { (number | string | BN) } networkId,
+	 * @param { (number | string | BN) } chainId,
 	*/
-	"networkInfoOf" (
-		networkId: (number | string | BN),
+	"chainInfoOf" (
+		chainId: (number | string | BN),
 		__options: GasLimit,
 	){
-		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "networkInfoOf", [networkId], __options);
+		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "chainInfoOf", [chainId], __options);
 	}
 
 	/**
 	 * transactionDestination
 	 *
 	 * @param { (number | string | BN) } receiver,
-	 * @param { (number | string | BN) } network,
+	 * @param { (number | string | BN) } chain,
 	*/
 	"transactionDestination" (
 		receiver: (number | string | BN),
-		network: (number | string | BN),
+		chain: (number | string | BN),
 		__options: GasLimit,
 	){
-		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "transactionDestination", [receiver, network], __options);
+		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "transactionDestination", [receiver, chain], __options);
 	}
 
 	/**
-	 * availableNetworks
+	 * availableChains
 	 *
 	*/
-	"availableNetworks" (
+	"availableChains" (
 		__options: GasLimit,
 	){
-		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "availableNetworks", [], __options);
+		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "availableChains", [], __options);
 	}
 
 	/**
@@ -105,41 +105,41 @@ export default class Methods {
 	/**
 	 * addAddress
 	 *
-	 * @param { (number | string | BN) } network,
+	 * @param { (number | string | BN) } chain,
 	 * @param { Array<(number | string | BN)> } address,
 	*/
 	"addAddress" (
-		network: (number | string | BN),
+		chain: (number | string | BN),
 		address: Array<(number | string | BN)>,
 		__options: GasLimit,
 	){
-		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "addAddress", [network, address], __options);
+		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "addAddress", [chain, address], __options);
 	}
 
 	/**
 	 * updateAddress
 	 *
-	 * @param { (number | string | BN) } network,
+	 * @param { (number | string | BN) } chain,
 	 * @param { Array<(number | string | BN)> } address,
 	*/
 	"updateAddress" (
-		network: (number | string | BN),
+		chain: (number | string | BN),
 		address: Array<(number | string | BN)>,
 		__options: GasLimit,
 	){
-		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "updateAddress", [network, address], __options);
+		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "updateAddress", [chain, address], __options);
 	}
 
 	/**
 	 * removeAddress
 	 *
-	 * @param { (number | string | BN) } network,
+	 * @param { (number | string | BN) } chain,
 	*/
 	"removeAddress" (
-		network: (number | string | BN),
+		chain: (number | string | BN),
 		__options: GasLimit,
 	){
-		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "removeAddress", [network], __options);
+		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "removeAddress", [chain], __options);
 	}
 
 	/**
@@ -153,43 +153,45 @@ export default class Methods {
 	}
 
 	/**
-	 * addNetwork
+	 * addChain
 	 *
-	 * @param { ArgumentTypes.NetworkInfo } info,
+	 * @param { (number | string | BN) } chainId,
+	 * @param { ArgumentTypes.ChainInfo } info,
 	*/
-	"addNetwork" (
-		info: ArgumentTypes.NetworkInfo,
+	"addChain" (
+		chainId: (number | string | BN),
+		info: ArgumentTypes.ChainInfo,
 		__options: GasLimit,
 	){
-		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "addNetwork", [info], __options);
+		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "addChain", [chainId, info], __options);
 	}
 
 	/**
-	 * updateNetwork
+	 * updateChain
 	 *
-	 * @param { (number | string | BN) } networkId,
+	 * @param { (number | string | BN) } chainId,
 	 * @param { string | null } newRpcUrl,
 	 * @param { ArgumentTypes.AccountType | null } newAddressType,
 	*/
-	"updateNetwork" (
-		networkId: (number | string | BN),
+	"updateChain" (
+		chainId: (number | string | BN),
 		newRpcUrl: string | null,
 		newAddressType: ArgumentTypes.AccountType | null,
 		__options: GasLimit,
 	){
-		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "updateNetwork", [networkId, newRpcUrl, newAddressType], __options);
+		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "updateChain", [chainId, newRpcUrl, newAddressType], __options);
 	}
 
 	/**
-	 * removeNetwork
+	 * removeChain
 	 *
-	 * @param { (number | string | BN) } networkId,
+	 * @param { (number | string | BN) } chainId,
 	*/
-	"removeNetwork" (
-		networkId: (number | string | BN),
+	"removeChain" (
+		chainId: (number | string | BN),
 		__options: GasLimit,
 	){
-		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "removeNetwork", [networkId], __options);
+		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "removeChain", [chainId], __options);
 	}
 
 	/**

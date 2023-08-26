@@ -6,7 +6,7 @@ import { Fungible, Receiver, Sender } from "@/utils/transactionRouter/types";
 import TransactionRouter from "../src/utils/transactionRouter";
 import IdentityContractFactory from "../types/constructors/identity";
 import IdentityContract from "../types/contracts/identity";
-import { AccountType, NetworkInfo } from "../types/types-arguments/identity";
+import { AccountType, ChainInfo } from "../types/types-arguments/identity";
 
 const wsProvider = new WsProvider("ws://127.0.0.1:9944");
 const keyring = new Keyring({ type: "sr25519" });
@@ -34,22 +34,22 @@ describe("TransactionRouter e2e tests", () => {
   });
 
   it("Can't send tokens to yourself", async () => {
-    // First lets add a network and create an identity.
+    // First lets add a chain and create an identity.
 
-    await addNetwork(identityContract, alice, {
-      rpcUrl: "ws://127.0.0.1:9910",
+    await addChain(identityContract, alice, 1000, {
+      rpcUrls: ["ws://127.0.0.1:9910"],
       accountType: AccountType.accountId32,
     });
 
     const sender: Sender = {
       keypair: alice,
-      network: 0
+      chain: 1000
     };
 
     const receiver: Receiver = {
       addressRaw: alice.addressRaw,
       type: AccountType.accountId32,
-      network: 0,
+      chain: 1000,
     };
 
     const asset: Fungible = {
@@ -57,7 +57,7 @@ describe("TransactionRouter e2e tests", () => {
       amount: 1000
     };
 
-    const assetReserveChainId = 0;
+    const assetReserveChainId = 1000;
 
     await expect(
       TransactionRouter.sendTokens(
@@ -70,16 +70,16 @@ describe("TransactionRouter e2e tests", () => {
     ).rejects.toThrow("Cannot send tokens to yourself");
   });
 
-  it("Sending native asset on the same network works", async () => {
+  it("Sending native asset on the same chain works", async () => {
     const sender: Sender = {
       keypair: alice,
-      network: 0
+      chain: 0
     };
 
     const receiver: Receiver = {
       addressRaw: bob.addressRaw,
       type: AccountType.accountId32,
-      network: 0,
+      chain: 0,
     };
 
     const rococoProvider = new WsProvider("ws://127.0.0.1:9900");
@@ -90,9 +90,9 @@ describe("TransactionRouter e2e tests", () => {
     )) as any;
     const receiverBalance = parseInt(balance.free.toHuman().replace(/,/g, ""));
 
-    // First lets add a network.
-    await addNetwork(identityContract, alice, {
-      rpcUrl: "ws://127.0.0.1:9900",
+    // First lets add a chain.
+    await addChain(identityContract, alice, 0, {
+      rpcUrls: ["ws://127.0.0.1:9900"],
       accountType: AccountType.accountId32,
     });
 
@@ -125,16 +125,16 @@ describe("TransactionRouter e2e tests", () => {
     expect(newReceiverBalance).toBe(receiverBalance + amount);
   }, 30000);
 
-  it("Sending non-native asset on the same network works", async () => {
+  it("Sending non-native asset on the same chain works", async () => {
     const sender: Sender = {
       keypair: alice,
-      network: 0
+      chain: 1836
     };
 
     const receiver: Receiver = {
       addressRaw: bob.addressRaw,
       type: AccountType.accountId32,
-      network: 0,
+      chain: 1836,
     };
 
     const trappitProvider = new WsProvider("ws://127.0.0.1:9920");
@@ -171,9 +171,9 @@ describe("TransactionRouter e2e tests", () => {
 
     const receiverBalanceBefore = receiverAccountBefore ? parseInt(receiverAccountBefore.balance.replace(/,/g, "")) : 0;
 
-    // First lets add a network.
-    await addNetwork(identityContract, alice, {
-      rpcUrl: "ws://127.0.0.1:9920",
+    // First lets add a chain.
+    await addChain(identityContract, alice, 1836, {
+      rpcUrls: ["ws://127.0.0.1:9920"],
       accountType: AccountType.accountId32,
     });
 
@@ -189,7 +189,7 @@ describe("TransactionRouter e2e tests", () => {
       },
       amount
     };
-    const assetReserveChainId = 0;
+    const assetReserveChainId = 1836;
 
     await TransactionRouter.sendTokens(
       identityContract,
@@ -220,14 +220,15 @@ describe("TransactionRouter e2e tests", () => {
   }, 180000);
 });
 
-const addNetwork = async (
+const addChain = async (
   contract: IdentityContract,
   signer: KeyringPair,
-  network: NetworkInfo
+  chainId: number,
+  chain: ChainInfo
 ): Promise<void> => {
   await contract
     .withSigner(signer)
-    .tx.addNetwork(network);
+    .tx.addChain(chainId, chain);
 };
 
 const createAsset = async (

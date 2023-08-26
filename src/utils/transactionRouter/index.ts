@@ -38,13 +38,13 @@ class TransactionRouter {
     reserveChainId: number,
     asset: Fungible
   ): Promise<void> {
-    if (sender.network === receiver.network && sender.keypair.addressRaw === receiver.addressRaw) {
+    if (sender.chain === receiver.chain && sender.keypair.addressRaw === receiver.addressRaw) {
       throw new Error("Cannot send tokens to yourself");
     }
 
-    // The simplest case, both the sender and the receiver are on the same network:
-    if (sender.network === receiver.network) {
-      const api = await this.getApi(identityContract, sender.network);
+    // The simplest case, both the sender and the receiver are on the same chain:
+    if (sender.chain === receiver.chain) {
+      const api = await this.getApi(identityContract, sender.chain);
 
       await TransferAsset.send(
         api,
@@ -56,8 +56,8 @@ class TransactionRouter {
       return;
     }
 
-    const originApi = await this.getApi(identityContract, sender.network);
-    const destApi = await this.getApi(identityContract, receiver.network);
+    const originApi = await this.getApi(identityContract, sender.chain);
+    const destApi = await this.getApi(identityContract, receiver.chain);
 
     ensureContainsXcmPallet(destApi);
 
@@ -79,7 +79,7 @@ class TransactionRouter {
 
     // The sender chain is the reserve chain of the asset. This will simply use the existing
     // `limitedReserveTransferAssets` extrinsic
-    if (sender.network == reserveChainId) {
+    if (sender.chain == reserveChainId) {
       await ReserveTransfer.sendFromReserveChain(
         originApi,
         destParaId,
@@ -87,7 +87,7 @@ class TransactionRouter {
         receiver,
         asset
       );
-    } else if (receiver.network == reserveChainId) {
+    } else if (receiver.chain == reserveChainId) {
       // The destination chain is the reserve chain of the asset:
       await ReserveTransfer.sendToReserveChain(
         originApi,
@@ -117,9 +117,9 @@ class TransactionRouter {
   }
 
   // Simple helper function to get the api of a chain with the corresponding id. 
-  private static async getApi(identityContract: IdentityContract, networkId: number): Promise<ApiPromise> {
-    const rpcUrl = (await identityContract.query.networkInfoOf(networkId)).value
-      .ok?.rpcUrl;
+  private static async getApi(identityContract: IdentityContract, chainId: number): Promise<ApiPromise> {
+    const rpcUrl = (await identityContract.query.chainInfoOf(chainId)).value
+      .ok?.rpcUrls[0]; // FIXME
 
     const wsProvider = new WsProvider(rpcUrl);
     const api = await ApiPromise.create({ provider: wsProvider });
@@ -180,14 +180,14 @@ export const getReceiverAccount = (receiver: Receiver): any => {
   if (receiver.type == AccountType.accountId32) {
     return {
       AccountId32: {
-        network: "Any",
+        chain: "Any",
         id: receiver.addressRaw,
       },
     };
   } else if (receiver.type == AccountType.accountKey20) {
     return {
       AccountKey20: {
-        network: "Any",
+        chain: "Any",
         id: receiver.addressRaw,
       },
     };

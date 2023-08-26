@@ -745,7 +745,7 @@
             "label": "info",
             "type": {
               "displayName": [
-                "NetworkInfo"
+                "ChainInfo"
               ],
               "type": 13
             }
@@ -1023,7 +1023,7 @@
                           "name": "account_type"
                         }
                       ],
-                      "name": "NetworkInfo"
+                      "name": "ChainInfo"
                     }
                   },
                   "root_key": "0x7e863377"
@@ -1254,7 +1254,7 @@
         "path": [
           "common",
           "types",
-          "NetworkInfo"
+          "ChainInfo"
         ]
       }
     },

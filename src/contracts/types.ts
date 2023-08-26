@@ -8,14 +8,14 @@ export type NetworkConsts = {
   paraId: number;
 }
 
-export type NetworkInfo = NetworkConsts & {
+export type ChainInfo = NetworkConsts & {
   rpcUrls: string[];
   accountType: AccountType;
 }
 
 export type Network = {
   id: NetworkId;
-  name: NetworkInfo;
+  name: ChainInfo;
 }
 
 export type Address = {
@@ -23,7 +23,7 @@ export type Address = {
   address: string;
 }
 
-export type Networks = Record<NetworkId, NetworkInfo>;
+export type Networks = Record<NetworkId, ChainInfo>;
 
 export type IdentityNo = number | null;
 

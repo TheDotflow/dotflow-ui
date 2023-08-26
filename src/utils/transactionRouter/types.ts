@@ -7,13 +7,13 @@ export type NetworkId = number;
 
 export type Sender = {
   keypair: KeyringPair;
-  network: NetworkId;
+  chain: NetworkId;
 }
 
 export type Receiver = {
   addressRaw: AccountIdRaw;
   type: AccountType;
-  network: NetworkId;
+  chain: NetworkId;
 }
 
 export type Fungible = {
