@@ -1,5 +1,4 @@
 import { ApiPromise } from "@polkadot/api";
-import { KeyringPair } from "@polkadot/keyring/types";
 
 import { getDestination, getMultiAsset, getReceiverAccount, getTransferBeneficiary } from ".";
 import { Fungible, Receiver, Sender } from "./types";

@@ -3,9 +3,9 @@ import { ApiPromise } from "@polkadot/api";
 import ReserveTransfer from "./reserveTransfer";
 import { TeleportableRoute, teleportableRoutes } from "./teleportableRoutes";
 import TeleportTransfer from "./teleportTransfer";
+import TransferAsset from "./transferAsset";
 import { Fungible, Receiver, Sender, TransferRpcApis } from "./types";
 import { AccountType } from "../../../types/types-arguments/identity";
-import TransferAsset from "./transferAsset";
 
 // Responsible for handling all the transfer logic.
 //
