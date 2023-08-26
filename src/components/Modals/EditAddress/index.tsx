@@ -21,20 +21,20 @@ import KeyStore from '@/utils/keyStore';
 
 import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
-import { NetworkId } from '@/contracts/types';
+import { ChainId } from '@/contracts/types';
 
 interface EditAddressModalProps {
   open: boolean;
   onClose: () => void;
-  networkId?: NetworkId;
+  chainId?: ChainId;
 }
 export const EditAddressModal = ({
-  networkId,
+  chainId,
   open,
   onClose,
 }: EditAddressModalProps) => {
   const { api, activeAccount } = useInkathon();
-  const { contract, identityNo, networks } = useIdentity();
+  const { contract, identityNo, chains } = useIdentity();
   const { toastError, toastSuccess } = useToast();
   const [newAddress, setNewAddress] = useState<string>('');
   const [working, setWorking] = useState(false);
@@ -45,8 +45,8 @@ export const EditAddressModal = ({
       toastError("You don't have an identity yet.");
       return;
     }
-    if (networkId === undefined) {
-      toastError('Invalid network');
+    if (chainId === undefined) {
+      toastError('Invalid chain');
       return;
     }
     if (!newAddress || newAddress.trim().length === 0) {
@@ -54,14 +54,14 @@ export const EditAddressModal = ({
       return;
     }
 
-    if (!isValidAddress(newAddress, networks[networkId].ss58Prefix)) {
+    if (!isValidAddress(newAddress, chains[chainId].ss58Prefix)) {
       toastError('Invalid address');
       return;
     }
 
     if (!api || !activeAccount || !contract) {
       toastError(
-        'Cannot update address. Please check if you are connected to the network'
+        'Cannot update address. Please check if you are connected to the chain'
       );
       return;
     }
@@ -69,17 +69,17 @@ export const EditAddressModal = ({
 
     let identityKey = KeyStore.readIdentityKey(identityNo) || '';
 
-    if (!IdentityKey.containsNetworkId(identityKey, networkId)) {
-      identityKey = IdentityKey.newCipher(identityKey, networkId);
+    if (!IdentityKey.containsChainId(identityKey, chainId)) {
+      identityKey = IdentityKey.newCipher(identityKey, chainId);
       KeyStore.updateIdentityKey(identityNo, identityKey);
     }
 
     if (regenerate)
-      identityKey = IdentityKey.updateCipher(identityKey, networkId);
+      identityKey = IdentityKey.updateCipher(identityKey, chainId);
 
     const encryptedAddress = IdentityKey.encryptAddress(
       identityKey,
-      networkId,
+      chainId,
       newAddress
     );
 
@@ -90,7 +90,7 @@ export const EditAddressModal = ({
         contract,
         'update_address',
         {},
-        [networkId, encryptedAddress]
+        [chainId, encryptedAddress]
       );
       // Update the identity key when the user has updated his on-chain data
       KeyStore.updateIdentityKey(identityNo, identityKey);
@@ -100,10 +100,9 @@ export const EditAddressModal = ({
       onClose();
     } catch (e: any) {
       toastError(
-        `Failed to update address. Error: ${
-          e.errorMessage === 'Error'
-            ? 'Please check your balance.'
-            : e.errorMessage
+        `Failed to update address. Error: ${e.errorMessage === 'Error'
+          ? 'Please check your balance.'
+          : e.errorMessage
         }`
       );
       setWorking(false);
