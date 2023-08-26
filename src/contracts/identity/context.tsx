@@ -150,7 +150,7 @@ const IdentityContractProvider = ({ children }: Props) => {
       const _chains: Chains = {};
 
       for await (const item of output) {
-        const chainId = Number(item[0]);
+        const chainId = parseInt(item[0].replace(/,/g, ""));
         const { accountType, rpcUrls } = item[1];
         const info = await getChainInfo(rpcUrls, chainId);
         if (info)
@@ -186,7 +186,7 @@ const IdentityContractProvider = ({ children }: Props) => {
       const _addresses: Array<Address> = [];
       for (let idx = 0; idx < records.length; ++idx) {
         const record = records[idx];
-        const chainId: ChainId = Number(record[0]);
+        const chainId: ChainId = parseInt(record[0].replace(/,/g, ""));
         const address = record[1]; // FIXME: Decode address here
         _addresses.push({
           chainId,
