@@ -75,7 +75,6 @@ const IdentityContractProvider = ({ children }: Props) => {
     }
     setLoadingIdentityNo(true);
     try {
-      console.log(activeAccount.address);
       const result = await contractQuery(api, '', contract, 'identity_of', {}, [
         activeAccount.address,
       ]);
@@ -84,7 +83,6 @@ const IdentityContractProvider = ({ children }: Props) => {
         contract,
         'identity_of'
       );
-      console.log(decodedOutput);
       if (isError) throw new Error(decodedOutput);
       if (!output) setIdentityNo(null);
       else setIdentityNo(Number(output));

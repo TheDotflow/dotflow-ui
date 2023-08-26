@@ -1,7 +1,7 @@
 import { CacheProvider, EmotionCache } from '@emotion/react';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider } from '@mui/material/styles';
-import { shibuya, UseInkathonProvider } from '@scio-labs/use-inkathon';
+import { UseInkathonProvider } from '@scio-labs/use-inkathon';
 import { ConfirmProvider } from 'material-ui-confirm';
 import { NextPage } from 'next';
 import { AppProps } from 'next/app';
