@@ -45,7 +45,17 @@ export default function MyApp(props: MyAppProps) {
           <UseInkathonProvider
             appName='DotFlow UI'
             connectOnInit={false}
-            defaultChain={shibuya}
+            defaultChain={
+              {
+                network: 'shibuya',
+                name: 'Shibuya Testnet',
+                ss58Prefix: 5,
+                rpcUrls: ['https://shibuya.public.blastapi.io'],
+                explorerUrls: {},
+                testnet: true,
+                faucetUrls: ['https://portal.astar.network/#/shibuya-testnet/assets'],
+              }
+            }
           >
             <IdentityContractProvider>
               <AddressBookContractProvider>

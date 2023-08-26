@@ -75,6 +75,7 @@ const IdentityContractProvider = ({ children }: Props) => {
     }
     setLoadingIdentityNo(true);
     try {
+      console.log(activeAccount.address);
       const result = await contractQuery(api, '', contract, 'identity_of', {}, [
         activeAccount.address,
       ]);
@@ -83,6 +84,7 @@ const IdentityContractProvider = ({ children }: Props) => {
         contract,
         'identity_of'
       );
+      console.log(decodedOutput);
       if (isError) throw new Error(decodedOutput);
       if (!output) setIdentityNo(null);
       else setIdentityNo(Number(output));
@@ -99,7 +101,8 @@ const IdentityContractProvider = ({ children }: Props) => {
     }
 
     const getChainInfo = async (
-      rpcUrls: string[]
+      rpcUrls: string[],
+      chainId: number
     ): Promise<ChainConsts | null> => {
       const count = rpcUrls.length;
       const rpcIndex = Math.min(Math.floor(Math.random() * count), count - 1);
@@ -113,9 +116,7 @@ const IdentityContractProvider = ({ children }: Props) => {
         const ss58Prefix: number =
           api.consts.system.ss58Prefix.toPrimitive() as number;
         const name = (await api.rpc.system.chain()).toString();
-        const paraId = (
-          await api.query.parachainInfo.parachainId()
-        ).toPrimitive() as number;
+        const paraId = chainId;
 
         await api.disconnect();
 
@@ -151,7 +152,7 @@ const IdentityContractProvider = ({ children }: Props) => {
       for await (const item of output) {
         const chainId = Number(item[0]);
         const { accountType, rpcUrls } = item[1];
-        const info = await getChainInfo(rpcUrls);
+        const info = await getChainInfo(rpcUrls, chainId);
         if (info)
           _chains[chainId] = {
             rpcUrls,
