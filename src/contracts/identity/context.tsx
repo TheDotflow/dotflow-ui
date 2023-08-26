@@ -21,10 +21,10 @@ import { IdentityMetadata } from '.';
 import { CONTRACT_IDENTITY } from '..';
 import {
   Address,
-  IdentityNo,
   ChainConsts,
   ChainId,
   Chains,
+  IdentityNo,
 } from '../types';
 
 interface IdentityContract {
