@@ -36,20 +36,20 @@ describe("TransactionRouter e2e tests", () => {
   it("Can't send tokens to yourself", async () => {
     // First lets add a chain and create an identity.
 
-    await addChain(identityContract, alice, 1000, {
+    await addChain(identityContract, alice, 1836, {
       rpcUrls: ["ws://127.0.0.1:9910"],
       accountType: AccountType.accountId32,
     });
 
     const sender: Sender = {
       keypair: alice,
-      chain: 1000
+      chain: 1836
     };
 
     const receiver: Receiver = {
       addressRaw: alice.addressRaw,
       type: AccountType.accountId32,
-      chain: 1000,
+      chain: 1836,
     };
 
     const asset: Fungible = {
@@ -57,18 +57,26 @@ describe("TransactionRouter e2e tests", () => {
       amount: 1000
     };
 
-    const assetReserveChainId = 1000;
+    const assetReserveChainId = 1836;
+
+    const trappitProvider = new WsProvider("ws://127.0.0.1:9920");
+    const trappistApi = await ApiPromise.create({
+      provider: trappitProvider,
+    });
 
     await expect(
       TransactionRouter.sendTokens(
-        identityContract,
         sender,
         receiver,
         assetReserveChainId,
-        asset
+        asset,
+        {
+          originApi: trappistApi,
+          destApi: trappistApi
+        }
       )
     ).rejects.toThrow("Cannot send tokens to yourself");
-  });
+  }, 60000);
 
   it("Sending native asset on the same chain works", async () => {
     const sender: Sender = {
@@ -108,11 +116,14 @@ describe("TransactionRouter e2e tests", () => {
     const assetReserveChainId = 0;
 
     await TransactionRouter.sendTokens(
-      identityContract,
       sender,
       receiver,
       assetReserveChainId,
-      asset
+      asset,
+      {
+        originApi: rococoApi,
+        destApi: rococoApi
+      }
     );
 
     const { data: newBalance } = (await rococoApi.query.system.account(
@@ -192,11 +203,14 @@ describe("TransactionRouter e2e tests", () => {
     const assetReserveChainId = 1836;
 
     await TransactionRouter.sendTokens(
-      identityContract,
       sender,
       receiver,
       assetReserveChainId,
-      asset
+      asset,
+      {
+        originApi: trappistApi,
+        destApi: trappistApi
+      }
     );
 
     const senderAccountAfter: any = (await trappistApi.query.assets.account(

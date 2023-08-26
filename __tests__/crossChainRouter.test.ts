@@ -137,11 +137,14 @@ describe("TransactionRouter Cross-chain reserve transfer", () => {
     };
 
     await TransactionRouter.sendTokens(
-      identityContract,
       sender,
       receiver,
       assetReserveChainId,
-      asset
+      asset,
+      {
+        originApi: assetHubApi,
+        destApi: trappistApi
+      }
     );
 
     const senderBalanceAfter = await getAssetBalance(assetHubApi, USDT_ASSET_ID, alice.address);
@@ -231,7 +234,16 @@ describe("TransactionRouter Cross-chain reserve transfer", () => {
     const receiverBalanceBefore = await getAssetBalance(assetHubApi, USDT_ASSET_ID, charlie.address);
 
     // Transfer the tokens to charlies's account on asset hub:
-    await TransactionRouter.sendTokens(identityContract, sender, receiver, receiver.chain, asset);
+    await TransactionRouter.sendTokens(
+      sender,
+      receiver,
+      receiver.chain,
+      asset,
+      {
+        originApi: trappistApi,
+        destApi: assetHubApi
+      }
+    );
 
     // We need to wait a bit more to actually receive the assets on the base chain.
     await delay(5000);
@@ -333,7 +345,17 @@ describe("TransactionRouter Cross-chain reserve transfer", () => {
     const receiverBalanceBefore = await getAssetBalance(baseApi, USDT_ASSET_ID, bob.address);
 
     // Transfer the tokens to bob's account on base:
-    await TransactionRouter.sendTokens(identityContract, sender, receiver, assetReserveChainId, asset);
+    await TransactionRouter.sendTokens(
+      sender,
+      receiver,
+      assetReserveChainId,
+      asset,
+      {
+        originApi: trappistApi,
+        destApi: baseApi,
+        reserveApi: assetHubApi
+      }
+    );
 
     // We need to wait a bit more to actually receive the assets on the base chain.
     await delay(12000);

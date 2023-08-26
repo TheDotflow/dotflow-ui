@@ -2,7 +2,7 @@ import { ApiPromise } from "@polkadot/api";
 import { KeyringPair } from "@polkadot/keyring/types";
 
 import { getDestination, getMultiAsset, getReceiverAccount, getTransferBeneficiary } from ".";
-import { Fungible, Receiver } from "./types";
+import { Fungible, Receiver, Sender } from "./types";
 
 class ReserveTransfer {
   // Transfers assets from the sender to the receiver.
@@ -11,12 +11,12 @@ class ReserveTransfer {
   public static async sendFromReserveChain(
     originApi: ApiPromise,
     destParaId: number,
-    sender: KeyringPair,
+    sender: Sender,
     receiver: Receiver,
     asset: Fungible
   ): Promise<void> {
-    // eslint-disable-next-line no-prototype-builtins
-    const isOriginPara = originApi.query.hasOwnProperty("parachainInfo");
+    // Chain represents the para id and in case of a relay chain it is zero.
+    const isOriginPara = sender.chain > 0;
 
     const destination = getDestination(isOriginPara, destParaId, destParaId > 0);
     const beneficiary = getTransferBeneficiary(receiver);
@@ -37,7 +37,7 @@ class ReserveTransfer {
 
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve) => {
-      const unsub = await reserveTransfer.signAndSend(sender, (result: any) => {
+      const unsub = await reserveTransfer.signAndSend(sender.keypair, (result: any) => {
         if (result.status.isFinalized) {
           unsub();
           resolve();
@@ -53,13 +53,13 @@ class ReserveTransfer {
   public static async sendToReserveChain(
     originApi: ApiPromise,
     destParaId: number,
-    sender: KeyringPair,
+    sender: Sender,
     receiver: Receiver,
     asset: Fungible
   ): Promise<void> {
 
-    // eslint-disable-next-line no-prototype-builtins
-    const isOriginPara = originApi.query.hasOwnProperty("parachainInfo");
+    // Chain represents the para id and in case of a relay chain it is zero.
+    const isOriginPara = sender.chain > 0;
     const xcmProgram = this.getSendToReserveChainInstructions(asset, destParaId, receiver, isOriginPara);
 
     const xcmPallet = originApi.tx.xcmPallet || originApi.tx.polkadotXcm;
@@ -71,7 +71,7 @@ class ReserveTransfer {
 
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve) => {
-      const unsub = await reserveTransfer.signAndSend(sender, (result: any) => {
+      const unsub = await reserveTransfer.signAndSend(sender.keypair, (result: any) => {
         if (result.status.isFinalized) {
           unsub();
           resolve();
@@ -87,13 +87,13 @@ class ReserveTransfer {
     originApi: ApiPromise,
     destParaId: number,
     reserveParaId: number,
-    sender: KeyringPair,
+    sender: Sender,
     receiver: Receiver,
     asset: Fungible
   ): Promise<void> {
 
-    // eslint-disable-next-line no-prototype-builtins
-    const isOriginPara = originApi.query.hasOwnProperty("parachainInfo");
+    // Chain represents the para id and in case of a relay chain it is zero.
+    const isOriginPara = sender.chain > 0;
     const xcmProgram = this.getTwoHopTransferInstructions(asset, reserveParaId, destParaId, receiver, isOriginPara);
 
     const xcmPallet = originApi.tx.xcmPallet || originApi.tx.polkadotXcm;
@@ -104,7 +104,7 @@ class ReserveTransfer {
     });
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve) => {
-      const unsub = await reserveTransfer.signAndSend(sender, (result: any) => {
+      const unsub = await reserveTransfer.signAndSend(sender.keypair, (result: any) => {
         if (result.status.isFinalized) {
           unsub();
           resolve();

@@ -87,11 +87,14 @@ describe("TransactionRouter Cross-chain teleport", () => {
     };
 
     await TransactionRouter.sendTokens(
-      identityContract,
       sender,
       receiver,
       assetReserveChainId,
-      asset
+      asset,
+      {
+        originApi: rococoApi,
+        destApi: assetHubApi
+      }
     );
 
     // Delay a bit just to be safe.

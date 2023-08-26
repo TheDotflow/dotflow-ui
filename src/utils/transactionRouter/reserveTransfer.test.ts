@@ -61,7 +61,7 @@ describe("TransactionRouter unit tests", () => {
 
       const receiverAccId32: Receiver = {
         addressRaw: alice.addressRaw,
-        network: 0,
+        chain: 0,
         type: AccountType.accountId32,
       };
 
@@ -73,7 +73,7 @@ describe("TransactionRouter unit tests", () => {
           interior: {
             X1: {
               AccountId32: {
-                network: "Any",
+                chain: "Any",
                 id: receiverAccId32.addressRaw,
               },
             },
@@ -83,7 +83,7 @@ describe("TransactionRouter unit tests", () => {
 
       const receiverAccKey20: Receiver = {
         addressRaw: bob.addressRaw,
-        network: 0,
+        chain: 0,
         type: AccountType.accountKey20,
       };
 
@@ -95,7 +95,7 @@ describe("TransactionRouter unit tests", () => {
           interior: {
             X1: {
               AccountKey20: {
-                network: "Any",
+                chain: "Any",
                 id: receiverAccKey20.addressRaw,
               },
             },
@@ -310,7 +310,7 @@ describe("TransactionRouter unit tests", () => {
         const receiver: Receiver = {
           addressRaw: bob.addressRaw,
           type: AccountType.accountId32,
-          network: 0,
+          chain: 0,
         };
 
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -324,7 +324,7 @@ describe("TransactionRouter unit tests", () => {
                 X1: {
                   AccountId32: {
                     id: receiver.addressRaw,
-                    network: "Any"
+                    chain: "Any"
                   }
                 }
               },
@@ -340,7 +340,7 @@ describe("TransactionRouter unit tests", () => {
         const receiver: Receiver = {
           addressRaw: bob.addressRaw,
           type: AccountType.accountKey20,
-          network: 0,
+          chain: 0,
         };
 
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -354,7 +354,7 @@ describe("TransactionRouter unit tests", () => {
                 X1: {
                   AccountKey20: {
                     id: receiver.addressRaw,
-                    network: "Any"
+                    chain: "Any"
                   }
                 }
               },
@@ -487,7 +487,7 @@ describe("TransactionRouter unit tests", () => {
         const destParaId = 2002;
         const beneficiary: Receiver = {
           addressRaw: bob.addressRaw,
-          network: 1,
+          chain: 1,
           type: AccountType.accountId32,
         };
 
@@ -582,7 +582,7 @@ describe("TransactionRouter unit tests", () => {
                           X1: {
                             AccountId32: {
                               id: bob.addressRaw,
-                              network: "Any",
+                              chain: "Any",
                             },
                           },
                         },
@@ -604,7 +604,7 @@ describe("TransactionRouter unit tests", () => {
         const destParaId = 0;
         const beneficiary: Receiver = {
           addressRaw: bob.addressRaw,
-          network: 1,
+          chain: 1,
           type: AccountType.accountId32,
         };
 
@@ -690,7 +690,7 @@ describe("TransactionRouter unit tests", () => {
                           X1: {
                             AccountId32: {
                               id: bob.addressRaw,
-                              network: "Any",
+                              chain: "Any",
                             },
                           },
                         },
@@ -712,7 +712,7 @@ describe("TransactionRouter unit tests", () => {
         const destParaId = 1000;
         const beneficiary: Receiver = {
           addressRaw: bob.addressRaw,
-          network: 1,
+          chain: 1,
           type: AccountType.accountId32,
         };
 
@@ -803,7 +803,7 @@ describe("TransactionRouter unit tests", () => {
                           X1: {
                             AccountId32: {
                               id: bob.addressRaw,
-                              network: "Any",
+                              chain: "Any",
                             },
                           },
                         },
@@ -828,7 +828,7 @@ describe("TransactionRouter unit tests", () => {
         const destParaId = 2002;
         const beneficiary: Receiver = {
           addressRaw: bob.addressRaw,
-          network: 1,
+          chain: 1,
           type: AccountType.accountId32,
         };
 
@@ -939,7 +939,7 @@ describe("TransactionRouter unit tests", () => {
                                 X1: {
                                   AccountId32: {
                                     id: bob.addressRaw,
-                                    network: "Any",
+                                    chain: "Any",
                                   },
                                 },
                               },
@@ -965,7 +965,7 @@ describe("TransactionRouter unit tests", () => {
         const destParaId = 2002;
         const beneficiary: Receiver = {
           addressRaw: bob.addressRaw,
-          network: 1,
+          chain: 1,
           type: AccountType.accountId32,
         };
 
@@ -1055,7 +1055,7 @@ describe("TransactionRouter unit tests", () => {
                                 X1: {
                                   AccountId32: {
                                     id: bob.addressRaw,
-                                    network: "Any",
+                                    chain: "Any",
                                   },
                                 },
                               },
@@ -1081,7 +1081,7 @@ describe("TransactionRouter unit tests", () => {
         const destParaId = 2000;
         const beneficiary: Receiver = {
           addressRaw: bob.addressRaw,
-          network: 1,
+          chain: 1,
           type: AccountType.accountId32,
         };
 
@@ -1192,7 +1192,7 @@ describe("TransactionRouter unit tests", () => {
                                 X1: {
                                   AccountId32: {
                                     id: bob.addressRaw,
-                                    network: "Any",
+                                    chain: "Any",
                                   },
                                 },
                               },
