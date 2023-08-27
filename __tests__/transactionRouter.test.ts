@@ -225,7 +225,6 @@ describe("TransactionRouter e2e tests", () => {
       bob.address
     )).toHuman();
 
-    console.log(receiverAccountAfter);
     const receiverBalanceAfter = parseInt(receiverAccountAfter.balance.replace(/,/g, ""));
 
     expect(senderBalanceAfter).toBe(senderBalanceBefore - amount);

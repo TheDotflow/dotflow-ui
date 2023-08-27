@@ -70,7 +70,7 @@ class AssetRegistry {
     const { parachainId: assetParaId, junctionIndex } =
       this.getAssetReserveParachainId(xcmInteriorKey);
 
-    if (assetParaId >= 0 && assetParaId == paraId) {
+    if (assetParaId > 0 && assetParaId == paraId) {
       xcmInteriorKey.splice(junctionIndex, 1);
       const junctionCount = xcmInteriorKey.length - 1;
 

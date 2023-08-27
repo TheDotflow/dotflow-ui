@@ -292,7 +292,7 @@ class ReserveTransfer {
   private static getReserve(reserveParaId: number, isOriginPara: boolean) {
     const parents = isOriginPara ? 1 : 0;
 
-    if (reserveParaId < 0) {
+    if (reserveParaId === 0) {
       return {
         parents,
         interior: "Here"

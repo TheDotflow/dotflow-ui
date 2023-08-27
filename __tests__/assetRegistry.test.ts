@@ -25,7 +25,7 @@ describe('AssetRegistry', () => {
         confidence: 0,
       },
     ]);
-  });
+  }, 10000);
 
   test('Getting assets by para id works', async () => {
     const assets = await AssetRegistry.getAssetsOnBlockchain(
@@ -51,7 +51,7 @@ describe('AssetRegistry', () => {
         confidence: 0,
       },
     ]);
-  });
+  }, 10000);
 
   test("Checking whether an asset exists on both chains works", async () => {
     const GLMR = [
@@ -105,7 +105,7 @@ describe('AssetRegistry', () => {
 
     const isUsdtSupported = await AssetRegistry.isSupportedOnBothChains("polkadot", "moonbeam", "acala", USDT);
     expect(isUsdtSupported).toBe(true);
-  });
+  }, 10000);
 
   test("Getting all assets supported on both chains works", async () => {
     const statemine = 1000;
@@ -164,7 +164,7 @@ describe('AssetRegistry', () => {
         confidence: 0,
       },
     ]);
-  });
+  }, 10000);
 
   test('xcmInteriorKey to MultiAsset works', () => {
     const ksmXcmInteriorKey = [
@@ -250,5 +250,5 @@ describe('AssetRegistry', () => {
         ],
       },
     });
-  });
+  }, 10000);
 });

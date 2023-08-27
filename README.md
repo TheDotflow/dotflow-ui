@@ -32,10 +32,12 @@ Some tests require a zombienet network to be run in the background. The steps to
 1. Run a local [swanky](https://github.com/AstarNetwork/swanky-node) test node. This is where the contracts will be deployed to locally. The command to run: `./swanky-node --dev --tmp`
 2. Follow the instructions on [trappist](https://github.com/paritytech/trappist) and run the [full_network.toml](https://github.com/paritytech/trappist/blob/main/zombienet/full_network.toml) network.
 
-After the swanky node and the zombienet network is running you can run all the tests:
+After the swanky node and the zombienet network is running you can run all the tests. Keep in mind that this will take several minutes to run.
 
 ```
-yarn test
+# NOTE: we use the runInBand to run the tests sequentially since 
+# otherwise there could be some issues occuring.
+yarn test -- --runInBand
 ```
 
 The tests can take quite some time to run so, in case you want to run a specific test file, run the following command instead:

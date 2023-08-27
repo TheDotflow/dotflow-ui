@@ -395,7 +395,7 @@ describe("TransactionRouter unit tests", () => {
       it("works with origin para and reserve relay", () => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        expect(ReserveTransfer.getReserve(-1, true)).toStrictEqual({
+        expect(ReserveTransfer.getReserve(0, true)).toStrictEqual({
           parents: 1,
           interior: "Here"
         });
