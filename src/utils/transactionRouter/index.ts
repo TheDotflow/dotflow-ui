@@ -1,12 +1,10 @@
-import { ApiPromise, WsProvider } from "@polkadot/api";
+import { ApiPromise } from "@polkadot/api";
 
 import ReserveTransfer from "./reserveTransfer";
 import { TeleportableRoute, teleportableRoutes } from "./teleportableRoutes";
 import TeleportTransfer from "./teleportTransfer";
 import TransferAsset from "./transferAsset";
-import { Fungible, Receiver, Sender } from "./types";
-import { getParaId } from "..";
-import IdentityContract from "../../../types/contracts/identity";
+import { Fungible, Receiver, Sender, TransferRpcApis } from "./types";
 import { AccountType } from "../../../types/types-arguments/identity";
 
 // Responsible for handling all the transfer logic.
@@ -32,22 +30,20 @@ class TransactionRouter {
   //      being that we deposit the assets to the receiver's chain sovereign account on the reserve chain and then 
   //      do a separate `DepositAsset` instruction on the destination chain.
   public static async sendTokens(
-    identityContract: IdentityContract,
     sender: Sender,
     receiver: Receiver,
     reserveChainId: number,
-    asset: Fungible
+    asset: Fungible,
+    transferRpcApis: TransferRpcApis
   ): Promise<void> {
-    if (sender.network === receiver.network && sender.keypair.addressRaw === receiver.addressRaw) {
+    if (sender.chain === receiver.chain && sender.keypair.addressRaw === receiver.addressRaw) {
       throw new Error("Cannot send tokens to yourself");
     }
 
-    // The simplest case, both the sender and the receiver are on the same network:
-    if (sender.network === receiver.network) {
-      const api = await this.getApi(identityContract, sender.network);
-
+    // The simplest case, both the sender and the receiver are on the same chain:
+    if (sender.chain === receiver.chain) {
       await TransferAsset.send(
-        api,
+        transferRpcApis.originApi,
         sender.keypair,
         receiver,
         asset
@@ -56,13 +52,10 @@ class TransactionRouter {
       return;
     }
 
-    const originApi = await this.getApi(identityContract, sender.network);
-    const destApi = await this.getApi(identityContract, receiver.network);
+    ensureContainsXcmPallet(transferRpcApis.destApi);
 
-    ensureContainsXcmPallet(destApi);
-
-    const originParaId = await getParaId(originApi);
-    const destParaId = await getParaId(destApi);
+    const originParaId = sender.chain;
+    const destParaId = receiver.chain;
 
     const maybeTeleportableRoute: TeleportableRoute = {
       relayChain: process.env.RELAY_CHAIN ? process.env.RELAY_CHAIN : "rococo",
@@ -73,26 +66,26 @@ class TransactionRouter {
 
     if (teleportableRoutes.some(route => JSON.stringify(route) === JSON.stringify(maybeTeleportableRoute))) {
       // The asset is allowed to be teleported between the origin and the destination.
-      await TeleportTransfer.send(originApi, destApi, sender.keypair, receiver, asset);
+      await TeleportTransfer.send(transferRpcApis.originApi, transferRpcApis.destApi, sender.keypair, receiver, asset);
       return;
     }
 
     // The sender chain is the reserve chain of the asset. This will simply use the existing
     // `limitedReserveTransferAssets` extrinsic
-    if (sender.network == reserveChainId) {
+    if (sender.chain == reserveChainId) {
       await ReserveTransfer.sendFromReserveChain(
-        originApi,
+        transferRpcApis.originApi,
         destParaId,
-        sender.keypair,
+        sender,
         receiver,
         asset
       );
-    } else if (receiver.network == reserveChainId) {
+    } else if (receiver.chain == reserveChainId) {
       // The destination chain is the reserve chain of the asset:
       await ReserveTransfer.sendToReserveChain(
-        originApi,
+        transferRpcApis.originApi,
         destParaId,
-        sender.keypair,
+        sender,
         receiver,
         asset
       );
@@ -100,31 +93,22 @@ class TransactionRouter {
       // The most complex case, the reserve chain is neither the sender or the destination chain.
       // For this we will have to send tokens accross the reserve chain. 
 
-      const reserveChain = await this.getApi(identityContract, reserveChainId);
-      ensureContainsXcmPallet(reserveChain);
+      if (!transferRpcApis.reserveApi) {
+        throw new Error("The reserve api must be specified when doing two hop reserve transfers");
+      }
 
-      const reserveParaId = await getParaId(reserveChain);
+      ensureContainsXcmPallet(transferRpcApis.reserveApi);
+      const reserveParaId = reserveChainId;
 
       await ReserveTransfer.sendAcrossReserveChain(
-        originApi,
+        transferRpcApis.originApi,
         destParaId,
         reserveParaId,
-        sender.keypair,
+        sender,
         receiver,
         asset
       );
     }
-  }
-
-  // Simple helper function to get the api of a chain with the corresponding id. 
-  private static async getApi(identityContract: IdentityContract, networkId: number): Promise<ApiPromise> {
-    const rpcUrl = (await identityContract.query.networkInfoOf(networkId)).value
-      .ok?.rpcUrl;
-
-    const wsProvider = new WsProvider(rpcUrl);
-    const api = await ApiPromise.create({ provider: wsProvider });
-
-    return api;
   }
 }
 
@@ -180,14 +164,14 @@ export const getReceiverAccount = (receiver: Receiver): any => {
   if (receiver.type == AccountType.accountId32) {
     return {
       AccountId32: {
-        network: "Any",
+        chain: "Any",
         id: receiver.addressRaw,
       },
     };
   } else if (receiver.type == AccountType.accountKey20) {
     return {
       AccountKey20: {
-        network: "Any",
+        chain: "Any",
         id: receiver.addressRaw,
       },
     };

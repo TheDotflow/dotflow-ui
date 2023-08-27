@@ -8,39 +8,39 @@ export interface IdentityCreated {
 
 export interface AddressAdded {
 	identityNo: number;
-	network: number;
+	chain: number;
 	address: Array<number>;
 }
 
 export interface AddressUpdated {
 	identityNo: number;
-	network: number;
+	chain: number;
 	updatedAddress: Array<number>;
 }
 
 export interface AddressRemoved {
 	identityNo: number;
-	network: number;
+	chain: number;
 }
 
 export interface IdentityRemoved {
 	identityNo: number;
 }
 
-export interface NetworkAdded {
-	networkId: number;
-	rpcUrl: string;
+export interface ChainAdded {
+	chainId: number;
+	rpcUrls: Array<string>;
 	accountType: ReturnTypes.AccountType;
 }
 
-export interface NetworkUpdated {
-	networkId: number;
-	rpcUrl: string;
+export interface ChainUpdated {
+	chainId: number;
+	rpcUrls: Array<string>;
 	accountType: ReturnTypes.AccountType;
 }
 
-export interface NetworkRemoved {
-	networkId: number;
+export interface ChainRemoved {
+	chainId: number;
 }
 
 export interface RecoveryAccountSet {

@@ -64,13 +64,13 @@ class AssetRegistry {
     isParachain: boolean,
     paraId?: number
   ): MultiAsset {
-    // The first `junction` is actually just the specifying the network and we
+    // The first `junction` is actually just the specifying the chain and we
     // don't need that in `MultiAsset`.
     const junctionCount = xcmInteriorKey.length - 1;
     const { parachainId: assetParaId, junctionIndex } =
       this.getAssetReserveParachainId(xcmInteriorKey);
 
-    if (assetParaId >= 0 && assetParaId == paraId) {
+    if (assetParaId > 0 && assetParaId == paraId) {
       xcmInteriorKey.splice(junctionIndex, 1);
       const junctionCount = xcmInteriorKey.length - 1;
 

@@ -1,12 +1,12 @@
 {
   "source": {
-    "hash": "0x88c447bd99dfd32a8a36cfa6ab8b958a20f718209e85d45b427ef7785a12afc1",
+    "hash": "0x37a6b9845f34663b4b59b2b47c63e6caa530ed5025380727a05b157306875332",
     "language": "ink! 4.2.0",
     "compiler": "rustc 1.68.0-nightly",
     "build_info": {
-      "build_mode": "Release",
-      "cargo_contract_version": "2.2.1",
-      "rust_toolchain": "nightly-x86_64-unknown-linux-gnu",
+      "build_mode": "Debug",
+      "cargo_contract_version": "2.0.0-rc.1",
+      "rust_toolchain": "nightly-aarch64-apple-darwin",
       "wasm_opt_settings": {
         "keep_debug_symbols": false,
         "optimization_passes": "Z"
@@ -33,34 +33,43 @@
             "ink_primitives",
             "ConstructorResult"
           ],
-          "type": 9
+          "type": 10
         },
         "selector": "0x9bae9d5e"
       },
       {
         "args": [
           {
-            "label": "networks",
+            "label": "chains",
             "type": {
               "displayName": [
                 "Vec"
               ],
-              "type": 12
+              "type": 13
+            }
+          },
+          {
+            "label": "chain_ids",
+            "type": {
+              "displayName": [
+                "Vec"
+              ],
+              "type": 9
             }
           }
         ],
         "default": false,
         "docs": [],
-        "label": "init_with_networks",
+        "label": "init_with_chains",
         "payable": false,
         "returnType": {
           "displayName": [
             "ink_primitives",
             "ConstructorResult"
           ],
-          "type": 9
+          "type": 10
         },
-        "selector": "0x056543ac"
+        "selector": "0x0935da88"
       }
     ],
     "docs": [],
@@ -75,7 +84,7 @@
         "displayName": [
           "Balance"
         ],
-        "type": 36
+        "type": 37
       },
       "blockNumber": {
         "displayName": [
@@ -87,20 +96,20 @@
         "displayName": [
           "ChainExtension"
         ],
-        "type": 39
+        "type": 40
       },
       "hash": {
         "displayName": [
           "Hash"
         ],
-        "type": 37
+        "type": 38
       },
       "maxEventTopics": 4,
       "timestamp": {
         "displayName": [
           "Timestamp"
         ],
-        "type": 38
+        "type": 39
       }
     },
     "events": [
@@ -155,13 +164,13 @@
           },
           {
             "docs": [
-              " The network on which a new address has been added."
+              " The chain on which a new address has been added."
             ],
             "indexed": false,
-            "label": "network",
+            "label": "chain",
             "type": {
               "displayName": [
-                "NetworkId"
+                "ChainId"
               ],
               "type": 2
             }
@@ -174,7 +183,7 @@
             "label": "address",
             "type": {
               "displayName": [
-                "NetworkAddress"
+                "EncryptedAddress"
               ],
               "type": 3
             }
@@ -200,13 +209,13 @@
           },
           {
             "docs": [
-              " The network on which the address has been updated."
+              " The chain on which the address has been updated."
             ],
             "indexed": false,
-            "label": "network",
+            "label": "chain",
             "type": {
               "displayName": [
-                "NetworkId"
+                "ChainId"
               ],
               "type": 2
             }
@@ -219,7 +228,7 @@
             "label": "updated_address",
             "type": {
               "displayName": [
-                "NetworkAddress"
+                "EncryptedAddress"
               ],
               "type": 3
             }
@@ -245,13 +254,13 @@
           },
           {
             "docs": [
-              " The network on which the address has been removed."
+              " The chain on which the address has been removed."
             ],
             "indexed": false,
-            "label": "network",
+            "label": "chain",
             "type": {
               "displayName": [
-                "NetworkId"
+                "ChainId"
               ],
               "type": 2
             }
@@ -283,20 +292,20 @@
         "args": [
           {
             "docs": [
-              " The `NetworkId` that is associated with the newly added network."
+              " The `ChainId` that is associated with the newly added chain."
             ],
             "indexed": true,
-            "label": "network_id",
+            "label": "chain_id",
             "type": {
               "displayName": [
-                "NetworkId"
+                "ChainId"
               ],
               "type": 2
             }
           },
           {
             "docs": [
-              " The rpc url of the network that got added."
+              " The rpc url of the chain that got added."
             ],
             "indexed": false,
             "label": "rpc_urls",
@@ -309,7 +318,7 @@
           },
           {
             "docs": [
-              " The address type used on the network."
+              " The address type used on the chain."
             ],
             "indexed": false,
             "label": "account_type",
@@ -317,31 +326,31 @@
               "displayName": [
                 "AccountType"
               ],
-              "type": 14
+              "type": 15
             }
           }
         ],
         "docs": [],
-        "label": "NetworkAdded"
+        "label": "ChainAdded"
       },
       {
         "args": [
           {
             "docs": [
-              " The `NetworkId` that is associated with the updated network."
+              " The `ChainId` that is associated with the updated chain."
             ],
             "indexed": true,
-            "label": "network_id",
+            "label": "chain_id",
             "type": {
               "displayName": [
-                "NetworkId"
+                "ChainId"
               ],
               "type": 2
             }
           },
           {
             "docs": [
-              " The rpc url of the updated network."
+              " The rpc url of the updated chain."
             ],
             "indexed": false,
             "label": "rpc_urls",
@@ -354,7 +363,7 @@
           },
           {
             "docs": [
-              " The address type used on the updated network."
+              " The address type used on the updated chain."
             ],
             "indexed": false,
             "label": "account_type",
@@ -362,32 +371,32 @@
               "displayName": [
                 "AccountType"
               ],
-              "type": 14
+              "type": 15
             }
           }
         ],
         "docs": [],
-        "label": "NetworkUpdated"
+        "label": "ChainUpdated"
       },
       {
         "args": [
           {
             "docs": [
-              " The `NetworkId` that is associated with the network that got",
+              " The `ChainId` that is associated with the chain that got",
               " removed."
             ],
             "indexed": true,
-            "label": "network_id",
+            "label": "chain_id",
             "type": {
               "displayName": [
-                "NetworkId"
+                "ChainId"
               ],
               "type": 2
             }
           }
         ],
         "docs": [],
-        "label": "NetworkRemoved"
+        "label": "ChainRemoved"
       },
       {
         "args": [
@@ -427,7 +436,7 @@
         "ink",
         "LangError"
       ],
-      "type": 11
+      "type": 12
     },
     "messages": [
       {
@@ -455,7 +464,7 @@
             "ink",
             "MessageResult"
           ],
-          "type": 15
+          "type": 16
         },
         "selector": "0xcbfefbec"
       },
@@ -483,7 +492,7 @@
             "ink",
             "MessageResult"
           ],
-          "type": 18
+          "type": 19
         },
         "selector": "0x99720c1e"
       },
@@ -511,17 +520,17 @@
             "ink",
             "MessageResult"
           ],
-          "type": 20
+          "type": 21
         },
         "selector": "0x713ca232"
       },
       {
         "args": [
           {
-            "label": "network_id",
+            "label": "chain_id",
             "type": {
               "displayName": [
-                "NetworkId"
+                "ChainId"
               ],
               "type": 2
             }
@@ -529,9 +538,9 @@
         ],
         "default": false,
         "docs": [
-          " Returns the network name that is associated with the specified `NetworkId`."
+          " Returns the chain name that is associated with the specified `ChainId`."
         ],
-        "label": "network_info_of",
+        "label": "chain_info_of",
         "mutates": false,
         "payable": false,
         "returnType": {
@@ -539,9 +548,9 @@
             "ink",
             "MessageResult"
           ],
-          "type": 22
+          "type": 23
         },
-        "selector": "0x3dffc61c"
+        "selector": "0x59d847e9"
       },
       {
         "args": [
@@ -555,10 +564,10 @@
             }
           },
           {
-            "label": "network",
+            "label": "chain",
             "type": {
               "displayName": [
-                "NetworkId"
+                "ChainId"
               ],
               "type": 2
             }
@@ -567,7 +576,7 @@
         "default": false,
         "docs": [
           " Returns the destination address of a transaction that needs to be",
-          " routed to the specified identity on the specified network."
+          " routed to the specified identity on the specified chain."
         ],
         "label": "transaction_destination",
         "mutates": false,
@@ -577,7 +586,7 @@
             "ink",
             "MessageResult"
           ],
-          "type": 24
+          "type": 25
         },
         "selector": "0x525505e4"
       },
@@ -585,9 +594,9 @@
         "args": [],
         "default": false,
         "docs": [
-          " A list of all the available networks each associated with a `NetworkId`."
+          " A list of all the available chains each associated with a `ChainId`."
         ],
-        "label": "available_networks",
+        "label": "available_chains",
         "mutates": false,
         "payable": false,
         "returnType": {
@@ -595,9 +604,9 @@
             "ink",
             "MessageResult"
           ],
-          "type": 27
+          "type": 28
         },
-        "selector": "0xbd5ddfcd"
+        "selector": "0xa5cf243e"
       },
       {
         "args": [],
@@ -615,17 +624,17 @@
             "ink",
             "MessageResult"
           ],
-          "type": 30
+          "type": 31
         },
         "selector": "0xfb893664"
       },
       {
         "args": [
           {
-            "label": "network",
+            "label": "chain",
             "type": {
               "displayName": [
-                "NetworkId"
+                "ChainId"
               ],
               "type": 2
             }
@@ -634,7 +643,7 @@
             "label": "address",
             "type": {
               "displayName": [
-                "NetworkAddress"
+                "EncryptedAddress"
               ],
               "type": 3
             }
@@ -642,7 +651,7 @@
         ],
         "default": false,
         "docs": [
-          " Adds an address for a given network"
+          " Adds an address for a given chain"
         ],
         "label": "add_address",
         "mutates": true,
@@ -652,17 +661,17 @@
             "ink",
             "MessageResult"
           ],
-          "type": 32
+          "type": 33
         },
         "selector": "0x71cc798d"
       },
       {
         "args": [
           {
-            "label": "network",
+            "label": "chain",
             "type": {
               "displayName": [
-                "NetworkId"
+                "ChainId"
               ],
               "type": 2
             }
@@ -671,7 +680,7 @@
             "label": "address",
             "type": {
               "displayName": [
-                "NetworkAddress"
+                "EncryptedAddress"
               ],
               "type": 3
             }
@@ -679,7 +688,7 @@
         ],
         "default": false,
         "docs": [
-          " Updates the address of the given network"
+          " Updates the address of the given chain"
         ],
         "label": "update_address",
         "mutates": true,
@@ -689,17 +698,17 @@
             "ink",
             "MessageResult"
           ],
-          "type": 32
+          "type": 33
         },
         "selector": "0x892f75e4"
       },
       {
         "args": [
           {
-            "label": "network",
+            "label": "chain",
             "type": {
               "displayName": [
-                "NetworkId"
+                "ChainId"
               ],
               "type": 2
             }
@@ -707,7 +716,7 @@
         ],
         "default": false,
         "docs": [
-          " Removes the address by network"
+          " Removes the address by chain"
         ],
         "label": "remove_address",
         "mutates": true,
@@ -717,7 +726,7 @@
             "ink",
             "MessageResult"
           ],
-          "type": 32
+          "type": 33
         },
         "selector": "0xdca7a60f"
       },
@@ -735,25 +744,34 @@
             "ink",
             "MessageResult"
           ],
-          "type": 32
+          "type": 33
         },
         "selector": "0x08026740"
       },
       {
         "args": [
           {
+            "label": "chain_id",
+            "type": {
+              "displayName": [
+                "ChainId"
+              ],
+              "type": 2
+            }
+          },
+          {
             "label": "info",
             "type": {
               "displayName": [
-                "NetworkInfo"
+                "ChainInfo"
               ],
-              "type": 13
+              "type": 14
             }
           }
         ],
         "default": false,
         "docs": [],
-        "label": "add_network",
+        "label": "add_chain",
         "mutates": true,
         "payable": false,
         "returnType": {
@@ -761,17 +779,17 @@
             "ink",
             "MessageResult"
           ],
-          "type": 30
+          "type": 33
         },
-        "selector": "0x97a3ee09"
+        "selector": "0x1cd09676"
       },
       {
         "args": [
           {
-            "label": "network_id",
+            "label": "chain_id",
             "type": {
               "displayName": [
-                "NetworkId"
+                "ChainId"
               ],
               "type": 2
             }
@@ -782,7 +800,7 @@
               "displayName": [
                 "Option"
               ],
-              "type": 34
+              "type": 35
             }
           },
           {
@@ -791,13 +809,13 @@
               "displayName": [
                 "Option"
               ],
-              "type": 35
+              "type": 36
             }
           }
         ],
         "default": false,
         "docs": [],
-        "label": "update_network",
+        "label": "update_chain",
         "mutates": true,
         "payable": false,
         "returnType": {
@@ -805,17 +823,17 @@
             "ink",
             "MessageResult"
           ],
-          "type": 32
+          "type": 33
         },
-        "selector": "0xcfbe8bcc"
+        "selector": "0x7d5eea00"
       },
       {
         "args": [
           {
-            "label": "network_id",
+            "label": "chain_id",
             "type": {
               "displayName": [
-                "NetworkId"
+                "ChainId"
               ],
               "type": 2
             }
@@ -823,7 +841,7 @@
         ],
         "default": false,
         "docs": [],
-        "label": "remove_network",
+        "label": "remove_chain",
         "mutates": true,
         "payable": false,
         "returnType": {
@@ -831,9 +849,9 @@
             "ink",
             "MessageResult"
           ],
-          "type": 32
+          "type": 33
         },
-        "selector": "0x14b17dbe"
+        "selector": "0x5b23980f"
       },
       {
         "args": [
@@ -862,7 +880,7 @@
             "ink",
             "MessageResult"
           ],
-          "type": 32
+          "type": 33
         },
         "selector": "0xd3b93403"
       },
@@ -902,7 +920,7 @@
             "ink",
             "MessageResult"
           ],
-          "type": 32
+          "type": 33
         },
         "selector": "0x107e33ea"
       }
@@ -997,7 +1015,7 @@
                         {
                           "layout": {
                             "leaf": {
-                              "key": "0x7e863377",
+                              "key": "0x793e0339",
                               "ty": 7
                             }
                           },
@@ -1006,7 +1024,7 @@
                         {
                           "layout": {
                             "enum": {
-                              "dispatchKey": "0x7e863377",
+                              "dispatchKey": "0x793e0339",
                               "name": "AccountType",
                               "variants": {
                                 "0": {
@@ -1023,13 +1041,22 @@
                           "name": "account_type"
                         }
                       ],
-                      "name": "NetworkInfo"
+                      "name": "ChainInfo"
                     }
                   },
-                  "root_key": "0x7e863377"
+                  "root_key": "0x793e0339"
                 }
               },
-              "name": "network_info_of"
+              "name": "chain_info_of"
+            },
+            {
+              "layout": {
+                "leaf": {
+                  "key": "0x00000000",
+                  "ty": 9
+                }
+              },
+              "name": "chain_ids"
             },
             {
               "layout": {
@@ -1039,15 +1066,6 @@
                 }
               },
               "name": "admin"
-            },
-            {
-              "layout": {
-                "leaf": {
-                  "key": "0x00000000",
-                  "ty": 2
-                }
-              },
-              "name": "network_id_count"
             }
           ],
           "name": "Identity"
@@ -1157,12 +1175,22 @@
       "id": 9,
       "type": {
         "def": {
+          "sequence": {
+            "type": 2
+          }
+        }
+      }
+    },
+    {
+      "id": 10,
+      "type": {
+        "def": {
           "variant": {
             "variants": [
               {
                 "fields": [
                   {
-                    "type": 10
+                    "type": 11
                   }
                 ],
                 "index": 0,
@@ -1171,7 +1199,7 @@
               {
                 "fields": [
                   {
-                    "type": 11
+                    "type": 12
                   }
                 ],
                 "index": 1,
@@ -1183,11 +1211,11 @@
         "params": [
           {
             "name": "T",
-            "type": 10
+            "type": 11
           },
           {
             "name": "E",
-            "type": 11
+            "type": 12
           }
         ],
         "path": [
@@ -1196,7 +1224,7 @@
       }
     },
     {
-      "id": 10,
+      "id": 11,
       "type": {
         "def": {
           "tuple": []
@@ -1204,7 +1232,7 @@
       }
     },
     {
-      "id": 11,
+      "id": 12,
       "type": {
         "def": {
           "variant": {
@@ -1223,17 +1251,17 @@
       }
     },
     {
-      "id": 12,
+      "id": 13,
       "type": {
         "def": {
           "sequence": {
-            "type": 13
+            "type": 14
           }
         }
       }
     },
     {
-      "id": 13,
+      "id": 14,
       "type": {
         "def": {
           "composite": {
@@ -1245,7 +1273,7 @@
               },
               {
                 "name": "account_type",
-                "type": 14,
+                "type": 15,
                 "typeName": "AccountType"
               }
             ]
@@ -1254,12 +1282,12 @@
         "path": [
           "common",
           "types",
-          "NetworkInfo"
+          "ChainInfo"
         ]
       }
     },
     {
-      "id": 14,
+      "id": 15,
       "type": {
         "def": {
           "variant": {
@@ -1283,7 +1311,7 @@
       }
     },
     {
-      "id": 15,
+      "id": 16,
       "type": {
         "def": {
           "variant": {
@@ -1291,7 +1319,7 @@
               {
                 "fields": [
                   {
-                    "type": 16
+                    "type": 17
                   }
                 ],
                 "index": 0,
@@ -1300,7 +1328,7 @@
               {
                 "fields": [
                   {
-                    "type": 11
+                    "type": 12
                   }
                 ],
                 "index": 1,
@@ -1312,11 +1340,11 @@
         "params": [
           {
             "name": "T",
-            "type": 16
+            "type": 17
           },
           {
             "name": "E",
-            "type": 11
+            "type": 12
           }
         ],
         "path": [
@@ -1325,7 +1353,7 @@
       }
     },
     {
-      "id": 16,
+      "id": 17,
       "type": {
         "def": {
           "variant": {
@@ -1337,7 +1365,7 @@
               {
                 "fields": [
                   {
-                    "type": 17
+                    "type": 18
                   }
                 ],
                 "index": 1,
@@ -1349,7 +1377,7 @@
         "params": [
           {
             "name": "T",
-            "type": 17
+            "type": 18
           }
         ],
         "path": [
@@ -1358,7 +1386,7 @@
       }
     },
     {
-      "id": 17,
+      "id": 18,
       "type": {
         "def": {
           "composite": {
@@ -1366,7 +1394,7 @@
               {
                 "name": "addresses",
                 "type": 0,
-                "typeName": "Vec<(NetworkId, NetworkAddress)>"
+                "typeName": "Vec<(ChainId, EncryptedAddress)>"
               }
             ]
           }
@@ -1379,7 +1407,7 @@
       }
     },
     {
-      "id": 18,
+      "id": 19,
       "type": {
         "def": {
           "variant": {
@@ -1387,7 +1415,7 @@
               {
                 "fields": [
                   {
-                    "type": 19
+                    "type": 20
                   }
                 ],
                 "index": 0,
@@ -1396,7 +1424,7 @@
               {
                 "fields": [
                   {
-                    "type": 11
+                    "type": 12
                   }
                 ],
                 "index": 1,
@@ -1408,11 +1436,11 @@
         "params": [
           {
             "name": "T",
-            "type": 19
+            "type": 20
           },
           {
             "name": "E",
-            "type": 11
+            "type": 12
           }
         ],
         "path": [
@@ -1421,7 +1449,7 @@
       }
     },
     {
-      "id": 19,
+      "id": 20,
       "type": {
         "def": {
           "variant": {
@@ -1454,7 +1482,7 @@
       }
     },
     {
-      "id": 20,
+      "id": 21,
       "type": {
         "def": {
           "variant": {
@@ -1462,7 +1490,7 @@
               {
                 "fields": [
                   {
-                    "type": 21
+                    "type": 22
                   }
                 ],
                 "index": 0,
@@ -1471,7 +1499,7 @@
               {
                 "fields": [
                   {
-                    "type": 11
+                    "type": 12
                   }
                 ],
                 "index": 1,
@@ -1483,48 +1511,15 @@
         "params": [
           {
             "name": "T",
-            "type": 21
+            "type": 22
           },
           {
             "name": "E",
-            "type": 11
+            "type": 12
           }
         ],
         "path": [
           "Result"
-        ]
-      }
-    },
-    {
-      "id": 21,
-      "type": {
-        "def": {
-          "variant": {
-            "variants": [
-              {
-                "index": 0,
-                "name": "None"
-              },
-              {
-                "fields": [
-                  {
-                    "type": 2
-                  }
-                ],
-                "index": 1,
-                "name": "Some"
-              }
-            ]
-          }
-        },
-        "params": [
-          {
-            "name": "T",
-            "type": 2
-          }
-        ],
-        "path": [
-          "Option"
         ]
       }
     },
@@ -1535,22 +1530,17 @@
           "variant": {
             "variants": [
               {
-                "fields": [
-                  {
-                    "type": 23
-                  }
-                ],
                 "index": 0,
-                "name": "Ok"
+                "name": "None"
               },
               {
                 "fields": [
                   {
-                    "type": 11
+                    "type": 2
                   }
                 ],
                 "index": 1,
-                "name": "Err"
+                "name": "Some"
               }
             ]
           }
@@ -1558,15 +1548,11 @@
         "params": [
           {
             "name": "T",
-            "type": 23
-          },
-          {
-            "name": "E",
-            "type": 11
+            "type": 2
           }
         ],
         "path": [
-          "Result"
+          "Option"
         ]
       }
     },
@@ -1577,17 +1563,22 @@
           "variant": {
             "variants": [
               {
+                "fields": [
+                  {
+                    "type": 24
+                  }
+                ],
                 "index": 0,
-                "name": "None"
+                "name": "Ok"
               },
               {
                 "fields": [
                   {
-                    "type": 13
+                    "type": 12
                   }
                 ],
                 "index": 1,
-                "name": "Some"
+                "name": "Err"
               }
             ]
           }
@@ -1595,411 +1586,20 @@
         "params": [
           {
             "name": "T",
-            "type": 13
+            "type": 24
+          },
+          {
+            "name": "E",
+            "type": 12
           }
         ],
         "path": [
-          "Option"
+          "Result"
         ]
       }
     },
     {
       "id": 24,
-      "type": {
-        "def": {
-          "variant": {
-            "variants": [
-              {
-                "fields": [
-                  {
-                    "type": 25
-                  }
-                ],
-                "index": 0,
-                "name": "Ok"
-              },
-              {
-                "fields": [
-                  {
-                    "type": 11
-                  }
-                ],
-                "index": 1,
-                "name": "Err"
-              }
-            ]
-          }
-        },
-        "params": [
-          {
-            "name": "T",
-            "type": 25
-          },
-          {
-            "name": "E",
-            "type": 11
-          }
-        ],
-        "path": [
-          "Result"
-        ]
-      }
-    },
-    {
-      "id": 25,
-      "type": {
-        "def": {
-          "variant": {
-            "variants": [
-              {
-                "fields": [
-                  {
-                    "type": 3
-                  }
-                ],
-                "index": 0,
-                "name": "Ok"
-              },
-              {
-                "fields": [
-                  {
-                    "type": 26
-                  }
-                ],
-                "index": 1,
-                "name": "Err"
-              }
-            ]
-          }
-        },
-        "params": [
-          {
-            "name": "T",
-            "type": 3
-          },
-          {
-            "name": "E",
-            "type": 26
-          }
-        ],
-        "path": [
-          "Result"
-        ]
-      }
-    },
-    {
-      "id": 26,
-      "type": {
-        "def": {
-          "variant": {
-            "variants": [
-              {
-                "index": 0,
-                "name": "NotAllowed"
-              },
-              {
-                "index": 1,
-                "name": "IdentityDoesntExist"
-              },
-              {
-                "index": 2,
-                "name": "AddressAlreadyAdded"
-              },
-              {
-                "index": 3,
-                "name": "InvalidNetwork"
-              },
-              {
-                "index": 4,
-                "name": "AddressSizeExceeded"
-              },
-              {
-                "index": 5,
-                "name": "NetworkNameTooLong"
-              },
-              {
-                "index": 6,
-                "name": "NetworkRpcUrlTooLong"
-              },
-              {
-                "index": 7,
-                "name": "AlreadyIdentityOwner"
-              }
-            ]
-          }
-        },
-        "path": [
-          "identity",
-          "Error"
-        ]
-      }
-    },
-    {
-      "id": 27,
-      "type": {
-        "def": {
-          "variant": {
-            "variants": [
-              {
-                "fields": [
-                  {
-                    "type": 28
-                  }
-                ],
-                "index": 0,
-                "name": "Ok"
-              },
-              {
-                "fields": [
-                  {
-                    "type": 11
-                  }
-                ],
-                "index": 1,
-                "name": "Err"
-              }
-            ]
-          }
-        },
-        "params": [
-          {
-            "name": "T",
-            "type": 28
-          },
-          {
-            "name": "E",
-            "type": 11
-          }
-        ],
-        "path": [
-          "Result"
-        ]
-      }
-    },
-    {
-      "id": 28,
-      "type": {
-        "def": {
-          "sequence": {
-            "type": 29
-          }
-        }
-      }
-    },
-    {
-      "id": 29,
-      "type": {
-        "def": {
-          "tuple": [
-            2,
-            13
-          ]
-        }
-      }
-    },
-    {
-      "id": 30,
-      "type": {
-        "def": {
-          "variant": {
-            "variants": [
-              {
-                "fields": [
-                  {
-                    "type": 31
-                  }
-                ],
-                "index": 0,
-                "name": "Ok"
-              },
-              {
-                "fields": [
-                  {
-                    "type": 11
-                  }
-                ],
-                "index": 1,
-                "name": "Err"
-              }
-            ]
-          }
-        },
-        "params": [
-          {
-            "name": "T",
-            "type": 31
-          },
-          {
-            "name": "E",
-            "type": 11
-          }
-        ],
-        "path": [
-          "Result"
-        ]
-      }
-    },
-    {
-      "id": 31,
-      "type": {
-        "def": {
-          "variant": {
-            "variants": [
-              {
-                "fields": [
-                  {
-                    "type": 2
-                  }
-                ],
-                "index": 0,
-                "name": "Ok"
-              },
-              {
-                "fields": [
-                  {
-                    "type": 26
-                  }
-                ],
-                "index": 1,
-                "name": "Err"
-              }
-            ]
-          }
-        },
-        "params": [
-          {
-            "name": "T",
-            "type": 2
-          },
-          {
-            "name": "E",
-            "type": 26
-          }
-        ],
-        "path": [
-          "Result"
-        ]
-      }
-    },
-    {
-      "id": 32,
-      "type": {
-        "def": {
-          "variant": {
-            "variants": [
-              {
-                "fields": [
-                  {
-                    "type": 33
-                  }
-                ],
-                "index": 0,
-                "name": "Ok"
-              },
-              {
-                "fields": [
-                  {
-                    "type": 11
-                  }
-                ],
-                "index": 1,
-                "name": "Err"
-              }
-            ]
-          }
-        },
-        "params": [
-          {
-            "name": "T",
-            "type": 33
-          },
-          {
-            "name": "E",
-            "type": 11
-          }
-        ],
-        "path": [
-          "Result"
-        ]
-      }
-    },
-    {
-      "id": 33,
-      "type": {
-        "def": {
-          "variant": {
-            "variants": [
-              {
-                "fields": [
-                  {
-                    "type": 10
-                  }
-                ],
-                "index": 0,
-                "name": "Ok"
-              },
-              {
-                "fields": [
-                  {
-                    "type": 26
-                  }
-                ],
-                "index": 1,
-                "name": "Err"
-              }
-            ]
-          }
-        },
-        "params": [
-          {
-            "name": "T",
-            "type": 10
-          },
-          {
-            "name": "E",
-            "type": 26
-          }
-        ],
-        "path": [
-          "Result"
-        ]
-      }
-    },
-    {
-      "id": 34,
-      "type": {
-        "def": {
-          "variant": {
-            "variants": [
-              {
-                "index": 0,
-                "name": "None"
-              },
-              {
-                "fields": [
-                  {
-                    "type": 8
-                  }
-                ],
-                "index": 1,
-                "name": "Some"
-              }
-            ]
-          }
-        },
-        "params": [
-          {
-            "name": "T",
-            "type": 8
-          }
-        ],
-        "path": [
-          "Option"
-        ]
-      }
-    },
-    {
-      "id": 35,
       "type": {
         "def": {
           "variant": {
@@ -2032,7 +1632,435 @@
       }
     },
     {
+      "id": 25,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 26
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 12
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 26
+          },
+          {
+            "name": "E",
+            "type": 12
+          }
+        ],
+        "path": [
+          "Result"
+        ]
+      }
+    },
+    {
+      "id": 26,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 3
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 27
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 3
+          },
+          {
+            "name": "E",
+            "type": 27
+          }
+        ],
+        "path": [
+          "Result"
+        ]
+      }
+    },
+    {
+      "id": 27,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "index": 0,
+                "name": "NotAllowed"
+              },
+              {
+                "index": 1,
+                "name": "IdentityDoesntExist"
+              },
+              {
+                "index": 2,
+                "name": "AddressAlreadyAdded"
+              },
+              {
+                "index": 3,
+                "name": "InvalidChain"
+              },
+              {
+                "index": 4,
+                "name": "AddressSizeExceeded"
+              },
+              {
+                "index": 5,
+                "name": "ChainNameTooLong"
+              },
+              {
+                "index": 6,
+                "name": "ChainRpcUrlTooLong"
+              },
+              {
+                "index": 7,
+                "name": "AlreadyIdentityOwner"
+              }
+            ]
+          }
+        },
+        "path": [
+          "identity",
+          "Error"
+        ]
+      }
+    },
+    {
+      "id": 28,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 29
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 12
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 29
+          },
+          {
+            "name": "E",
+            "type": 12
+          }
+        ],
+        "path": [
+          "Result"
+        ]
+      }
+    },
+    {
+      "id": 29,
+      "type": {
+        "def": {
+          "sequence": {
+            "type": 30
+          }
+        }
+      }
+    },
+    {
+      "id": 30,
+      "type": {
+        "def": {
+          "tuple": [
+            2,
+            14
+          ]
+        }
+      }
+    },
+    {
+      "id": 31,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 32
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 12
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 32
+          },
+          {
+            "name": "E",
+            "type": 12
+          }
+        ],
+        "path": [
+          "Result"
+        ]
+      }
+    },
+    {
+      "id": 32,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 2
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 27
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 2
+          },
+          {
+            "name": "E",
+            "type": 27
+          }
+        ],
+        "path": [
+          "Result"
+        ]
+      }
+    },
+    {
+      "id": 33,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 34
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 12
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 34
+          },
+          {
+            "name": "E",
+            "type": 12
+          }
+        ],
+        "path": [
+          "Result"
+        ]
+      }
+    },
+    {
+      "id": 34,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 11
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 27
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 11
+          },
+          {
+            "name": "E",
+            "type": 27
+          }
+        ],
+        "path": [
+          "Result"
+        ]
+      }
+    },
+    {
+      "id": 35,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "index": 0,
+                "name": "None"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 8
+                  }
+                ],
+                "index": 1,
+                "name": "Some"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 8
+          }
+        ],
+        "path": [
+          "Option"
+        ]
+      }
+    },
+    {
       "id": 36,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "index": 0,
+                "name": "None"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 15
+                  }
+                ],
+                "index": 1,
+                "name": "Some"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 15
+          }
+        ],
+        "path": [
+          "Option"
+        ]
+      }
+    },
+    {
+      "id": 37,
       "type": {
         "def": {
           "primitive": "u128"
@@ -2040,7 +2068,7 @@
       }
     },
     {
-      "id": 37,
+      "id": 38,
       "type": {
         "def": {
           "composite": {
@@ -2060,7 +2088,7 @@
       }
     },
     {
-      "id": 38,
+      "id": 39,
       "type": {
         "def": {
           "primitive": "u64"
@@ -2068,7 +2096,7 @@
       }
     },
     {
-      "id": 39,
+      "id": 40,
       "type": {
         "def": {
           "variant": {}

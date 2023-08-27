@@ -1,12 +1,12 @@
 {
   "source": {
-    "hash": "0x8dc8d21880cc15012552148eb6551379525ee975554f1f87b61470a487333135",
+    "hash": "0x4b89e660114f8ff737a566aceadf6e154e8eaa63fed72acf47bd2dafa4739605",
     "language": "ink! 4.2.0",
     "compiler": "rustc 1.68.0-nightly",
     "build_info": {
-      "build_mode": "Release",
-      "cargo_contract_version": "2.2.1",
-      "rust_toolchain": "nightly-x86_64-unknown-linux-gnu",
+      "build_mode": "Debug",
+      "cargo_contract_version": "2.0.0-rc.1",
+      "rust_toolchain": "nightly-aarch64-apple-darwin",
       "wasm_opt_settings": {
         "keep_debug_symbols": false,
         "optimization_passes": "Z"
@@ -182,7 +182,7 @@
               " The identity that received a new nickname."
             ],
             "indexed": false,
-            "label": "identity_no",
+            "label": "identity",
             "type": {
               "displayName": [
                 "IdentityNo"
@@ -205,7 +205,7 @@
           }
         ],
         "docs": [],
-        "label": "NickNameUpdated"
+        "label": "NicknameUpdated"
       },
       {
         "args": [

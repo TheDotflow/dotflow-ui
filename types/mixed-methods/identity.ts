@@ -47,7 +47,7 @@ export default class Methods {
 		identityNo: (number | string | BN),
 		__options: GasLimit,
 	): Promise< QueryReturnType< Result<ReturnTypes.IdentityInfo | null, ReturnTypes.LangError> > >{
-		return queryOkJSON( this.__apiPromise, this.__nativeContract, this.__callerAddress, "identity", [identityNo], __options, (result) => { return handleReturnType(result, getTypeDescription(14, DATA_TYPE_DESCRIPTIONS)); });
+		return queryOkJSON( this.__apiPromise, this.__nativeContract, this.__callerAddress, "identity", [identityNo], __options, (result) => { return handleReturnType(result, getTypeDescription(16, DATA_TYPE_DESCRIPTIONS)); });
 	}
 
 	/**
@@ -60,7 +60,7 @@ export default class Methods {
 		identityNo: (number | string | BN),
 		__options: GasLimit,
 	): Promise< QueryReturnType< Result<ReturnTypes.AccountId | null, ReturnTypes.LangError> > >{
-		return queryOkJSON( this.__apiPromise, this.__nativeContract, this.__callerAddress, "ownerOf", [identityNo], __options, (result) => { return handleReturnType(result, getTypeDescription(17, DATA_TYPE_DESCRIPTIONS)); });
+		return queryOkJSON( this.__apiPromise, this.__nativeContract, this.__callerAddress, "ownerOf", [identityNo], __options, (result) => { return handleReturnType(result, getTypeDescription(19, DATA_TYPE_DESCRIPTIONS)); });
 	}
 
 	/**
@@ -73,46 +73,46 @@ export default class Methods {
 		owner: ArgumentTypes.AccountId,
 		__options: GasLimit,
 	): Promise< QueryReturnType< Result<number | null, ReturnTypes.LangError> > >{
-		return queryOkJSON( this.__apiPromise, this.__nativeContract, this.__callerAddress, "identityOf", [owner], __options, (result) => { return handleReturnType(result, getTypeDescription(19, DATA_TYPE_DESCRIPTIONS)); });
+		return queryOkJSON( this.__apiPromise, this.__nativeContract, this.__callerAddress, "identityOf", [owner], __options, (result) => { return handleReturnType(result, getTypeDescription(21, DATA_TYPE_DESCRIPTIONS)); });
 	}
 
 	/**
-	* networkInfoOf
+	* chainInfoOf
 	*
-	* @param { (number | string | BN) } networkId,
-	* @returns { Result<ReturnTypes.NetworkInfo | null, ReturnTypes.LangError> }
+	* @param { (number | string | BN) } chainId,
+	* @returns { Result<ReturnTypes.ChainInfo | null, ReturnTypes.LangError> }
 	*/
-	"networkInfoOf" (
-		networkId: (number | string | BN),
+	"chainInfoOf" (
+		chainId: (number | string | BN),
 		__options: GasLimit,
-	): Promise< QueryReturnType< Result<ReturnTypes.NetworkInfo | null, ReturnTypes.LangError> > >{
-		return queryOkJSON( this.__apiPromise, this.__nativeContract, this.__callerAddress, "networkInfoOf", [networkId], __options, (result) => { return handleReturnType(result, getTypeDescription(21, DATA_TYPE_DESCRIPTIONS)); });
+	): Promise< QueryReturnType< Result<ReturnTypes.ChainInfo | null, ReturnTypes.LangError> > >{
+		return queryOkJSON( this.__apiPromise, this.__nativeContract, this.__callerAddress, "chainInfoOf", [chainId], __options, (result) => { return handleReturnType(result, getTypeDescription(23, DATA_TYPE_DESCRIPTIONS)); });
 	}
 
 	/**
 	* transactionDestination
 	*
 	* @param { (number | string | BN) } receiver,
-	* @param { (number | string | BN) } network,
+	* @param { (number | string | BN) } chain,
 	* @returns { Result<Result<Array<number>, ReturnTypes.Error>, ReturnTypes.LangError> }
 	*/
 	"transactionDestination" (
 		receiver: (number | string | BN),
-		network: (number | string | BN),
+		chain: (number | string | BN),
 		__options: GasLimit,
 	): Promise< QueryReturnType< Result<Result<Array<number>, ReturnTypes.Error>, ReturnTypes.LangError> > >{
-		return queryOkJSON( this.__apiPromise, this.__nativeContract, this.__callerAddress, "transactionDestination", [receiver, network], __options, (result) => { return handleReturnType(result, getTypeDescription(23, DATA_TYPE_DESCRIPTIONS)); });
+		return queryOkJSON( this.__apiPromise, this.__nativeContract, this.__callerAddress, "transactionDestination", [receiver, chain], __options, (result) => { return handleReturnType(result, getTypeDescription(25, DATA_TYPE_DESCRIPTIONS)); });
 	}
 
 	/**
-	* availableNetworks
+	* availableChains
 	*
-	* @returns { Result<Array<[number, ReturnTypes.NetworkInfo]>, ReturnTypes.LangError> }
+	* @returns { Result<Array<[number, ReturnTypes.ChainInfo]>, ReturnTypes.LangError> }
 	*/
-	"availableNetworks" (
+	"availableChains" (
 		__options: GasLimit,
-	): Promise< QueryReturnType< Result<Array<[number, ReturnTypes.NetworkInfo]>, ReturnTypes.LangError> > >{
-		return queryOkJSON( this.__apiPromise, this.__nativeContract, this.__callerAddress, "availableNetworks", [], __options, (result) => { return handleReturnType(result, getTypeDescription(26, DATA_TYPE_DESCRIPTIONS)); });
+	): Promise< QueryReturnType< Result<Array<[number, ReturnTypes.ChainInfo]>, ReturnTypes.LangError> > >{
+		return queryOkJSON( this.__apiPromise, this.__nativeContract, this.__callerAddress, "availableChains", [], __options, (result) => { return handleReturnType(result, getTypeDescription(28, DATA_TYPE_DESCRIPTIONS)); });
 	}
 
 	/**
@@ -131,50 +131,50 @@ export default class Methods {
 	/**
 	* addAddress
 	*
-	* @param { (number | string | BN) } network,
+	* @param { (number | string | BN) } chain,
 	* @param { Array<(number | string | BN)> } address,
 	* @returns { void }
 	*/
 	"addAddress" (
-		network: (number | string | BN),
+		chain: (number | string | BN),
 		address: Array<(number | string | BN)>,
 		__options: GasLimit,
 	){
 		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "addAddress", (events: EventRecord) => {
 			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
-		}, [network, address], __options);
+		}, [chain, address], __options);
 	}
 
 	/**
 	* updateAddress
 	*
-	* @param { (number | string | BN) } network,
+	* @param { (number | string | BN) } chain,
 	* @param { Array<(number | string | BN)> } address,
 	* @returns { void }
 	*/
 	"updateAddress" (
-		network: (number | string | BN),
+		chain: (number | string | BN),
 		address: Array<(number | string | BN)>,
 		__options: GasLimit,
 	){
 		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "updateAddress", (events: EventRecord) => {
 			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
-		}, [network, address], __options);
+		}, [chain, address], __options);
 	}
 
 	/**
 	* removeAddress
 	*
-	* @param { (number | string | BN) } network,
+	* @param { (number | string | BN) } chain,
 	* @returns { void }
 	*/
 	"removeAddress" (
-		network: (number | string | BN),
+		chain: (number | string | BN),
 		__options: GasLimit,
 	){
 		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "removeAddress", (events: EventRecord) => {
 			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
-		}, [network], __options);
+		}, [chain], __options);
 	}
 
 	/**
@@ -191,52 +191,54 @@ export default class Methods {
 	}
 
 	/**
-	* addNetwork
+	* addChain
 	*
-	* @param { ArgumentTypes.NetworkInfo } info,
+	* @param { (number | string | BN) } chainId,
+	* @param { ArgumentTypes.ChainInfo } info,
 	* @returns { void }
 	*/
-	"addNetwork" (
-		info: ArgumentTypes.NetworkInfo,
+	"addChain" (
+		chainId: (number | string | BN),
+		info: ArgumentTypes.ChainInfo,
 		__options: GasLimit,
 	){
-		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "addNetwork", (events: EventRecord) => {
+		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "addChain", (events: EventRecord) => {
 			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
-		}, [info], __options);
+		}, [chainId, info], __options);
 	}
 
 	/**
-	* updateNetwork
+	* updateChain
 	*
-	* @param { (number | string | BN) } networkId,
+	* @param { (number | string | BN) } chainId,
 	* @param { string | null } newRpcUrl,
 	* @param { ArgumentTypes.AccountType | null } newAddressType,
 	* @returns { void }
 	*/
-	"updateNetwork" (
-		networkId: (number | string | BN),
+	"updateChain" (
+		chainId: (number | string | BN),
 		newRpcUrl: string | null,
 		newAddressType: ArgumentTypes.AccountType | null,
 		__options: GasLimit,
 	){
-		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "updateNetwork", (events: EventRecord) => {
+		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "updateChain", (events: EventRecord) => {
 			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
-		}, [networkId, newRpcUrl, newAddressType], __options);
+		}, [chainId, newRpcUrl, newAddressType], __options);
 	}
 
 	/**
-	* removeNetwork
+	* removeChain
 	*
-	* @param { (number | string | BN) } networkId,
+	* @param { (number | string | BN) } chainId,
 	* @returns { void }
 	*/
-	"removeNetwork" (
-		networkId: (number | string | BN),
+	"removeChain" (
+		chainId: (number | string | BN),
 		__options: GasLimit,
 	){
-		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "removeNetwork", (events: EventRecord) => {
+		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "removeChain", (events: EventRecord) => {
 			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
-		}, [networkId], __options);
+		}, [chainId], __options);
 	}
 
 	/**

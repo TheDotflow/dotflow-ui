@@ -1,7 +1,7 @@
 import { CacheProvider, EmotionCache } from '@emotion/react';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider } from '@mui/material/styles';
-import { shibuya, UseInkathonProvider } from '@scio-labs/use-inkathon';
+import { UseInkathonProvider } from '@scio-labs/use-inkathon';
 import { ConfirmProvider } from 'material-ui-confirm';
 import { NextPage } from 'next';
 import { AppProps } from 'next/app';
@@ -45,7 +45,17 @@ export default function MyApp(props: MyAppProps) {
           <UseInkathonProvider
             appName='DotFlow UI'
             connectOnInit={false}
-            defaultChain={shibuya}
+            defaultChain={
+              {
+                network: 'rocococ-contracts',
+                name: 'Rococo contracts',
+                ss58Prefix: 42,
+                rpcUrls: ['wss://rococo-contracts-rpc.polkadot.io'],
+                explorerUrls: {},
+                testnet: true,
+                faucetUrls: [],
+              }
+            }
           >
             <IdentityContractProvider>
               <AddressBookContractProvider>
