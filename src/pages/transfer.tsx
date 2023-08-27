@@ -9,8 +9,6 @@ import {
   Select,
   TextField,
 } from '@mui/material';
-import { ApiPromise, WsProvider } from '@polkadot/api';
-import { useInkathon } from '@scio-labs/use-inkathon';
 import styles from '@styles/pages/transfer.module.scss';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -18,7 +16,7 @@ import AssetRegistry, { Asset } from '@/utils/assetRegistry';
 import IdentityKey from '@/utils/identityKey';
 import KeyStore from '@/utils/keyStore';
 
-import { chainsSupportingXcmExecute, RELAY_CHAIN, ZERO } from '@/consts';
+import { chainsSupportingXcmExecute, RELAY_CHAIN } from '@/consts';
 import { useRelayApi } from '@/contexts/RelayApi';
 import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
@@ -26,12 +24,12 @@ import { useAddressBook } from '@/contracts/addressbook/context';
 
 const TransferPage = () => {
   const {
-    networks,
+    chains,
     getAddresses,
     addresses,
     contract: identityContract,
   } = useIdentity();
-  const { activeAccount } = useInkathon();
+  // const { activeAccount } = useInkathon();
   const { toastError } = useToast();
   const { identities } = useAddressBook();
 
@@ -44,8 +42,8 @@ const TransferPage = () => {
   const [loadingAssets, setLoadingAssets] = useState(false);
   const [assets, setAssets] = useState<Asset[]>([]);
   const [tokenId, setTokenId] = useState<string>();
-  const [loadingBalance, setLoadingBalance] = useState(false);
-  const [sourceBalance, setSourceBalance] = useState<bigint>(ZERO);
+  // const [loadingBalance, setLoadingBalance] = useState(false);
+  // const [sourceBalance, setSourceBalance] = useState<bigint>(ZERO);
   const [recipientId, setRecipientId] = useState<number>();
   const [recipientOk, setRecipientOk] = useState(false);
   const [recipientAddress, setRecipientAddress] = useState<string>();
@@ -68,8 +66,8 @@ const TransferPage = () => {
 
     if (sourceChainId !== destChainId) {
       const hrmp = await relayApi.query.hrmp.hrmpChannels({
-        sender: networks[sourceChainId].paraId,
-        recipient: networks[destChainId].paraId,
+        sender: chains[sourceChainId].paraId,
+        recipient: chains[destChainId].paraId,
       });
 
       if (hrmp.isEmpty) {
@@ -80,15 +78,15 @@ const TransferPage = () => {
       } else {
         const _assets = await AssetRegistry.assetsSupportedOnBothChains(
           RELAY_CHAIN,
-          networks[sourceChainId].paraId,
-          networks[destChainId].paraId
+          chains[sourceChainId].paraId,
+          chains[destChainId].paraId
         );
         setAssets(_assets);
       }
     } else {
       const _assets = await AssetRegistry.getAssetsOnBlockchain(
         RELAY_CHAIN,
-        networks[sourceChainId].paraId
+        chains[sourceChainId].paraId
       );
       setTokenId('');
       setAssets(_assets);
@@ -101,58 +99,58 @@ const TransferPage = () => {
     loadAssets();
   }, [sourceChainId, destChainId]);
 
-  useEffect(() => {
-    const fetchAssetBalance = async (
-      chainId: number,
-      tokenId: string,
-      account: string,
-      callback: (_value: bigint) => void
-    ): Promise<void> => {
-      try {
-        const provider = new WsProvider(networks[chainId].rpcUrls[0]);
-        const api = new ApiPromise({ provider });
+  // useEffect(() => {
+  //   const fetchAssetBalance = async (
+  //     chainId: number,
+  //     tokenId: string,
+  //     account: string,
+  //     callback: (_value: bigint) => void
+  //   ): Promise<void> => {
+  //     try {
+  //       const provider = new WsProvider(chains[chainId].rpcUrls[0]);
+  //       const api = new ApiPromise({ provider });
 
-        await api.isReady;
+  //       await api.isReady;
 
-        const res = await api.query.assets?.account(tokenId, account);
-        if (res.isEmpty) callback(ZERO);
-        else callback(BigInt(res.toString()));
+  //       const res = await api.query.assets?.account(tokenId, account);
+  //       if (res.isEmpty) callback(ZERO);
+  //       else callback(BigInt(res.toString()));
 
-        await api.disconnect();
-      } catch {
-        callback(ZERO);
-      }
-    };
-    const fetchBalances = async () => {
-      if (
-        sourceChainId === undefined ||
-        !activeAccount ||
-        tokenId === undefined
-      )
-        return;
+  //       await api.disconnect();
+  //     } catch {
+  //       callback(ZERO);
+  //     }
+  //   };
+  //   const fetchBalances = async () => {
+  //     if (
+  //       sourceChainId === undefined ||
+  //       !activeAccount ||
+  //       tokenId === undefined
+  //     )
+  //       return;
 
-      setLoadingBalance(true);
+  //     setLoadingBalance(true);
 
-      await fetchAssetBalance(
-        sourceChainId,
-        tokenId,
-        activeAccount.address,
-        (value) => setSourceBalance(value)
-      );
+  //     await fetchAssetBalance(
+  //       sourceChainId,
+  //       tokenId,
+  //       activeAccount.address,
+  //       (value) => setSourceBalance(value)
+  //     );
 
-      setLoadingBalance(false);
-    };
+  //     setLoadingBalance(false);
+  //   };
 
-    fetchBalances();
-  }, [tokenId]);
+  //   fetchBalances();
+  // }, [tokenId]);
 
   useEffect(() => {
     if (sourceChainId === undefined) return;
     const index = addresses.findIndex(
-      (address) => address.networkId === sourceChainId
+      (address) => address.chainId === sourceChainId
     );
     index === -1 &&
-      toastError(`You don't have ${networks[sourceChainId].name} address`);
+      toastError(`You don't have ${chains[sourceChainId].name} address`);
   }, [sourceChainId]);
 
   useEffect(() => {
@@ -160,17 +158,17 @@ const TransferPage = () => {
       if (recipientId === undefined || destChainId === undefined) return;
       const addresses = await getAddresses(identities[recipientId].identityNo);
       const index = addresses.findIndex(
-        (address) => address.networkId === destChainId
+        (address) => address.chainId === destChainId
       );
       setRecipientOk(index !== -1);
       if (index === -1) {
         toastError(
-          `${identities[recipientId].nickName} does not have ${networks[destChainId].name} address.`
+          `${identities[recipientId].nickName} does not have ${chains[destChainId].name} address.`
         );
       } else {
         const identityKey = KeyStore.readIdentityKey(recipientId) || '';
         const destAddressRaw = addresses[index].address;
-        if (IdentityKey.containsNetworkId(identityKey, destChainId)) {
+        if (IdentityKey.containsChainId(identityKey, destChainId)) {
           const decryptedAddress = IdentityKey.decryptAddress(
             identityKey,
             destChainId,
@@ -229,7 +227,7 @@ const TransferPage = () => {
       } as Sender,
       {
         addressRaw: decodeAddress(recipientAddress),
-        type: networks[destChainId].accountType,
+        type: chains[destChainId].accountType,
         network: destChainId,
       } as Receiver,
       0, // Reserve paraId, FIXME
@@ -255,7 +253,7 @@ const TransferPage = () => {
             value={sourceChainId === undefined ? '' : sourceChainId}
             onChange={(e) => setSourceChainId(Number(e.target.value))}
           >
-            {Object.entries(networks).map(([chainId, network], index) => (
+            {Object.entries(chains).map(([chainId, network], index) => (
               <MenuItem value={chainId} key={index}>
                 {network.name}
               </MenuItem>
@@ -272,7 +270,7 @@ const TransferPage = () => {
             value={destChainId === undefined ? '' : destChainId}
             onChange={(e) => setDestChainId(Number(e.target.value))}
           >
-            {Object.entries(networks).map(([chainId, network], index) => (
+            {Object.entries(chains).map(([chainId, network], index) => (
               <MenuItem value={chainId} key={index}>
                 {network.name}
               </MenuItem>
@@ -295,14 +293,14 @@ const TransferPage = () => {
               </Select>
             </FormControl>
           ) : (
-            <div>There are no assets supported on both networks.</div>
+            <div>There are no assets supported on both chains.</div>
           ))}
-        {assetSelected && !loadingBalance && (
+        {/* {assetSelected && !loadingBalance && (
           <div className={styles.balanceContainer}>
             <div>Balance: </div>
             <div>{sourceBalance.toString()}</div>
           </div>
-        )}
+        )} */}
         {assetSelected && (
           <FormControl fullWidth className='form-item'>
             <FormLabel>Select recipient</FormLabel>
@@ -338,7 +336,7 @@ const TransferPage = () => {
       </Box>
       <Backdrop
         sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
-        open={loadingAssets || loadingBalance}
+        open={loadingAssets}
       >
         <CircularProgress color='inherit' />
       </Backdrop>

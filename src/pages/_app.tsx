@@ -43,11 +43,11 @@ export default function MyApp(props: MyAppProps) {
         {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
         <CssBaseline />
         <ToastProvider>
-          <UseInkathonProvider
-            appName='DotFlow UI'
-            connectOnInit={false}
-            defaultChain={
-              {
+          <RelayApiContextProvider>
+            <UseInkathonProvider
+              appName='DotFlow UI'
+              connectOnInit={false}
+              defaultChain={{
                 network: 'rocococ-contracts',
                 name: 'Rococo contracts',
                 ss58Prefix: 42,
@@ -55,17 +55,17 @@ export default function MyApp(props: MyAppProps) {
                 explorerUrls: {},
                 testnet: true,
                 faucetUrls: [],
-              }
-            }
-          >
-            <IdentityContractProvider>
-              <AddressBookContractProvider>
-                <ConfirmProvider>
-                  {getLayout(<Component {...pageProps} />)}
-                </ConfirmProvider>
-              </AddressBookContractProvider>
-            </IdentityContractProvider>
-          </UseInkathonProvider>
+              }}
+            >
+              <IdentityContractProvider>
+                <AddressBookContractProvider>
+                  <ConfirmProvider>
+                    {getLayout(<Component {...pageProps} />)}
+                  </ConfirmProvider>
+                </AddressBookContractProvider>
+              </IdentityContractProvider>
+            </UseInkathonProvider>
+          </RelayApiContextProvider>
         </ToastProvider>
       </ThemeProvider>
     </CacheProvider>
