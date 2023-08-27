@@ -47,13 +47,13 @@ export default function MyApp(props: MyAppProps) {
             connectOnInit={false}
             defaultChain={
               {
-                network: 'shibuya',
-                name: 'Shibuya Testnet',
-                ss58Prefix: 5,
-                rpcUrls: ['https://shibuya.public.blastapi.io'],
+                network: 'rocococ-contracts',
+                name: 'Rococo contracts',
+                ss58Prefix: 42,
+                rpcUrls: ['wss://rococo-contracts-rpc.polkadot.io'],
                 explorerUrls: {},
                 testnet: true,
-                faucetUrls: ['https://portal.astar.network/#/shibuya-testnet/assets'],
+                faucetUrls: [],
               }
             }
           >
