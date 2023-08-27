@@ -71,43 +71,43 @@ export default class Methods {
 	}
 
 	/**
-	* networkInfoOf
+	* chainInfoOf
 	*
-	* @param { (number | string | BN) } networkId,
+	* @param { (number | string | BN) } chainId,
 	*/
-	"networkInfoOf" (
-		networkId: (number | string | BN),
+	"chainInfoOf" (
+		chainId: (number | string | BN),
 		__options ? : GasLimit,
 	){
-		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "networkInfoOf", (events: EventRecord) => {
+		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "chainInfoOf", (events: EventRecord) => {
 			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
-		}, [networkId], __options);
+		}, [chainId], __options);
 	}
 
 	/**
 	* transactionDestination
 	*
 	* @param { (number | string | BN) } receiver,
-	* @param { (number | string | BN) } network,
+	* @param { (number | string | BN) } chain,
 	*/
 	"transactionDestination" (
 		receiver: (number | string | BN),
-		network: (number | string | BN),
+		chain: (number | string | BN),
 		__options ? : GasLimit,
 	){
 		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "transactionDestination", (events: EventRecord) => {
 			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
-		}, [receiver, network], __options);
+		}, [receiver, chain], __options);
 	}
 
 	/**
-	* availableNetworks
+	* availableChains
 	*
 	*/
-	"availableNetworks" (
+	"availableChains" (
 		__options ? : GasLimit,
 	){
-		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "availableNetworks", (events: EventRecord) => {
+		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "availableChains", (events: EventRecord) => {
 			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
 		}, [], __options);
 	}
@@ -127,47 +127,47 @@ export default class Methods {
 	/**
 	* addAddress
 	*
-	* @param { (number | string | BN) } network,
+	* @param { (number | string | BN) } chain,
 	* @param { Array<(number | string | BN)> } address,
 	*/
 	"addAddress" (
-		network: (number | string | BN),
+		chain: (number | string | BN),
 		address: Array<(number | string | BN)>,
 		__options ? : GasLimit,
 	){
 		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "addAddress", (events: EventRecord) => {
 			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
-		}, [network, address], __options);
+		}, [chain, address], __options);
 	}
 
 	/**
 	* updateAddress
 	*
-	* @param { (number | string | BN) } network,
+	* @param { (number | string | BN) } chain,
 	* @param { Array<(number | string | BN)> } address,
 	*/
 	"updateAddress" (
-		network: (number | string | BN),
+		chain: (number | string | BN),
 		address: Array<(number | string | BN)>,
 		__options ? : GasLimit,
 	){
 		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "updateAddress", (events: EventRecord) => {
 			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
-		}, [network, address], __options);
+		}, [chain, address], __options);
 	}
 
 	/**
 	* removeAddress
 	*
-	* @param { (number | string | BN) } network,
+	* @param { (number | string | BN) } chain,
 	*/
 	"removeAddress" (
-		network: (number | string | BN),
+		chain: (number | string | BN),
 		__options ? : GasLimit,
 	){
 		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "removeAddress", (events: EventRecord) => {
 			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
-		}, [network], __options);
+		}, [chain], __options);
 	}
 
 	/**
@@ -183,49 +183,51 @@ export default class Methods {
 	}
 
 	/**
-	* addNetwork
+	* addChain
 	*
-	* @param { ArgumentTypes.NetworkInfo } info,
+	* @param { (number | string | BN) } chainId,
+	* @param { ArgumentTypes.ChainInfo } info,
 	*/
-	"addNetwork" (
-		info: ArgumentTypes.NetworkInfo,
+	"addChain" (
+		chainId: (number | string | BN),
+		info: ArgumentTypes.ChainInfo,
 		__options ? : GasLimit,
 	){
-		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "addNetwork", (events: EventRecord) => {
+		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "addChain", (events: EventRecord) => {
 			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
-		}, [info], __options);
+		}, [chainId, info], __options);
 	}
 
 	/**
-	* updateNetwork
+	* updateChain
 	*
-	* @param { (number | string | BN) } networkId,
+	* @param { (number | string | BN) } chainId,
 	* @param { string | null } newRpcUrl,
 	* @param { ArgumentTypes.AccountType | null } newAddressType,
 	*/
-	"updateNetwork" (
-		networkId: (number | string | BN),
+	"updateChain" (
+		chainId: (number | string | BN),
 		newRpcUrl: string | null,
 		newAddressType: ArgumentTypes.AccountType | null,
 		__options ? : GasLimit,
 	){
-		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "updateNetwork", (events: EventRecord) => {
+		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "updateChain", (events: EventRecord) => {
 			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
-		}, [networkId, newRpcUrl, newAddressType], __options);
+		}, [chainId, newRpcUrl, newAddressType], __options);
 	}
 
 	/**
-	* removeNetwork
+	* removeChain
 	*
-	* @param { (number | string | BN) } networkId,
+	* @param { (number | string | BN) } chainId,
 	*/
-	"removeNetwork" (
-		networkId: (number | string | BN),
+	"removeChain" (
+		chainId: (number | string | BN),
 		__options ? : GasLimit,
 	){
-		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "removeNetwork", (events: EventRecord) => {
+		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "removeChain", (events: EventRecord) => {
 			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
-		}, [networkId], __options);
+		}, [chainId], __options);
 	}
 
 	/**

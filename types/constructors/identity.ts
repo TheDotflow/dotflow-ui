@@ -49,12 +49,14 @@ export default class Constructors {
 		};
 	}
 	/**
-	* initWithNetworks
+	* initWithChains
 	*
-	* @param { Array<ArgumentTypes.NetworkInfo> } networks,
+	* @param { Array<ArgumentTypes.ChainInfo> } chains,
+	* @param { Array<(number | string | BN)> } chainIds,
 	*/
-   	async "initWithNetworks" (
-		networks: Array<ArgumentTypes.NetworkInfo>,
+   	async "initWithChains" (
+		chains: Array<ArgumentTypes.ChainInfo>,
+		chainIds: Array<(number | string | BN)>,
 		__options ? : ConstructorOptions,
    	) {
    		const __contract = JSON.parse(ContractFile);
@@ -62,7 +64,7 @@ export default class Constructors {
 		const gasLimit = (await _genValidGasLimitAndValue(this.nativeAPI, __options)).gasLimit as WeightV2;
 
 		const storageDepositLimit = __options?.storageDepositLimit;
-			const tx = code.tx["initWithNetworks"]!({ gasLimit, storageDepositLimit, value: __options?.value }, networks);
+			const tx = code.tx["initWithChains"]!({ gasLimit, storageDepositLimit, value: __options?.value }, chains, chainIds);
 			let response;
 
 			try {

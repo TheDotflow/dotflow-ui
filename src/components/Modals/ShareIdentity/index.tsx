@@ -31,7 +31,7 @@ export const ShareIdentityModal = ({
   open,
   onClose,
 }: ShareIdentityModalProps) => {
-  const { identityNo, addresses, networks } = useIdentity();
+  const { identityNo, addresses, chains } = useIdentity();
   const { toastError, toastSuccess } = useToast();
   const [checks, setChecks] = useState<Record<number, boolean>>({});
   const [sharedKey, setSharedKey] = useState('');
@@ -39,14 +39,14 @@ export const ShareIdentityModal = ({
   useEffect(() => {
     if (identityNo === null) return;
 
-    const selectedNetworks = Object.entries(checks)
+    const selectedChains = Object.entries(checks)
       .filter((item) => item[1])
       .map((item) => Number(item[0]));
 
     const identityKey = KeyStore.readIdentityKey(identityNo) || '';
 
     try {
-      const sharedKey = IdentityKey.getSharedKey(identityKey, selectedNetworks);
+      const sharedKey = IdentityKey.getSharedKey(identityKey, selectedChains);
       setSharedKey(sharedKey);
     } catch (e: any) {
       toastError(`Failed to get the identity key. Error: ${e.message}`);
@@ -74,20 +74,20 @@ export const ShareIdentityModal = ({
             </CopyToClipboard>
           </Box>
           <Typography mt='2em'>
-            Specify the networks that the receiver of the identity key will be
+            Specify the chains that the receiver of the identity key will be
             able to access:
           </Typography>
           <Grid container sx={{ pt: '12px', pb: '24px' }} mb='1em'>
-            {addresses.map(({ networkId }, index) => (
+            {addresses.map(({ chainId }, index) => (
               <Grid item key={index} sx={{ flexGrow: 1 }}>
                 <FormControlLabel
-                  label={networks[networkId].name}
+                  label={chains[chainId].name}
                   control={
                     <Checkbox
                       onChange={(e) =>
                         setChecks({
                           ...checks,
-                          [networkId]: e.target.checked,
+                          [chainId]: e.target.checked,
                         })
                       }
                     />

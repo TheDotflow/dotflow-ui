@@ -19,7 +19,7 @@ import KeyStore from '@/utils/keyStore';
 
 import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
-import { Address, NetworkId } from '@/contracts/types';
+import { Address, ChainId } from '@/contracts/types';
 
 import styles from './index.module.scss';
 interface AddressCardProps {
@@ -36,16 +36,16 @@ export const AddressCard = ({ data, onEdit }: AddressCardProps) => {
   const confirm = useConfirm();
   const { api, activeAccount } = useInkathon();
   const { toastSuccess, toastError } = useToast();
-  const { identityNo, networks, contract, fetchAddresses } = useIdentity();
+  const { identityNo, chains, contract, fetchAddresses } = useIdentity();
 
   const [working, setWorking] = useState(false);
 
-  const { networkId, address } = data;
+  const { chainId, address } = data;
 
-  const removeAddress = async (networkId: NetworkId) => {
+  const removeAddress = async (chainId: ChainId) => {
     if (!api || !activeAccount || !contract) {
       toastError(
-        'Cannot remove address. Please check if you are connected to the network'
+        'Cannot remove address. Please check if you are connected to the chain'
       );
       return;
     }
@@ -57,17 +57,16 @@ export const AddressCard = ({ data, onEdit }: AddressCardProps) => {
         contract,
         'remove_address',
         {},
-        [networkId]
+        [chainId]
       );
 
       toastSuccess('Address is removed successfully.');
       fetchAddresses();
     } catch (e: any) {
       toastError(
-        `Failed to remove address. Error: ${
-          e.errorMessage === 'Error'
-            ? 'Please check your balance.'
-            : e.errorMessage
+        `Failed to remove address. Error: ${e.errorMessage === 'Error'
+          ? 'Please check your balance.'
+          : e.errorMessage
         }`
       );
     }
@@ -76,17 +75,17 @@ export const AddressCard = ({ data, onEdit }: AddressCardProps) => {
 
   const decryptAddress = (
     address: string,
-    networkId: number
+    chainId: number
   ): DecryptionResult => {
     if (identityNo === null) return { success: false, value: '' };
 
     const identityKey = KeyStore.readIdentityKey(identityNo) || '';
 
     let decryptedAddress = address;
-    if (IdentityKey.containsNetworkId(identityKey, networkId)) {
+    if (IdentityKey.containsChainId(identityKey, chainId)) {
       decryptedAddress = IdentityKey.decryptAddress(
         identityKey,
-        networkId,
+        chainId,
         address
       );
 
@@ -102,13 +101,13 @@ export const AddressCard = ({ data, onEdit }: AddressCardProps) => {
     };
   };
 
-  const addressDecrypted = decryptAddress(address, networkId);
+  const addressDecrypted = decryptAddress(address, chainId);
 
   return (
     <Card className={styles.addressCard}>
-      <Box className={styles.networkName}>
+      <Box className={styles.chainName}>
         <Typography sx={{ fontWeight: 600 }}>
-          {networks[networkId].name}
+          {chains[chainId].name}
         </Typography>
         <IconButton size='small' onClick={onEdit}>
           <EditRoundedIcon />
@@ -136,7 +135,7 @@ export const AddressCard = ({ data, onEdit }: AddressCardProps) => {
             confirm({
               description:
                 'This will remove your address and cannot be undone.',
-            }).then(() => removeAddress(networkId));
+            }).then(() => removeAddress(chainId));
           }}
           disabled={working}
         >

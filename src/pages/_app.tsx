@@ -1,7 +1,7 @@
 import { CacheProvider, EmotionCache } from '@emotion/react';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider } from '@mui/material/styles';
-import { shibuya, UseInkathonProvider } from '@scio-labs/use-inkathon';
+import { UseInkathonProvider } from '@scio-labs/use-inkathon';
 import { ConfirmProvider } from 'material-ui-confirm';
 import { NextPage } from 'next';
 import { AppProps } from 'next/app';
@@ -43,21 +43,29 @@ export default function MyApp(props: MyAppProps) {
         {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
         <CssBaseline />
         <ToastProvider>
-          <RelayApiContextProvider>
-            <UseInkathonProvider
-              appName='DotFlow UI'
-              connectOnInit={false}
-              defaultChain={shibuya}
-            >
-              <IdentityContractProvider>
-                <AddressBookContractProvider>
-                  <ConfirmProvider>
-                    {getLayout(<Component {...pageProps} />)}
-                  </ConfirmProvider>
-                </AddressBookContractProvider>
-              </IdentityContractProvider>
-            </UseInkathonProvider>
-          </RelayApiContextProvider>
+          <UseInkathonProvider
+            appName='DotFlow UI'
+            connectOnInit={false}
+            defaultChain={
+              {
+                network: 'rocococ-contracts',
+                name: 'Rococo contracts',
+                ss58Prefix: 42,
+                rpcUrls: ['wss://rococo-contracts-rpc.polkadot.io'],
+                explorerUrls: {},
+                testnet: true,
+                faucetUrls: [],
+              }
+            }
+          >
+            <IdentityContractProvider>
+              <AddressBookContractProvider>
+                <ConfirmProvider>
+                  {getLayout(<Component {...pageProps} />)}
+                </ConfirmProvider>
+              </AddressBookContractProvider>
+            </IdentityContractProvider>
+          </UseInkathonProvider>
         </ToastProvider>
       </ThemeProvider>
     </CacheProvider>

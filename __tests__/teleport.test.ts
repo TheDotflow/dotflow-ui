@@ -7,7 +7,7 @@ import { Fungible, Receiver, Sender } from "../src/utils/transactionRouter/types
 import IdentityContractFactory from "../types/constructors/identity";
 import IdentityContract from "../types/contracts/identity";
 
-import { AccountType, NetworkInfo } from "../types/types-arguments/identity";
+import { AccountType, ChainInfo } from "../types/types-arguments/identity";
 
 const WS_ROROCO_LOCAL = "ws://127.0.0.1:9900";
 const WS_ASSET_HUB_LOCAL = "ws://127.0.0.1:9910";
@@ -38,13 +38,13 @@ describe("TransactionRouter Cross-chain teleport", () => {
       swankyApi
     );
 
-    await addNetwork(identityContract, alice, {
-      rpcUrl: WS_ROROCO_LOCAL,
+    await addChain(identityContract, alice, 0, {
+      rpcUrls: [WS_ROROCO_LOCAL],
       accountType: AccountType.accountId32,
     });
 
-    await addNetwork(identityContract, alice, {
-      rpcUrl: WS_ASSET_HUB_LOCAL,
+    await addChain(identityContract, alice, 1000, {
+      rpcUrls: [WS_ASSET_HUB_LOCAL],
       accountType: AccountType.accountId32,
     });
   });
@@ -53,13 +53,13 @@ describe("TransactionRouter Cross-chain teleport", () => {
   test("Teleporting ROC works", async () => {
     const sender: Sender = {
       keypair: alice,
-      network: 0
+      chain: 0
     };
 
     const receiver: Receiver = {
       addressRaw: bob.addressRaw,
       type: AccountType.accountId32,
-      network: 1,
+      chain: 1000,
     };
 
     const rococoProvider = new WsProvider(WS_ROROCO_LOCAL);
@@ -87,11 +87,14 @@ describe("TransactionRouter Cross-chain teleport", () => {
     };
 
     await TransactionRouter.sendTokens(
-      identityContract,
       sender,
       receiver,
       assetReserveChainId,
-      asset
+      asset,
+      {
+        originApi: rococoApi,
+        destApi: assetHubApi
+      }
     );
 
     // Delay a bit just to be safe.
@@ -110,14 +113,15 @@ describe("TransactionRouter Cross-chain teleport", () => {
   }, 120000);
 });
 
-const addNetwork = async (
+const addChain = async (
   contract: IdentityContract,
   signer: KeyringPair,
-  network: NetworkInfo
+  chainId: number,
+  chain: ChainInfo
 ): Promise<void> => {
   await contract
     .withSigner(signer)
-    .tx.addNetwork(network);
+    .tx.addChain(chainId, chain);
 };
 
 const getBalance = async (api: ApiPromise, who: string): Promise<any> => {

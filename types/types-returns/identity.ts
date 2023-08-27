@@ -7,8 +7,8 @@ export enum LangError {
 	couldNotReadInput = 'CouldNotReadInput'
 }
 
-export type NetworkInfo = {
-	rpcUrl: string,
+export type ChainInfo = {
+	rpcUrls: Array<string>,
 	accountType: AccountType
 }
 
@@ -25,10 +25,10 @@ export enum Error {
 	notAllowed = 'NotAllowed',
 	identityDoesntExist = 'IdentityDoesntExist',
 	addressAlreadyAdded = 'AddressAlreadyAdded',
-	invalidNetwork = 'InvalidNetwork',
+	invalidChain = 'InvalidChain',
 	addressSizeExceeded = 'AddressSizeExceeded',
-	networkNameTooLong = 'NetworkNameTooLong',
-	networkRpcUrlTooLong = 'NetworkRpcUrlTooLong',
+	chainNameTooLong = 'ChainNameTooLong',
+	chainRpcUrlTooLong = 'ChainRpcUrlTooLong',
 	alreadyIdentityOwner = 'AlreadyIdentityOwner'
 }
 

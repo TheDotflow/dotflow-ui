@@ -28,7 +28,7 @@ const IdentityPage = () => {
 
   const [newAddrModal, openAddAddr] = useState(false);
 
-  const [networkId, setNetworkId] = useState<number | undefined>(undefined);
+  const [chainId, setChainId] = useState<number | undefined>(undefined);
   const [editModalOpen, openEditModal] = useState(false);
   const [importModalOpen, openImportModal] = useState(false);
   const [shareModalOpen, openShareModal] = useState(false);
@@ -84,15 +84,15 @@ const IdentityPage = () => {
           <>
             <Typography className='section-header'>{`Wallet Addresses(${addresses.length})`}</Typography>
             <Grid container spacing={2} sx={{ mt: '12px' }}>
-              {addresses.map(({ address, networkId }, index) => (
+              {addresses.map(({ address, chainId }, index) => (
                 <Grid item key={index}>
                   <AddressCard
                     data={{
                       address,
-                      networkId,
+                      chainId,
                     }}
                     onEdit={() => {
-                      setNetworkId(networkId);
+                      setChainId(chainId);
                       openEditModal(true);
                     }}
                   />
@@ -112,7 +112,7 @@ const IdentityPage = () => {
                 openEditModal(false);
                 fetchAddresses();
               }}
-              networkId={networkId}
+              chainId={chainId}
             />
             <ImportKeyModal
               open={importModalOpen}

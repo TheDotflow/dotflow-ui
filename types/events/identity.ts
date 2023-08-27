@@ -87,7 +87,7 @@ export default class EventsClass {
 		return this.__subscribeOnEvent(callbackWrapper, (eventName : string) => eventName == 'IdentityRemoved');
 	}
 
-	public subscribeOnNetworkAddedEvent(callback : (event : EventTypes.NetworkAdded) => void) {
+	public subscribeOnChainAddedEvent(callback : (event : EventTypes.ChainAdded) => void) {
 		const callbackWrapper = (args: any[], event: any) => {
 			const _event: Record < string, any > = {};
 
@@ -95,13 +95,13 @@ export default class EventsClass {
 				_event[event.args[i]!.name] = args[i]!.toJSON();
 			}
 
-			callback(handleEventReturn(_event, getEventTypeDescription('NetworkAdded', EVENT_DATA_TYPE_DESCRIPTIONS)) as EventTypes.NetworkAdded);
+			callback(handleEventReturn(_event, getEventTypeDescription('ChainAdded', EVENT_DATA_TYPE_DESCRIPTIONS)) as EventTypes.ChainAdded);
 		};
 
-		return this.__subscribeOnEvent(callbackWrapper, (eventName : string) => eventName == 'NetworkAdded');
+		return this.__subscribeOnEvent(callbackWrapper, (eventName : string) => eventName == 'ChainAdded');
 	}
 
-	public subscribeOnNetworkUpdatedEvent(callback : (event : EventTypes.NetworkUpdated) => void) {
+	public subscribeOnChainUpdatedEvent(callback : (event : EventTypes.ChainUpdated) => void) {
 		const callbackWrapper = (args: any[], event: any) => {
 			const _event: Record < string, any > = {};
 
@@ -109,13 +109,13 @@ export default class EventsClass {
 				_event[event.args[i]!.name] = args[i]!.toJSON();
 			}
 
-			callback(handleEventReturn(_event, getEventTypeDescription('NetworkUpdated', EVENT_DATA_TYPE_DESCRIPTIONS)) as EventTypes.NetworkUpdated);
+			callback(handleEventReturn(_event, getEventTypeDescription('ChainUpdated', EVENT_DATA_TYPE_DESCRIPTIONS)) as EventTypes.ChainUpdated);
 		};
 
-		return this.__subscribeOnEvent(callbackWrapper, (eventName : string) => eventName == 'NetworkUpdated');
+		return this.__subscribeOnEvent(callbackWrapper, (eventName : string) => eventName == 'ChainUpdated');
 	}
 
-	public subscribeOnNetworkRemovedEvent(callback : (event : EventTypes.NetworkRemoved) => void) {
+	public subscribeOnChainRemovedEvent(callback : (event : EventTypes.ChainRemoved) => void) {
 		const callbackWrapper = (args: any[], event: any) => {
 			const _event: Record < string, any > = {};
 
@@ -123,10 +123,10 @@ export default class EventsClass {
 				_event[event.args[i]!.name] = args[i]!.toJSON();
 			}
 
-			callback(handleEventReturn(_event, getEventTypeDescription('NetworkRemoved', EVENT_DATA_TYPE_DESCRIPTIONS)) as EventTypes.NetworkRemoved);
+			callback(handleEventReturn(_event, getEventTypeDescription('ChainRemoved', EVENT_DATA_TYPE_DESCRIPTIONS)) as EventTypes.ChainRemoved);
 		};
 
-		return this.__subscribeOnEvent(callbackWrapper, (eventName : string) => eventName == 'NetworkRemoved');
+		return this.__subscribeOnEvent(callbackWrapper, (eventName : string) => eventName == 'ChainRemoved');
 	}
 
 	public subscribeOnRecoveryAccountSetEvent(callback : (event : EventTypes.RecoveryAccountSet) => void) {
