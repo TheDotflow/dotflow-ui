@@ -19,14 +19,14 @@ import AssetRegistry, { Asset } from '@/utils/assetRegistry';
 import IdentityKey from '@/utils/identityKey';
 import KeyStore from '@/utils/keyStore';
 import TransactionRouter, { isTeleport } from '@/utils/transactionRouter';
+import { getTeleportableAssets } from '@/utils/transactionRouter/teleportableRoutes';
+import { Fungible } from '@/utils/transactionRouter/types';
 
 import { chainsSupportingXcmExecute, RELAY_CHAIN } from '@/consts';
 import { useRelayApi } from '@/contexts/RelayApi';
 import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
 import { useAddressBook } from '@/contracts/addressbook/context';
-import { getTeleportableAssets } from '@/utils/transactionRouter/teleportableRoutes';
-import { Fungible } from '@/utils/transactionRouter/types';
 
 const TransferPage = () => {
   const {

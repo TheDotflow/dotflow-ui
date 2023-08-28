@@ -2,7 +2,7 @@ import { ApiPromise } from "@polkadot/api";
 import { Signer } from "@polkadot/types/types";
 
 import ReserveTransfer from "./reserveTransfer";
-import { TeleportableRoute, teleportableRoutes } from "./teleportableRoutes";
+import { teleportableRoutes } from "./teleportableRoutes";
 import TeleportTransfer from "./teleportTransfer";
 import TransferAsset from "./transferAsset";
 import { Fungible, Receiver, Sender, TransferRpcApis } from "./types";

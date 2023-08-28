@@ -1,10 +1,10 @@
 import { ApiPromise } from "@polkadot/api";
 import { KeyringPair } from "@polkadot/keyring/types";
+import { Signer } from "@polkadot/types/types";
 
 import { getDestination, getMultiAsset, getTransferBeneficiary } from ".";
 import { Fungible, Receiver } from "./types";
 import { getParaId } from "..";
-import { Signer } from "@polkadot/types/types";
 
 class TeleportTransfer {
   public static async send(

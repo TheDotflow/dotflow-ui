@@ -2,6 +2,7 @@
 // teleportation.
 
 import { RELAY_CHAIN } from "@/consts";
+
 import AssetRegistry, { Asset } from "../assetRegistry";
 
 export type TeleportableRoute = {
@@ -141,8 +142,6 @@ export const getTeleportableAssets = (originChainId: number, destChainId: number
       && route.destParaId === destChainId
       && route.relayChain === RELAY_CHAIN
   );
-
-  console.log(routes);
 
   return routes.map((route) => route.asset);
 }
