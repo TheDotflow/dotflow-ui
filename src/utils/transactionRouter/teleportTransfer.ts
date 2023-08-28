@@ -4,13 +4,12 @@ import { KeyringPair } from "@polkadot/keyring/types";
 import { getDestination, getMultiAsset, getTransferBeneficiary } from ".";
 import { Fungible, Receiver } from "./types";
 import { getParaId } from "..";
-import { IKeyringPair } from "@polkadot/types/types";
 
 class TeleportTransfer {
   public static async send(
     originApi: ApiPromise,
     destApi: ApiPromise,
-    sender: KeyringPair | IKeyringPair,
+    sender: KeyringPair,
     receiver: Receiver,
     asset: Fungible
   ): Promise<void> {

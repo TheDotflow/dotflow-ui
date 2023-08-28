@@ -23,7 +23,7 @@ import { useIdentity } from '@/contracts';
 import { useAddressBook } from '@/contracts/addressbook/context';
 import TransactionRouter from '@/utils/transactionRouter';
 import { useInkathon } from '@scio-labs/use-inkathon';
-import { ApiPromise, WsProvider } from '@polkadot/api';
+import { ApiPromise, Keyring, WsProvider } from '@polkadot/api';
 import { AccountType } from 'types/types-arguments/identity';
 
 const TransferPage = () => {
@@ -168,7 +168,8 @@ const TransferPage = () => {
           `${identities[recipientId].nickName} does not have ${chains[destChainId].name} address.`
         );
       } else {
-        const identityKey = KeyStore.readIdentityKey(recipientId) || '';
+        const recepientIdentityNo = identities[recipientId].identityNo;
+        const identityKey = KeyStore.readIdentityKey(recepientIdentityNo) || '';
         const destAddressRaw = addresses[index].address;
         if (IdentityKey.containsChainId(identityKey, destChainId)) {
           const decryptedAddress = IdentityKey.decryptAddress(
@@ -239,17 +240,18 @@ const TransferPage = () => {
     const textEncoder = new TextEncoder();
     const addressRaw = textEncoder.encode(recipientAddress);
 
-    console.log(selectedAssetXcmInterior);
+    const keypair = new Keyring();
+    keypair.addFromAddress(activeAccount.address);
 
     await TransactionRouter.sendTokens(
       {
-        keypair: activeAccount, // How to convert active account into a keypair?
+        keypair: keypair.pairs[0], // How to convert active account into a keypair?
         chain: sourceChainId
       },
       {
         addressRaw,
         chain: destChainId,
-        type: AccountType[chains[destChainId].accountType as keyof typeof AccountType]
+        type: chains[destChainId].accountType === "AccountId32" ? AccountType.accountId32 : AccountType.accountKey20
       },
       0,
       {

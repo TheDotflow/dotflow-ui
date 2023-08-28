@@ -3,12 +3,11 @@ import { KeyringPair } from "@polkadot/keyring/types";
 
 import { Fungible, Receiver } from "./types";
 import { AccountType } from "../../../types/types-arguments/identity";
-import { IKeyringPair } from "@polkadot/types/types";
 
 class TransferAsset {
   public static async send(
     api: ApiPromise,
-    sender: KeyringPair | IKeyringPair,
+    sender: KeyringPair,
     receiver: Receiver,
     asset: Fungible
   ): Promise<void> {
@@ -17,8 +16,6 @@ class TransferAsset {
     // since it can be different on each chain. For that reason we will use the XCM `TransferAsset` 
     // instruction which is standardized and as far as the chain has an XCM executor the 
     // transaction will be executed correctly.
-
-    console.log(sender);
 
     const xcm = this.xcmTransferAssetMessage(
       receiver.addressRaw,
@@ -41,7 +38,7 @@ class TransferAsset {
 
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve) => {
-      const unsub = await xcmExecute.signAndSend(sender, (result: any) => {
+      const unsub = await xcmExecute.signAndSend(sender.address, (result: any) => {
         if (result.status.isFinalized) {
           unsub();
           resolve();
