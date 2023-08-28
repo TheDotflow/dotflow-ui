@@ -143,7 +143,7 @@ describe("TransactionRouter Cross-chain reserve transfer", () => {
       {
         originApi: assetHubApi,
         destApi: trappistApi
-      }
+      },
     );
 
     const senderBalanceAfter = await getAssetBalance(assetHubApi, USDT_ASSET_ID, alice.address);

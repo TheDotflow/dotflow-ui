@@ -1,4 +1,5 @@
 import { ApiPromise } from "@polkadot/api";
+import { Signer } from "@polkadot/types/types";
 
 import ReserveTransfer from "./reserveTransfer";
 import { TeleportableRoute, teleportableRoutes } from "./teleportableRoutes";
@@ -34,7 +35,8 @@ class TransactionRouter {
     receiver: Receiver,
     reserveChainId: number,
     asset: Fungible,
-    transferRpcApis: TransferRpcApis
+    transferRpcApis: TransferRpcApis,
+    signer?: Signer,
   ): Promise<void> {
     if (sender.chain === receiver.chain && sender.keypair.addressRaw === receiver.addressRaw) {
       throw new Error("Cannot send tokens to yourself");
@@ -46,7 +48,8 @@ class TransactionRouter {
         transferRpcApis.originApi,
         sender.keypair,
         receiver,
-        asset
+        asset,
+        signer
       );
 
       return;

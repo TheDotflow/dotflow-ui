@@ -33,7 +33,7 @@ const TransferPage = () => {
     addresses,
     contract: identityContract,
   } = useIdentity();
-  const { activeAccount } = useInkathon();
+  const { activeAccount, activeSigner } = useInkathon();
   const { toastError } = useToast();
   const { identities } = useAddressBook();
 
@@ -269,7 +269,8 @@ const TransferPage = () => {
         originApi: await getApi(chains[sourceChainId].rpcUrls[rpcIndex]),
         destApi: await getApi(chains[destChainId].rpcUrls[rpcIndex]),
         reserveApi: await getApi(chains[reserveChainId].rpcUrls[rpcIndex]),
-      }
+      },
+      activeSigner
     );
   };
 
