@@ -2,12 +2,13 @@ import { ApiPromise } from "@polkadot/api";
 import { KeyringPair } from "@polkadot/keyring/types";
 
 import { AccountType } from "../../../types/types-arguments/identity";
+import { IKeyringPair } from "@polkadot/types/types";
 
 export type AccountIdRaw = Uint8Array;
 export type ChainId = number;
 
 export type Sender = {
-  keypair: KeyringPair;
+  keypair: KeyringPair | IKeyringPair;
   chain: ChainId;
 }
 

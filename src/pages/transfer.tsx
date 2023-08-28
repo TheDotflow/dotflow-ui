@@ -21,6 +21,10 @@ import { useRelayApi } from '@/contexts/RelayApi';
 import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
 import { useAddressBook } from '@/contracts/addressbook/context';
+import TransactionRouter from '@/utils/transactionRouter';
+import { useInkathon } from '@scio-labs/use-inkathon';
+import { ApiPromise, WsProvider } from '@polkadot/api';
+import { AccountType } from 'types/types-arguments/identity';
 
 const TransferPage = () => {
   const {
@@ -29,7 +33,7 @@ const TransferPage = () => {
     addresses,
     contract: identityContract,
   } = useIdentity();
-  // const { activeAccount } = useInkathon();
+  const { activeAccount } = useInkathon();
   const { toastError } = useToast();
   const { identities } = useAddressBook();
 
@@ -41,7 +45,7 @@ const TransferPage = () => {
 
   const [loadingAssets, setLoadingAssets] = useState(false);
   const [assets, setAssets] = useState<Asset[]>([]);
-  const [tokenId, setTokenId] = useState<string>();
+  const [selectedAssetXcmInterior, setSelectedXcmInterior] = useState<any[]>();
   // const [loadingBalance, setLoadingBalance] = useState(false);
   // const [sourceBalance, setSourceBalance] = useState<bigint>(ZERO);
   const [recipientId, setRecipientId] = useState<number>();
@@ -51,11 +55,9 @@ const TransferPage = () => {
 
   const chainsSelected =
     !loadingAssets && sourceChainId !== undefined && destChainId !== undefined;
-  const assetSelected = chainsSelected && Boolean(tokenId);
+  const assetSelected = chainsSelected && Boolean(selectedAssetXcmInterior);
 
-  const canTransfer = assetSelected && recipientId !== undefined;
-
-  useEffect(() => setTokenId(undefined), [chainsSelected]);
+  useEffect(() => setSelectedXcmInterior(undefined), [chainsSelected]);
 
   useEffect(() => setRecipientId(undefined), [assetSelected]);
   useEffect(() => setAmount(undefined), [assetSelected]);
@@ -88,7 +90,7 @@ const TransferPage = () => {
         RELAY_CHAIN,
         chains[sourceChainId].paraId
       );
-      setTokenId('');
+      setSelectedXcmInterior([]);
       setAssets(_assets);
     }
 
@@ -102,7 +104,7 @@ const TransferPage = () => {
   // useEffect(() => {
   //   const fetchAssetBalance = async (
   //     chainId: number,
-  //     tokenId: string,
+  //     selectedAssetXcmInterior: string,
   //     account: string,
   //     callback: (_value: bigint) => void
   //   ): Promise<void> => {
@@ -112,7 +114,7 @@ const TransferPage = () => {
 
   //       await api.isReady;
 
-  //       const res = await api.query.assets?.account(tokenId, account);
+  //       const res = await api.query.assets?.account(selectedAssetXcmInterior, account);
   //       if (res.isEmpty) callback(ZERO);
   //       else callback(BigInt(res.toString()));
 
@@ -125,7 +127,7 @@ const TransferPage = () => {
   //     if (
   //       sourceChainId === undefined ||
   //       !activeAccount ||
-  //       tokenId === undefined
+  //       selectedAssetXcmInterior === undefined
   //     )
   //       return;
 
@@ -133,7 +135,7 @@ const TransferPage = () => {
 
   //     await fetchAssetBalance(
   //       sourceChainId,
-  //       tokenId,
+  //       selectedAssetXcmInterior,
   //       activeAccount.address,
   //       (value) => setSourceBalance(value)
   //     );
@@ -142,7 +144,7 @@ const TransferPage = () => {
   //   };
 
   //   fetchBalances();
-  // }, [tokenId]);
+  // }, [selectedAssetXcmInterior]);
 
   useEffect(() => {
     if (sourceChainId === undefined) return;
@@ -202,43 +204,85 @@ const TransferPage = () => {
 
     // We only need the origin chain to support XCM for any other type of transfer to
     // work.
-    if (isOriginSupportingLocalXCM) {
+    if (isOriginSupportingLocalXCM >= 0) {
       return true;
     }
 
     return false;
   };
 
-  const transferAsset = () => {
+  const transferAsset = async () => {
     if (
       recipientAddress === undefined ||
       destChainId === undefined ||
-      identityContract === undefined
+      identityContract === undefined ||
+      sourceChainId === undefined ||
+      activeAccount === undefined ||
+      selectedAssetXcmInterior === undefined ||
+      amount === undefined
     ) {
       return;
     }
 
-    /*
-    await TransactionRouter.sendTokens(
-      identityContract,
-      {
-        keypair: activeAccount,
-        network: sourceChainId,
-      } as Sender,
-      {
-        addressRaw: decodeAddress(recipientAddress),
-        type: chains[destChainId].accountType,
-        network: destChainId,
-      } as Receiver,
-      0, // Reserve paraId, FIXME
-      {
-        // FIXME:
-        multiAsset: 0,
-        amount: 1,
-      }
+    const reserveChainId = getParaIdFromXcmInterior(selectedAssetXcmInterior);
+
+    const count = Math.min(
+      chains[sourceChainId].rpcUrls.length,
+      chains[destChainId].rpcUrls.length,
+      chains[reserveChainId].rpcUrls.length
     );
-    */
+
+    const rpcIndex = Math.min(Math.floor(Math.random() * count), count - 1);
+
+    const isSourceParachain = sourceChainId > 0;
+
+    const textEncoder = new TextEncoder();
+    const addressRaw = textEncoder.encode(recipientAddress);
+
+    console.log(selectedAssetXcmInterior);
+
+    await TransactionRouter.sendTokens(
+      {
+        keypair: activeAccount, // How to convert active account into a keypair?
+        chain: sourceChainId
+      },
+      {
+        addressRaw,
+        chain: destChainId,
+        type: AccountType[chains[destChainId].accountType as keyof typeof AccountType]
+      },
+      0,
+      {
+        multiAsset: AssetRegistry.xcmInteriorToMultiAsset(
+          selectedAssetXcmInterior,
+          isSourceParachain,
+          sourceChainId
+        ),
+        amount
+      },
+      {
+        originApi: await getApi(chains[sourceChainId].rpcUrls[rpcIndex]),
+        destApi: await getApi(chains[destChainId].rpcUrls[rpcIndex]),
+        reserveApi: await getApi(chains[reserveChainId].rpcUrls[rpcIndex])
+      }
+    )
   };
+
+  const getParaIdFromXcmInterior = (xcmInterior: any[]): number => {
+    if (xcmInterior[1].hasOwnProperty('parachain')) {
+      return xcmInterior[1].parachain;
+    } else {
+      return 0;
+    }
+  }
+
+  const getApi = async (rpc: string): Promise<ApiPromise> => {
+    const provider = new WsProvider(rpc);
+    const api = await ApiPromise.create({ provider });
+    return api;
+  }
+
+  const canTransfer = assetSelected && recipientId !== undefined && isTransferSupported(sourceChainId, destChainId);
 
   return (
     <Box className={styles.transferContainer}>
@@ -282,11 +326,11 @@ const TransferPage = () => {
             <FormControl fullWidth className='form-item'>
               <FormLabel>Select asset to transfer</FormLabel>
               <Select
-                value={tokenId || ''}
-                onChange={(e) => setTokenId(e.target.value)}
+                value={selectedAssetXcmInterior || ''}
+                onChange={(e: any) => setSelectedXcmInterior(e.target.value)}
               >
                 {assets.map((asset, index) => (
-                  <MenuItem value={asset.asset.Token} key={index}>
+                  <MenuItem value={asset.xcmInteriorKey} key={index}>
                     {asset.name}
                   </MenuItem>
                 ))}
@@ -320,6 +364,7 @@ const TransferPage = () => {
           <>
             <TextField
               value={amount || ''}
+              placeholder='amount in selected token'
               type='number'
               onChange={(e) => setAmount(parseFloat(e.target.value))}
             />
