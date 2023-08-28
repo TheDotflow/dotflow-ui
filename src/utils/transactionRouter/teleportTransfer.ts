@@ -4,6 +4,7 @@ import { KeyringPair } from "@polkadot/keyring/types";
 import { getDestination, getMultiAsset, getTransferBeneficiary } from ".";
 import { Fungible, Receiver } from "./types";
 import { getParaId } from "..";
+import { Signer } from "@polkadot/types/types";
 
 class TeleportTransfer {
   public static async send(
@@ -11,7 +12,8 @@ class TeleportTransfer {
     destApi: ApiPromise,
     sender: KeyringPair,
     receiver: Receiver,
-    asset: Fungible
+    asset: Fungible,
+    signer?: Signer
   ): Promise<void> {
     const xcmPallet = originApi.tx.xcmPallet || originApi.tx.polkadotXcm;
 
@@ -39,9 +41,11 @@ class TeleportTransfer {
       weightLimit
     );
 
+    if (signer) originApi.setSigner(signer);
+
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve) => {
-      const unsub = await teleport.signAndSend(sender, (result: any) => {
+      const unsub = await teleport.signAndSend(sender.address, (result: any) => {
         if (result.status.isFinalized) {
           unsub();
           resolve();

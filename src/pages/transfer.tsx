@@ -25,6 +25,7 @@ import { useRelayApi } from '@/contexts/RelayApi';
 import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
 import { useAddressBook } from '@/contracts/addressbook/context';
+import { getTeleportableAssets } from '@/utils/transactionRouter/teleportableRoutes';
 
 const TransferPage = () => {
   const {
@@ -72,7 +73,7 @@ const TransferPage = () => {
         recipient: chains[destChainId].paraId,
       });
 
-      if (hrmp.isEmpty) {
+      if (hrmp.isEmpty && sourceChainId !== 0 && destChainId !== 0) {
         toastError(
           "There's no HRMP channel open between the source and destination chain"
         );
@@ -83,6 +84,7 @@ const TransferPage = () => {
           chains[sourceChainId].paraId,
           chains[destChainId].paraId
         );
+        _assets.push(...getTeleportableAssets(sourceChainId, destChainId));
         setAssets(_assets);
       }
     } else {
@@ -259,7 +261,7 @@ const TransferPage = () => {
       reserveChainId,
       {
         multiAsset: AssetRegistry.xcmInteriorToMultiAsset(
-          selectedAssetXcmInterior,
+          JSON.parse(selectedAssetXcmInterior.toString()),
           isSourceParachain,
           sourceChainId
         ),
@@ -275,7 +277,7 @@ const TransferPage = () => {
   };
 
   const getParaIdFromXcmInterior = (xcmInterior: any[]): number => {
-    if (Object.hasOwn(xcmInterior[1], 'parachain')) {
+    if (xcmInterior.length > 1 && Object.hasOwn(xcmInterior[1], 'parachain')) {
       return xcmInterior[1].parachain;
     } else {
       return 0;

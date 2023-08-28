@@ -115,8 +115,8 @@ class AssetRegistry {
   private static getAssetReserveParachainId(
     xcmInteriorKey: any[]
   ): ReserveChain {
-    // -1 will indicate that the reserve chain is actually the relay chain.
-    let parachainId = -1;
+    // 0 will indicate that the reserve chain is actually the relay chain.
+    let parachainId = 0;
     let index = -1;
     xcmInteriorKey.forEach((junction, i) => {
       if (junction.parachain) {

@@ -60,16 +60,21 @@ class TransactionRouter {
     const originParaId = sender.chain;
     const destParaId = receiver.chain;
 
-    const maybeTeleportableRoute: TeleportableRoute = {
-      relayChain: process.env.RELAY_CHAIN ? process.env.RELAY_CHAIN : "rococo",
-      originParaId: originParaId,
-      destParaId: destParaId,
-      multiAsset: asset.multiAsset
-    };
-
-    if (teleportableRoutes.some(route => JSON.stringify(route) === JSON.stringify(maybeTeleportableRoute))) {
+    if (teleportableRoutes.some(route => {
+      return process.env.RELAY_CHAIN ? process.env.RELAY_CHAIN : "rococo" === route.relayChain &&
+        originParaId === route.originParaId &&
+        destParaId === route.destParaId &&
+        JSON.stringify(asset.multiAsset) === JSON.stringify(route.multiAsset)
+    })) {
       // The asset is allowed to be teleported between the origin and the destination.
-      await TeleportTransfer.send(transferRpcApis.originApi, transferRpcApis.destApi, sender.keypair, receiver, asset);
+      await TeleportTransfer.send(
+        transferRpcApis.originApi,
+        transferRpcApis.destApi,
+        sender.keypair,
+        receiver,
+        asset,
+        signer
+      );
       return;
     }
 
