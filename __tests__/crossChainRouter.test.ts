@@ -4,7 +4,6 @@ import { u8aToHex } from '@polkadot/util';
 
 import TransactionRouter from "../src/utils/transactionRouter";
 import { Fungible, Receiver, Sender } from "../src/utils/transactionRouter/types";
-
 import IdentityContractFactory from "../types/constructors/identity";
 import IdentityContract from "../types/contracts/identity";
 import { AccountType, ChainInfo } from "../types/types-arguments/identity";
