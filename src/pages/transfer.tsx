@@ -9,22 +9,22 @@ import {
   Select,
   TextField,
 } from '@mui/material';
+import { ApiPromise, Keyring, WsProvider } from '@polkadot/api';
+import { useInkathon } from '@scio-labs/use-inkathon';
 import styles from '@styles/pages/transfer.module.scss';
 import { useCallback, useEffect, useState } from 'react';
+import { AccountType } from 'types/types-arguments/identity';
 
 import AssetRegistry, { Asset } from '@/utils/assetRegistry';
 import IdentityKey from '@/utils/identityKey';
 import KeyStore from '@/utils/keyStore';
+import TransactionRouter from '@/utils/transactionRouter';
 
 import { chainsSupportingXcmExecute, RELAY_CHAIN } from '@/consts';
 import { useRelayApi } from '@/contexts/RelayApi';
 import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
 import { useAddressBook } from '@/contracts/addressbook/context';
-import TransactionRouter from '@/utils/transactionRouter';
-import { useInkathon } from '@scio-labs/use-inkathon';
-import { ApiPromise, Keyring, WsProvider } from '@polkadot/api';
-import { AccountType } from 'types/types-arguments/identity';
 
 const TransferPage = () => {
   const {
@@ -246,12 +246,15 @@ const TransferPage = () => {
     await TransactionRouter.sendTokens(
       {
         keypair: keypair.pairs[0], // How to convert active account into a keypair?
-        chain: sourceChainId
+        chain: sourceChainId,
       },
       {
         addressRaw,
         chain: destChainId,
-        type: chains[destChainId].accountType === "AccountId32" ? AccountType.accountId32 : AccountType.accountKey20
+        type:
+          chains[destChainId].accountType === 'AccountId32'
+            ? AccountType.accountId32
+            : AccountType.accountKey20,
       },
       0,
       {
@@ -260,31 +263,34 @@ const TransferPage = () => {
           isSourceParachain,
           sourceChainId
         ),
-        amount
+        amount,
       },
       {
         originApi: await getApi(chains[sourceChainId].rpcUrls[rpcIndex]),
         destApi: await getApi(chains[destChainId].rpcUrls[rpcIndex]),
-        reserveApi: await getApi(chains[reserveChainId].rpcUrls[rpcIndex])
+        reserveApi: await getApi(chains[reserveChainId].rpcUrls[rpcIndex]),
       }
-    )
+    );
   };
 
   const getParaIdFromXcmInterior = (xcmInterior: any[]): number => {
-    if (xcmInterior[1].hasOwnProperty('parachain')) {
+    if (Object.hasOwn(xcmInterior[1], 'parachain')) {
       return xcmInterior[1].parachain;
     } else {
       return 0;
     }
-  }
+  };
 
   const getApi = async (rpc: string): Promise<ApiPromise> => {
     const provider = new WsProvider(rpc);
     const api = await ApiPromise.create({ provider });
     return api;
-  }
+  };
 
-  const canTransfer = assetSelected && recipientId !== undefined && isTransferSupported(sourceChainId, destChainId);
+  const canTransfer =
+    assetSelected &&
+    recipientId !== undefined &&
+    isTransferSupported(sourceChainId, destChainId);
 
   return (
     <Box className={styles.transferContainer}>
