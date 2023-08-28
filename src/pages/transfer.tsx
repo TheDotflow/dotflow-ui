@@ -237,11 +237,11 @@ const TransferPage = () => {
 
     const isSourceParachain = sourceChainId > 0;
 
-    const textEncoder = new TextEncoder();
-    const addressRaw = textEncoder.encode(recipientAddress);
-
     const keypair = new Keyring();
     keypair.addFromAddress(activeAccount.address);
+
+    const receiverKeypair = new Keyring();
+    receiverKeypair.addFromAddress(recipientAddress);
 
     await TransactionRouter.sendTokens(
       {
@@ -249,14 +249,14 @@ const TransferPage = () => {
         chain: sourceChainId,
       },
       {
-        addressRaw,
+        addressRaw: receiverKeypair.pairs[0].publicKey,
         chain: destChainId,
         type:
           chains[destChainId].accountType === 'AccountId32'
             ? AccountType.accountId32
             : AccountType.accountKey20,
       },
-      0,
+      reserveChainId,
       {
         multiAsset: AssetRegistry.xcmInteriorToMultiAsset(
           selectedAssetXcmInterior,
