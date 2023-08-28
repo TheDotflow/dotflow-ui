@@ -60,12 +60,7 @@ class TransactionRouter {
     const originParaId = sender.chain;
     const destParaId = receiver.chain;
 
-    if (teleportableRoutes.some(route => {
-      return process.env.RELAY_CHAIN ? process.env.RELAY_CHAIN : "rococo" === route.relayChain &&
-        originParaId === route.originParaId &&
-        destParaId === route.destParaId &&
-        JSON.stringify(asset.multiAsset) === JSON.stringify(route.multiAsset)
-    })) {
+    if (isTeleport(originParaId, destParaId, asset)) {
       // The asset is allowed to be teleported between the origin and the destination.
       await TeleportTransfer.send(
         transferRpcApis.originApi,
@@ -206,4 +201,14 @@ const ensureContainsXcmPallet = (api: ApiPromise) => {
   if (!(api.tx.xcmPallet || api.tx.polkadotXcm)) {
     throw new Error("The blockchain does not support XCM");
   }
+}
+
+// Returns whether the transfer is a teleport.
+export const isTeleport = (originParaId: number, destParaId: number, asset: Fungible): boolean => {
+  return teleportableRoutes.some(route => {
+    return process.env.RELAY_CHAIN ? process.env.RELAY_CHAIN : "rococo" === route.relayChain &&
+      originParaId === route.originParaId &&
+      destParaId === route.destParaId &&
+      JSON.stringify(asset.multiAsset) === JSON.stringify(route.multiAsset)
+  });
 }

@@ -18,7 +18,7 @@ import { AccountType } from 'types/types-arguments/identity';
 import AssetRegistry, { Asset } from '@/utils/assetRegistry';
 import IdentityKey from '@/utils/identityKey';
 import KeyStore from '@/utils/keyStore';
-import TransactionRouter from '@/utils/transactionRouter';
+import TransactionRouter, { isTeleport } from '@/utils/transactionRouter';
 
 import { chainsSupportingXcmExecute, RELAY_CHAIN } from '@/consts';
 import { useRelayApi } from '@/contexts/RelayApi';
@@ -26,6 +26,7 @@ import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
 import { useAddressBook } from '@/contracts/addressbook/context';
 import { getTeleportableAssets } from '@/utils/transactionRouter/teleportableRoutes';
+import { Fungible } from '@/utils/transactionRouter/types';
 
 const TransferPage = () => {
   const {
@@ -190,19 +191,30 @@ const TransferPage = () => {
   }, [recipientId]);
 
   // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
-  const isTransferSupported = (
-    originParaId: number,
-    reserveParaId: number
-  ): boolean => {
+  const isTransferSupported = (): boolean => {
+    if (
+      sourceChainId === undefined ||
+      destChainId === undefined ||
+      selectedAssetXcmInterior === undefined
+    ) {
+      return false;
+    }
+    const reserveParaId = getParaIdFromXcmInterior(selectedAssetXcmInterior);
     // If the origin is the reserve chain that means that we can use the existing
     // `limitedReserveTransferAssets` or `limitedTeleportAssets` extrinsics which are
     // supported on all chains that have the xcm pallet.
-    if (originParaId == reserveParaId) {
+    if (sourceChainId == reserveParaId) {
+      return true;
+    }
+
+    const isSourceParachain = sourceChainId > 0;
+
+    if (isTeleport(sourceChainId, destChainId, getFungible(selectedAssetXcmInterior, isSourceParachain, 0))) {
       return true;
     }
 
     const isOriginSupportingLocalXCM = chainsSupportingXcmExecute.findIndex(
-      (chain) => chain.paraId == originParaId && chain.relayChain == RELAY_CHAIN
+      (chain) => chain.paraId == sourceChainId && chain.relayChain == RELAY_CHAIN
     );
 
     // We only need the origin chain to support XCM for any other type of transfer to
@@ -259,14 +271,7 @@ const TransferPage = () => {
             : AccountType.accountKey20,
       },
       reserveChainId,
-      {
-        multiAsset: AssetRegistry.xcmInteriorToMultiAsset(
-          JSON.parse(selectedAssetXcmInterior.toString()),
-          isSourceParachain,
-          sourceChainId
-        ),
-        amount,
-      },
+      getFungible(selectedAssetXcmInterior, isSourceParachain, amount),
       {
         originApi: await getApi(chains[sourceChainId].rpcUrls[rpcIndex]),
         destApi: await getApi(chains[destChainId].rpcUrls[rpcIndex]),
@@ -276,7 +281,7 @@ const TransferPage = () => {
     );
   };
 
-  const getParaIdFromXcmInterior = (xcmInterior: any[]): number => {
+  const getParaIdFromXcmInterior = (xcmInterior: any): number => {
     if (xcmInterior.length > 1 && Object.hasOwn(xcmInterior[1], 'parachain')) {
       return xcmInterior[1].parachain;
     } else {
@@ -290,10 +295,21 @@ const TransferPage = () => {
     return api;
   };
 
+  const getFungible = (xcmInterior: any, isSourceParachain: boolean, amount: number): Fungible => {
+    return {
+      multiAsset: AssetRegistry.xcmInteriorToMultiAsset(
+        JSON.parse(xcmInterior.toString()),
+        isSourceParachain,
+        sourceChainId
+      ),
+      amount,
+    };
+  }
+
   const canTransfer =
     assetSelected &&
     recipientId !== undefined &&
-    isTransferSupported(sourceChainId, destChainId);
+    isTransferSupported();
 
   return (
     <Box className={styles.transferContainer}>
