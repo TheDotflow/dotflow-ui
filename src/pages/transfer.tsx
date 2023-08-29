@@ -47,9 +47,7 @@ const TransferPage = () => {
 
   const [loadingAssets, setLoadingAssets] = useState(false);
   const [assets, setAssets] = useState<Asset[]>([]);
-  const [selectedAssetXcmInterior, setSelectedXcmInterior] = useState<any[]>();
-  // const [loadingBalance, setLoadingBalance] = useState(false);
-  // const [sourceBalance, setSourceBalance] = useState<bigint>(ZERO);
+  const [selectedAsset, setSelectedAsset] = useState<any>();
   const [recipientId, setRecipientId] = useState<number>();
   const [recipientOk, setRecipientOk] = useState(false);
   const [recipientAddress, setRecipientAddress] = useState<string>();
@@ -57,9 +55,9 @@ const TransferPage = () => {
 
   const chainsSelected =
     !loadingAssets && sourceChainId !== undefined && destChainId !== undefined;
-  const assetSelected = chainsSelected && Boolean(selectedAssetXcmInterior);
+  const assetSelected = chainsSelected && Boolean(selectedAsset);
 
-  useEffect(() => setSelectedXcmInterior(undefined), [chainsSelected]);
+  useEffect(() => setSelectedAsset(undefined), [chainsSelected]);
 
   useEffect(() => setRecipientId(undefined), [assetSelected]);
   useEffect(() => setAmount(undefined), [assetSelected]);
@@ -93,7 +91,7 @@ const TransferPage = () => {
         RELAY_CHAIN,
         chains[sourceChainId].paraId
       );
-      setSelectedXcmInterior([]);
+      setSelectedAsset([]);
       setAssets(_assets);
     }
 
@@ -103,51 +101,6 @@ const TransferPage = () => {
   useEffect(() => {
     loadAssets();
   }, [sourceChainId, destChainId]);
-
-  // useEffect(() => {
-  //   const fetchAssetBalance = async (
-  //     chainId: number,
-  //     selectedAssetXcmInterior: string,
-  //     account: string,
-  //     callback: (_value: bigint) => void
-  //   ): Promise<void> => {
-  //     try {
-  //       const provider = new WsProvider(chains[chainId].rpcUrls[0]);
-  //       const api = new ApiPromise({ provider });
-
-  //       await api.isReady;
-
-  //       const res = await api.query.assets?.account(selectedAssetXcmInterior, account);
-  //       if (res.isEmpty) callback(ZERO);
-  //       else callback(BigInt(res.toString()));
-
-  //       await api.disconnect();
-  //     } catch {
-  //       callback(ZERO);
-  //     }
-  //   };
-  //   const fetchBalances = async () => {
-  //     if (
-  //       sourceChainId === undefined ||
-  //       !activeAccount ||
-  //       selectedAssetXcmInterior === undefined
-  //     )
-  //       return;
-
-  //     setLoadingBalance(true);
-
-  //     await fetchAssetBalance(
-  //       sourceChainId,
-  //       selectedAssetXcmInterior,
-  //       activeAccount.address,
-  //       (value) => setSourceBalance(value)
-  //     );
-
-  //     setLoadingBalance(false);
-  //   };
-
-  //   fetchBalances();
-  // }, [selectedAssetXcmInterior]);
 
   useEffect(() => {
     if (sourceChainId === undefined) return;
@@ -195,11 +148,11 @@ const TransferPage = () => {
     if (
       sourceChainId === undefined ||
       destChainId === undefined ||
-      selectedAssetXcmInterior === undefined
+      selectedAsset === undefined
     ) {
       return false;
     }
-    const reserveParaId = getParaIdFromXcmInterior(selectedAssetXcmInterior);
+    const reserveParaId = getParaIdFromXcmInterior(selectedAsset.xcmInteriorKey);
     // If the origin is the reserve chain that means that we can use the existing
     // `limitedReserveTransferAssets` or `limitedTeleportAssets` extrinsics which are
     // supported on all chains that have the xcm pallet.
@@ -209,7 +162,7 @@ const TransferPage = () => {
 
     const isSourceParachain = sourceChainId > 0;
 
-    if (isTeleport(sourceChainId, destChainId, getFungible(selectedAssetXcmInterior, isSourceParachain, 0))) {
+    if (isTeleport(sourceChainId, destChainId, getFungible(selectedAsset.xcmInteriorKey, isSourceParachain, 0))) {
       return true;
     }
 
@@ -233,13 +186,13 @@ const TransferPage = () => {
       identityContract === undefined ||
       sourceChainId === undefined ||
       activeAccount === undefined ||
-      selectedAssetXcmInterior === undefined ||
+      selectedAsset === undefined ||
       amount === undefined
     ) {
       return;
     }
 
-    const reserveChainId = getParaIdFromXcmInterior(selectedAssetXcmInterior);
+    const reserveChainId = getParaIdFromXcmInterior(selectedAsset.xcmInteriorKey);
 
     const count = Math.min(
       chains[sourceChainId].rpcUrls.length,
@@ -271,7 +224,7 @@ const TransferPage = () => {
             : AccountType.accountKey20,
       },
       reserveChainId,
-      getFungible(selectedAssetXcmInterior, isSourceParachain, amount),
+      getFungible(selectedAsset.xcmInteriorKey, isSourceParachain, amount * Math.pow(10, selectedAsset.decimals)),
       {
         originApi: await getApi(chains[sourceChainId].rpcUrls[rpcIndex]),
         destApi: await getApi(chains[destChainId].rpcUrls[rpcIndex]),
@@ -296,9 +249,10 @@ const TransferPage = () => {
   };
 
   const getFungible = (xcmInterior: any, isSourceParachain: boolean, amount: number): Fungible => {
+    xcmInterior = Array.isArray(xcmInterior) ? xcmInterior : JSON.parse(xcmInterior.toString());
     return {
       multiAsset: AssetRegistry.xcmInteriorToMultiAsset(
-        JSON.parse(xcmInterior.toString()),
+        xcmInterior,
         isSourceParachain,
         sourceChainId
       ),
@@ -353,11 +307,11 @@ const TransferPage = () => {
             <FormControl fullWidth className='form-item'>
               <FormLabel>Select asset to transfer</FormLabel>
               <Select
-                value={selectedAssetXcmInterior || ''}
-                onChange={(e: any) => setSelectedXcmInterior(e.target.value)}
+                value={selectedAsset || ''}
+                onChange={(e: any) => setSelectedAsset(e.target.value)}
               >
                 {assets.map((asset, index) => (
-                  <MenuItem value={asset.xcmInteriorKey} key={index}>
+                  <MenuItem value={asset} key={index}>
                     {asset.name}
                   </MenuItem>
                 ))}
@@ -366,12 +320,6 @@ const TransferPage = () => {
           ) : (
             <div>There are no assets supported on both chains.</div>
           ))}
-        {/* {assetSelected && !loadingBalance && (
-          <div className={styles.balanceContainer}>
-            <div>Balance: </div>
-            <div>{sourceBalance.toString()}</div>
-          </div>
-        )} */}
         {assetSelected && (
           <FormControl fullWidth className='form-item'>
             <FormLabel>Select recipient</FormLabel>
@@ -391,8 +339,8 @@ const TransferPage = () => {
           <>
             <TextField
               value={amount || ''}
-              placeholder='amount in selected token'
               type='number'
+              placeholder={`amount in ${selectedAsset.symbol}`}
               onChange={(e) => setAmount(parseFloat(e.target.value))}
             />
             <Button
