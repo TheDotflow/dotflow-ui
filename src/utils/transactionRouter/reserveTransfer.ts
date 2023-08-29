@@ -1,4 +1,5 @@
 import { ApiPromise } from "@polkadot/api";
+import { Signer } from "@polkadot/types/types";
 
 import { getDestination, getMultiAsset, getReceiverAccount, getTransferBeneficiary } from ".";
 import { Fungible, Receiver, Sender } from "./types";
@@ -12,7 +13,8 @@ class ReserveTransfer {
     destParaId: number,
     sender: Sender,
     receiver: Receiver,
-    asset: Fungible
+    asset: Fungible,
+    signer?: Signer
   ): Promise<void> {
     // Chain represents the para id and in case of a relay chain it is zero.
     const isOriginPara = sender.chain > 0;
@@ -34,9 +36,13 @@ class ReserveTransfer {
       weightLimit
     );
 
+    if (signer) originApi.setSigner(signer);
+
+    const account = signer ? sender.keypair.address : sender.keypair;
+
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve) => {
-      const unsub = await reserveTransfer.signAndSend(sender.keypair, (result: any) => {
+      const unsub = await reserveTransfer.signAndSend(account, (result: any) => {
         if (result.status.isFinalized) {
           unsub();
           resolve();
@@ -54,7 +60,8 @@ class ReserveTransfer {
     destParaId: number,
     sender: Sender,
     receiver: Receiver,
-    asset: Fungible
+    asset: Fungible,
+    signer?: Signer
   ): Promise<void> {
 
     // Chain represents the para id and in case of a relay chain it is zero.
@@ -68,9 +75,13 @@ class ReserveTransfer {
       proofSize: Math.pow(10, 6),
     });
 
+    if (signer) originApi.setSigner(signer);
+
+    const account = signer ? sender.keypair.address : sender.keypair;
+
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve) => {
-      const unsub = await reserveTransfer.signAndSend(sender.keypair, (result: any) => {
+      const unsub = await reserveTransfer.signAndSend(account, (result: any) => {
         if (result.status.isFinalized) {
           unsub();
           resolve();
@@ -88,7 +99,8 @@ class ReserveTransfer {
     reserveParaId: number,
     sender: Sender,
     receiver: Receiver,
-    asset: Fungible
+    asset: Fungible,
+    signer?: Signer
   ): Promise<void> {
 
     // Chain represents the para id and in case of a relay chain it is zero.
@@ -101,9 +113,14 @@ class ReserveTransfer {
       refTime: 3 * Math.pow(10, 11),
       proofSize: Math.pow(10, 6),
     });
+
+    if (signer) originApi.setSigner(signer);
+
+    const account = signer ? sender.keypair.address : sender.keypair;
+
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve) => {
-      const unsub = await reserveTransfer.signAndSend(sender.keypair, (result: any) => {
+      const unsub = await reserveTransfer.signAndSend(account, (result: any) => {
         if (result.status.isFinalized) {
           unsub();
           resolve();
@@ -154,7 +171,6 @@ class ReserveTransfer {
             },
             reserve,
             xcm: [
-              // TODO: the hardcoded number isn't really accurate to what we actually need.
               this.buyExecution(assetFromReservePerspective, 450000000000),
               this.depositReserveAsset({ Wild: "All" }, 1, {
                 parents: 1,
@@ -211,7 +227,6 @@ class ReserveTransfer {
             },
             reserve,
             xcm: [
-              // TODO: the hardcoded number isn't really accurate to what we actually need.
               this.buyExecution(assetFromReservePerspective, 450000000000),
               this.depositAsset({ Wild: "All" }, 1, beneficiary)
             ]

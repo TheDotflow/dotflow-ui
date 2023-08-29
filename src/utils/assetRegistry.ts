@@ -4,7 +4,7 @@ type ChainId = number | string;
 
 type RelayChain = 'polkadot' | 'kusama';
 
-type Asset = {
+export type Asset = {
   asset: any;
   name: string;
   symbol: string;
@@ -50,13 +50,13 @@ class AssetRegistry {
 
     const assets: Asset[] = (await axios.get(assetsUrl)).data;
 
-    assets.map((asset) => {
-      if (asset.xcmInteriorKey) {
-        asset.xcmInteriorKey = JSON.parse(asset.xcmInteriorKey);
-      }
+    const xcAssets = assets.filter(asset => asset.xcmInteriorKey !== undefined);
+
+    xcAssets.map((asset) => {
+      asset.xcmInteriorKey = JSON.parse(asset.xcmInteriorKey);
     });
 
-    return assets;
+    return xcAssets;
   }
 
   public static xcmInteriorToMultiAsset(
@@ -115,8 +115,8 @@ class AssetRegistry {
   private static getAssetReserveParachainId(
     xcmInteriorKey: any[]
   ): ReserveChain {
-    // -1 will indicate that the reserve chain is actually the relay chain.
-    let parachainId = -1;
+    // 0 will indicate that the reserve chain is actually the relay chain.
+    let parachainId = 0;
     let index = -1;
     xcmInteriorKey.forEach((junction, i) => {
       if (junction.parachain) {
@@ -145,13 +145,17 @@ class AssetRegistry {
     relay: RelayChain,
     chainA: ChainId,
     chainB: ChainId,
-  ): Promise<any[]> {
+  ): Promise<Asset[]> {
     const assetsOnChainA = await this.getAssetsOnBlockchain(relay, chainA);
     const assetsOnChainB = await this.getAssetsOnBlockchain(relay, chainB);
 
     const assetsOnBoth: Asset[] = [];
     for (let i = 0; i < assetsOnChainA.length; i++) {
       const asset: Asset = assetsOnChainA[i];
+
+      if (!asset.xcmInteriorKey) {
+        continue;
+      }
 
       const isSupported = this.isSupported(asset.xcmInteriorKey, assetsOnChainB);
 
@@ -178,18 +182,18 @@ class AssetRegistry {
   public static async isSupportedOnChain(
     relay: RelayChain,
     chain: ChainId,
-    xcmAsset: any
+    xcAsset: any
   ): Promise<boolean> {
     const assets = await this.getAssetsOnBlockchain(relay, chain);
 
-    return this.isSupported(xcmAsset, assets);
+    return this.isSupported(xcAsset, assets);
   }
 
-  private static isSupported(xcmAsset: any, assets: Asset[]): boolean {
+  private static isSupported(xcAsset: any, assets: Asset[]): boolean {
     const found = assets.find(
       (el: Asset) =>
         el.xcmInteriorKey &&
-        JSON.stringify(el.xcmInteriorKey) === JSON.stringify(xcmAsset)
+        JSON.stringify(el.xcmInteriorKey) === JSON.stringify(xcAsset)
     );
 
     if (found) return true;

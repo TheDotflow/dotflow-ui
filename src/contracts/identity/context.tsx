@@ -34,6 +34,7 @@ interface IdentityContract {
   contract: ContractPromise | undefined;
   fetchIdentityNo: () => Promise<void>;
   fetchAddresses: () => Promise<void>;
+  getAddresses: (_id: number) => Promise<Address[]>;
   loading: boolean;
 }
 
@@ -48,6 +49,9 @@ const defaultIdentity: IdentityContract = {
   },
   fetchAddresses: async () => {
     /* */
+  },
+  getAddresses: async (): Promise<Address[]> => {
+    return [];
   },
   loading: true,
 };
@@ -165,14 +169,11 @@ const IdentityContractProvider = ({ children }: Props) => {
     setLoadingChains(false);
   }, [api, contract, toastError]);
 
-  const fetchAddresses = useCallback(async () => {
-    if (!api || !contract || identityNo === null) {
-      setAddresses([]);
-      return;
-    }
+  const getAddresses = async (no: number): Promise<Address[]> => {
+    if (!api || !contract) return [];
     try {
       const result = await contractQuery(api, '', contract, 'identity', {}, [
-        identityNo,
+        no,
       ]);
       const { output, isError, decodedOutput } = decodeOutput(
         result,
@@ -191,8 +192,21 @@ const IdentityContractProvider = ({ children }: Props) => {
           address,
         });
       }
-      setAddresses(_addresses);
+      return _addresses;
     } catch (e) {
+      return [];
+    }
+  };
+
+  const fetchAddresses = useCallback(async () => {
+    if (!api || !contract || identityNo === null) {
+      setAddresses([]);
+      return;
+    }
+    try {
+      const _addresses = await getAddresses(identityNo);
+      setAddresses(_addresses);
+    } catch {
       setAddresses([]);
     }
   }, [api, contract, identityNo]);
@@ -218,6 +232,7 @@ const IdentityContractProvider = ({ children }: Props) => {
         chains,
         fetchAddresses,
         fetchIdentityNo,
+        getAddresses,
         loading: loadingIdentityNo || loadingChains,
       }}
     >

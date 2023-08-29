@@ -1,7 +1,8 @@
 import { ApiPromise } from "@polkadot/api";
+import { Signer } from "@polkadot/types/types";
 
 import ReserveTransfer from "./reserveTransfer";
-import { TeleportableRoute, teleportableRoutes } from "./teleportableRoutes";
+import { teleportableRoutes } from "./teleportableRoutes";
 import TeleportTransfer from "./teleportTransfer";
 import TransferAsset from "./transferAsset";
 import { Fungible, Receiver, Sender, TransferRpcApis } from "./types";
@@ -34,7 +35,8 @@ class TransactionRouter {
     receiver: Receiver,
     reserveChainId: number,
     asset: Fungible,
-    transferRpcApis: TransferRpcApis
+    transferRpcApis: TransferRpcApis,
+    signer?: Signer,
   ): Promise<void> {
     if (sender.chain === receiver.chain && sender.keypair.addressRaw === receiver.addressRaw) {
       throw new Error("Cannot send tokens to yourself");
@@ -46,7 +48,8 @@ class TransactionRouter {
         transferRpcApis.originApi,
         sender.keypair,
         receiver,
-        asset
+        asset,
+        signer
       );
 
       return;
@@ -57,16 +60,16 @@ class TransactionRouter {
     const originParaId = sender.chain;
     const destParaId = receiver.chain;
 
-    const maybeTeleportableRoute: TeleportableRoute = {
-      relayChain: process.env.RELAY_CHAIN ? process.env.RELAY_CHAIN : "rococo",
-      originParaId: originParaId,
-      destParaId: destParaId,
-      multiAsset: asset.multiAsset
-    };
-
-    if (teleportableRoutes.some(route => JSON.stringify(route) === JSON.stringify(maybeTeleportableRoute))) {
+    if (isTeleport(originParaId, destParaId, asset)) {
       // The asset is allowed to be teleported between the origin and the destination.
-      await TeleportTransfer.send(transferRpcApis.originApi, transferRpcApis.destApi, sender.keypair, receiver, asset);
+      await TeleportTransfer.send(
+        transferRpcApis.originApi,
+        transferRpcApis.destApi,
+        sender.keypair,
+        receiver,
+        asset,
+        signer
+      );
       return;
     }
 
@@ -78,7 +81,8 @@ class TransactionRouter {
         destParaId,
         sender,
         receiver,
-        asset
+        asset,
+        signer
       );
     } else if (receiver.chain == reserveChainId) {
       // The destination chain is the reserve chain of the asset:
@@ -87,7 +91,8 @@ class TransactionRouter {
         destParaId,
         sender,
         receiver,
-        asset
+        asset,
+        signer
       );
     } else {
       // The most complex case, the reserve chain is neither the sender or the destination chain.
@@ -106,7 +111,8 @@ class TransactionRouter {
         reserveParaId,
         sender,
         receiver,
-        asset
+        asset,
+        signer
       );
     }
   }
@@ -198,4 +204,16 @@ const ensureContainsXcmPallet = (api: ApiPromise) => {
   if (!(api.tx.xcmPallet || api.tx.polkadotXcm)) {
     throw new Error("The blockchain does not support XCM");
   }
+}
+
+// Returns whether the transfer is a teleport.
+export const isTeleport = (originParaId: number, destParaId: number, asset: Fungible): boolean => {
+  const relayChain = process.env.RELAY_CHAIN ? process.env.RELAY_CHAIN : "rococo";
+
+  return teleportableRoutes.some(route => {
+    return relayChain === route.relayChain &&
+      originParaId === route.originParaId &&
+      destParaId === route.destParaId &&
+      JSON.stringify(asset.multiAsset) === JSON.stringify(route.multiAsset)
+  });
 }

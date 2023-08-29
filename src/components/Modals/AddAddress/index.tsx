@@ -91,9 +91,10 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
       onClose();
     } catch (e: any) {
       toastError(
-        `Failed to add address. Error: ${e.errorMessage === 'Error'
-          ? 'Please check your balance.'
-          : e.errorMessage
+        `Failed to add address. Error: ${
+          e.errorMessage === 'Error'
+            ? 'Please check your balance.'
+            : e.errorMessage
         }`
       );
       setWorking(false);
@@ -119,7 +120,7 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
                 select
                 sx={{ mt: '8px' }}
                 required
-                value={chainId || ""}
+                value={chainId === undefined ? '' : chainId}
                 onChange={(e) => setChainId(Number(e.target.value))}
               >
                 {Object.entries(chains).map(([id, chain], index) => (
@@ -150,7 +151,7 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
                   maxLength: 64,
                 }}
                 required
-                value={chainAddress || ""}
+                value={chainAddress || ''}
                 error={chainAddress === ''}
                 onChange={(e) => setChainAddress(e.target.value)}
               />

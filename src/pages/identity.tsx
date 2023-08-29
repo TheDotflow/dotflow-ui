@@ -9,6 +9,7 @@ import {
   Grid,
   Typography,
 } from '@mui/material';
+import styles from '@styles/pages/identity.module.scss';
 import { useState } from 'react';
 
 import { CreateIdentity, RemoveIdentity } from '@/components/Buttons';
@@ -34,14 +35,7 @@ const IdentityPage = () => {
 
   return (
     <>
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: '32px',
-        }}
-      >
+      <Box className={styles.identityContainer}>
         <Typography variant='h4' fontWeight={700}>
           My Identity
         </Typography>

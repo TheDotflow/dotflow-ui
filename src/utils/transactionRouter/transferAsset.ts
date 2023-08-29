@@ -1,5 +1,6 @@
 import { ApiPromise } from "@polkadot/api";
 import { KeyringPair } from "@polkadot/keyring/types";
+import { Signer } from "@polkadot/types/types";
 
 import { Fungible, Receiver } from "./types";
 import { AccountType } from "../../../types/types-arguments/identity";
@@ -9,7 +10,8 @@ class TransferAsset {
     api: ApiPromise,
     sender: KeyringPair,
     receiver: Receiver,
-    asset: Fungible
+    asset: Fungible,
+    signer?: Signer,
   ): Promise<void> {
     // We use XCM even for transfers that are occurring on the same chain. The reason for
     // this is that we cannot know what is the pallet and function for transferring tokens 
@@ -30,15 +32,17 @@ class TransferAsset {
       throw new Error("The blockchain does not support XCM");
     };
 
-    // TODO: come up with more precise weight estimations.
     const xcmExecute = xcmPallet.execute(xcm, {
       refTime: Math.pow(10, 9),
       proofSize: 10000,
     });
 
+    if (signer) api.setSigner(signer);
+
+    const account = signer ? sender.address : sender;
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve) => {
-      const unsub = await xcmExecute.signAndSend(sender, (result: any) => {
+      const unsub = await xcmExecute.signAndSend(account, (result: any) => {
         if (result.status.isFinalized) {
           unsub();
           resolve();
@@ -72,7 +76,6 @@ class TransferAsset {
       };
     }
 
-    // TODO: should this have `BuyExecution`?
     const xcmMessage = {
       V2: [
         {

@@ -54,7 +54,7 @@
 
 .MuiFormLabel-root {
   font-size: 16px;
-  font-weight: 600;
+  // font-weight: 600;
   line-height: 1.6;
   color: #181336;
 }
@@ -70,7 +70,7 @@
 .form-item {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
 }
 
 .modal-buttons {
