@@ -28,12 +28,12 @@ import { useRelayApi } from '@/contexts/RelayApi';
 import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
 import { useAddressBook } from '@/contracts/addressbook/context';
+import { LoadingButton } from '@mui/lab';
 
 const TransferPage = () => {
   const {
     chains,
     getAddresses,
-    addresses,
     contract: identityContract,
   } = useIdentity();
   const { activeAccount, activeSigner } = useInkathon();
@@ -53,6 +53,7 @@ const TransferPage = () => {
   const [recipientOk, setRecipientOk] = useState(false);
   const [recipientAddress, setRecipientAddress] = useState<string>();
   const [amount, setAmount] = useState<number>();
+  const [transferring, setTransferring] = useState<boolean>(false);
 
   const chainsSelected =
     !loadingAssets && sourceChainId !== undefined && destChainId !== undefined;
@@ -105,15 +106,6 @@ const TransferPage = () => {
   useEffect(() => {
     loadAssets();
   }, [sourceChainId, destChainId]);
-
-  useEffect(() => {
-    if (sourceChainId === undefined) return;
-    const index = addresses.findIndex(
-      (address) => address.chainId === sourceChainId
-    );
-    index === -1 &&
-      toastError(`You don't have ${chains[sourceChainId].name} address`);
-  }, [sourceChainId]);
 
   useEffect(() => {
     const checkIdentity = async () => {
@@ -217,6 +209,8 @@ const TransferPage = () => {
     const receiverKeypair = new Keyring();
     receiverKeypair.addFromAddress(recipientAddress);
 
+    setTransferring(true);
+
     await TransactionRouter.sendTokens(
       {
         keypair: keypair.pairs[0], // How to convert active account into a keypair?
@@ -239,6 +233,8 @@ const TransferPage = () => {
       },
       activeSigner
     );
+
+    setTransferring(false);
   };
 
   const getParaIdFromXcmInterior = (xcmInterior: any): number => {
@@ -348,14 +344,16 @@ const TransferPage = () => {
             {!isTransferSupported() &&
               <Alert severity="warning">This transfer route is currently not supported.</Alert>
             }
-            <Button
+            <LoadingButton
               fullWidth
               variant='contained'
               disabled={!recipientOk || !isTransferSupported()}
               onClick={transferAsset}
+              loading={transferring}
+              loadingPosition='center'
             >
               Transfer
-            </Button>
+            </LoadingButton>
           </>
         )}
       </Box>
