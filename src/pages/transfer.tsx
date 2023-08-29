@@ -1,8 +1,8 @@
+import { LoadingButton } from '@mui/lab';
 import {
   Alert,
   Backdrop,
   Box,
-  Button,
   CircularProgress,
   FormControl,
   FormLabel,
@@ -28,7 +28,6 @@ import { useRelayApi } from '@/contexts/RelayApi';
 import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
 import { useAddressBook } from '@/contracts/addressbook/context';
-import { LoadingButton } from '@mui/lab';
 
 const TransferPage = () => {
   const {
