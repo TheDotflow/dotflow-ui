@@ -1,8 +1,8 @@
 import { ApiPromise } from "@polkadot/api";
+import { Signer } from "@polkadot/types/types";
 
 import { getDestination, getMultiAsset, getReceiverAccount, getTransferBeneficiary } from ".";
 import { Fungible, Receiver, Sender } from "./types";
-import { Signer } from "@polkadot/types/types";
 
 class ReserveTransfer {
   // Transfers assets from the sender to the receiver.
