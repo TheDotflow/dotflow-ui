@@ -2,6 +2,7 @@ import { ApiPromise } from "@polkadot/api";
 
 import { getDestination, getMultiAsset, getReceiverAccount, getTransferBeneficiary } from ".";
 import { Fungible, Receiver, Sender } from "./types";
+import { Signer } from "@polkadot/types/types";
 
 class ReserveTransfer {
   // Transfers assets from the sender to the receiver.
@@ -12,7 +13,8 @@ class ReserveTransfer {
     destParaId: number,
     sender: Sender,
     receiver: Receiver,
-    asset: Fungible
+    asset: Fungible,
+    signer?: Signer
   ): Promise<void> {
     // Chain represents the para id and in case of a relay chain it is zero.
     const isOriginPara = sender.chain > 0;
@@ -34,6 +36,8 @@ class ReserveTransfer {
       weightLimit
     );
 
+    if (signer) originApi.setSigner(signer);
+
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve) => {
       const unsub = await reserveTransfer.signAndSend(sender.keypair, (result: any) => {
@@ -54,7 +58,8 @@ class ReserveTransfer {
     destParaId: number,
     sender: Sender,
     receiver: Receiver,
-    asset: Fungible
+    asset: Fungible,
+    signer?: Signer
   ): Promise<void> {
 
     // Chain represents the para id and in case of a relay chain it is zero.
@@ -67,6 +72,8 @@ class ReserveTransfer {
       refTime: 3 * Math.pow(10, 11),
       proofSize: Math.pow(10, 6),
     });
+
+    if (signer) originApi.setSigner(signer);
 
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve) => {
@@ -88,7 +95,8 @@ class ReserveTransfer {
     reserveParaId: number,
     sender: Sender,
     receiver: Receiver,
-    asset: Fungible
+    asset: Fungible,
+    signer?: Signer
   ): Promise<void> {
 
     // Chain represents the para id and in case of a relay chain it is zero.
@@ -101,6 +109,9 @@ class ReserveTransfer {
       refTime: 3 * Math.pow(10, 11),
       proofSize: Math.pow(10, 6),
     });
+
+    if (signer) originApi.setSigner(signer);
+
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve) => {
       const unsub = await reserveTransfer.signAndSend(sender.keypair, (result: any) => {

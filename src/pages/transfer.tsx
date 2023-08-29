@@ -1,4 +1,5 @@
 import {
+  Alert,
   Backdrop,
   Box,
   Button,
@@ -62,6 +63,8 @@ const TransferPage = () => {
   useEffect(() => setRecipientId(undefined), [assetSelected]);
   useEffect(() => setAmount(undefined), [assetSelected]);
 
+  const canTransfer = assetSelected && recipientId !== undefined;
+
   const loadAssets = useCallback(async () => {
     if (sourceChainId === undefined || destChainId === undefined) return;
     setLoadingAssets(true);
@@ -91,6 +94,7 @@ const TransferPage = () => {
         RELAY_CHAIN,
         chains[sourceChainId].paraId
       );
+      _assets.push(...getTeleportableAssets(sourceChainId, destChainId));
       setSelectedAsset([]);
       setAssets(_assets);
     }
@@ -156,13 +160,16 @@ const TransferPage = () => {
     // If the origin is the reserve chain that means that we can use the existing
     // `limitedReserveTransferAssets` or `limitedTeleportAssets` extrinsics which are
     // supported on all chains that have the xcm pallet.
-    if (sourceChainId == reserveParaId) {
+    if (sourceChainId == reserveParaId && sourceChainId !== destChainId) {
       return true;
     }
 
     const isSourceParachain = sourceChainId > 0;
 
-    if (isTeleport(sourceChainId, destChainId, getFungible(selectedAsset.xcmInteriorKey, isSourceParachain, 0))) {
+    if (
+      sourceChainId !== destChainId &&
+      isTeleport(sourceChainId, destChainId, getFungible(selectedAsset.xcmInteriorKey, isSourceParachain, 0))
+    ) {
       return true;
     }
 
@@ -260,11 +267,6 @@ const TransferPage = () => {
     };
   }
 
-  const canTransfer =
-    assetSelected &&
-    recipientId !== undefined &&
-    isTransferSupported();
-
   return (
     <Box className={styles.transferContainer}>
       <Box className='form-group'>
@@ -343,10 +345,13 @@ const TransferPage = () => {
               placeholder={`amount in ${selectedAsset.symbol}`}
               onChange={(e) => setAmount(parseFloat(e.target.value))}
             />
+            {!isTransferSupported() &&
+              <Alert severity="warning">This transfer route is currently not supported.</Alert>
+            }
             <Button
               fullWidth
               variant='contained'
-              disabled={!recipientOk}
+              disabled={!recipientOk || !isTransferSupported()}
               onClick={transferAsset}
             >
               Transfer

@@ -81,7 +81,8 @@ class TransactionRouter {
         destParaId,
         sender,
         receiver,
-        asset
+        asset,
+        signer
       );
     } else if (receiver.chain == reserveChainId) {
       // The destination chain is the reserve chain of the asset:
@@ -90,7 +91,8 @@ class TransactionRouter {
         destParaId,
         sender,
         receiver,
-        asset
+        asset,
+        signer
       );
     } else {
       // The most complex case, the reserve chain is neither the sender or the destination chain.
@@ -109,7 +111,8 @@ class TransactionRouter {
         reserveParaId,
         sender,
         receiver,
-        asset
+        asset,
+        signer
       );
     }
   }
