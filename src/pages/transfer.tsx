@@ -67,6 +67,8 @@ const TransferPage = () => {
   const canTransfer = assetSelected && recipientId !== undefined;
 
   const loadAssets = useCallback(async () => {
+    if (!relayApi) return;
+
     if (sourceChainId === undefined || destChainId === undefined) return;
     setLoadingAssets(true);
 
@@ -101,7 +103,7 @@ const TransferPage = () => {
     }
 
     setLoadingAssets(false);
-  }, [sourceChainId, destChainId]);
+  }, [sourceChainId, destChainId, relayApi]);
 
   useEffect(() => {
     loadAssets();

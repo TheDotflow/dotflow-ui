@@ -43,9 +43,11 @@ class TeleportTransfer {
 
     if (signer) originApi.setSigner(signer);
 
+    const account = signer ? sender.address : sender;
+
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve) => {
-      const unsub = await teleport.signAndSend(sender.address, (result: any) => {
+      const unsub = await teleport.signAndSend(account, (result: any) => {
         if (result.status.isFinalized) {
           unsub();
           resolve();

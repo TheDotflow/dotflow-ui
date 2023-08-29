@@ -1,7 +1,7 @@
 // File containing all the possible assets on all possible routes that support asset
 // teleportation.
 
-import { RELAY_CHAIN } from "@/consts";
+import { RELAY_CHAIN } from "../../consts";
 
 import AssetRegistry, { Asset } from "../assetRegistry";
 
