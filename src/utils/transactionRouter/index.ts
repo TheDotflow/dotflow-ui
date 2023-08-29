@@ -208,8 +208,10 @@ const ensureContainsXcmPallet = (api: ApiPromise) => {
 
 // Returns whether the transfer is a teleport.
 export const isTeleport = (originParaId: number, destParaId: number, asset: Fungible): boolean => {
+  const relayChain = process.env.RELAY_CHAIN ? process.env.RELAY_CHAIN : "rococo";
+
   return teleportableRoutes.some(route => {
-    return process.env.RELAY_CHAIN ? process.env.RELAY_CHAIN : "rococo" === route.relayChain &&
+    return relayChain === route.relayChain &&
       originParaId === route.originParaId &&
       destParaId === route.destParaId &&
       JSON.stringify(asset.multiAsset) === JSON.stringify(route.multiAsset)

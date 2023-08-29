@@ -40,7 +40,7 @@ class ReserveTransfer {
 
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve) => {
-      const unsub = await reserveTransfer.signAndSend(sender.keypair, (result: any) => {
+      const unsub = await reserveTransfer.signAndSend(sender.keypair.address, (result: any) => {
         if (result.status.isFinalized) {
           unsub();
           resolve();
@@ -77,7 +77,7 @@ class ReserveTransfer {
 
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve) => {
-      const unsub = await reserveTransfer.signAndSend(sender.keypair, (result: any) => {
+      const unsub = await reserveTransfer.signAndSend(sender.keypair.address, (result: any) => {
         if (result.status.isFinalized) {
           unsub();
           resolve();
@@ -114,7 +114,7 @@ class ReserveTransfer {
 
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve) => {
-      const unsub = await reserveTransfer.signAndSend(sender.keypair, (result: any) => {
+      const unsub = await reserveTransfer.signAndSend(sender.keypair.address, (result: any) => {
         if (result.status.isFinalized) {
           unsub();
           resolve();
