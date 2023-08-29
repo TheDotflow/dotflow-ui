@@ -32,7 +32,6 @@ class TransferAsset {
       throw new Error("The blockchain does not support XCM");
     };
 
-    // TODO: come up with more precise weight estimations.
     const xcmExecute = xcmPallet.execute(xcm, {
       refTime: Math.pow(10, 9),
       proofSize: 10000,
@@ -77,7 +76,6 @@ class TransferAsset {
       };
     }
 
-    // TODO: should this have `BuyExecution`?
     const xcmMessage = {
       V2: [
         {

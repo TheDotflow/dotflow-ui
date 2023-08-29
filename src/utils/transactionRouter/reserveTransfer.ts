@@ -171,7 +171,6 @@ class ReserveTransfer {
             },
             reserve,
             xcm: [
-              // TODO: the hardcoded number isn't really accurate to what we actually need.
               this.buyExecution(assetFromReservePerspective, 450000000000),
               this.depositReserveAsset({ Wild: "All" }, 1, {
                 parents: 1,
@@ -228,7 +227,6 @@ class ReserveTransfer {
             },
             reserve,
             xcm: [
-              // TODO: the hardcoded number isn't really accurate to what we actually need.
               this.buyExecution(assetFromReservePerspective, 450000000000),
               this.depositAsset({ Wild: "All" }, 1, beneficiary)
             ]
