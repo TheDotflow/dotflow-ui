@@ -5,6 +5,7 @@
 import { Keyring } from "@polkadot/api";
 import { cryptoWaitReady } from "@polkadot/util-crypto";
 
+import { getDestination, getMultiAsset, getTransferBeneficiary } from ".";
 import ReserveTransfer from "./reserveTransfer";
 import { Fungible, Receiver } from "./types";
 import { AccountType } from "../../../types/types-arguments/identity";
@@ -15,18 +16,14 @@ const ecdsaKeyring = new Keyring({ type: "ecdsa" });
 describe("ReserveTransfer unit tests", () => {
   describe("getDestination works", () => {
     it("Works with the destination being the relay chain", () => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      expect(ReserveTransfer.getDestination(true, 69, false)).toStrictEqual({
+      expect(getDestination(true, 69, false)).toStrictEqual({
         V2: {
           parents: 1,
           interior: "Here",
         },
       });
 
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      expect(ReserveTransfer.getDestination(false, 69, false)).toStrictEqual({
+      expect(getDestination(false, 69, false)).toStrictEqual({
         V2: {
           parents: 0,
           interior: "Here",
@@ -35,9 +32,7 @@ describe("ReserveTransfer unit tests", () => {
     });
 
     it("Works with the destination being a parachain", () => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      expect(ReserveTransfer.getDestination(false, 2000, true)).toStrictEqual({
+      expect(getDestination(false, 2000, true)).toStrictEqual({
         V2: {
           parents: 0,
           interior: {
@@ -46,9 +41,7 @@ describe("ReserveTransfer unit tests", () => {
         },
       });
 
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      expect(ReserveTransfer.getDestination(true, 2000, true)).toStrictEqual({
+      expect(getDestination(true, 2000, true)).toStrictEqual({
         V2: {
           parents: 1,
           interior: {
@@ -59,7 +52,7 @@ describe("ReserveTransfer unit tests", () => {
     });
   });
 
-  describe("getReserveTransferBeneficiary works", () => {
+  describe("getTransferBeneficiary works", () => {
     it("Works with AccountId32", async () => {
       await cryptoWaitReady();
 
@@ -68,21 +61,19 @@ describe("ReserveTransfer unit tests", () => {
 
       const receiverAccId32: Receiver = {
         addressRaw: alice.addressRaw,
-        network: 0,
+        chain: 0,
         type: AccountType.accountId32,
       };
 
       expect(
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        ReserveTransfer.getReserveTransferBeneficiary(receiverAccId32),
+        getTransferBeneficiary(receiverAccId32),
       ).toStrictEqual({
         V2: {
           parents: 0,
           interior: {
             X1: {
               AccountId32: {
-                network: "Any",
+                chain: "Any",
                 id: receiverAccId32.addressRaw,
               },
             },
@@ -92,21 +83,19 @@ describe("ReserveTransfer unit tests", () => {
 
       const receiverAccKey20: Receiver = {
         addressRaw: bob.addressRaw,
-        network: 0,
+        chain: 0,
         type: AccountType.accountKey20,
       };
 
       expect(
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        ReserveTransfer.getReserveTransferBeneficiary(receiverAccKey20),
+        getTransferBeneficiary(receiverAccKey20),
       ).toStrictEqual({
         V2: {
           parents: 0,
           interior: {
             X1: {
               AccountKey20: {
-                network: "Any",
+                chain: "Any",
                 id: receiverAccKey20.addressRaw,
               },
             },
@@ -126,9 +115,7 @@ describe("ReserveTransfer unit tests", () => {
         amount: 200,
       };
 
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      expect(ReserveTransfer.getMultiAsset(asset)).toStrictEqual({
+      expect(getMultiAsset(asset)).toStrictEqual({
         V2: [
           {
             fun: {
@@ -323,7 +310,7 @@ describe("ReserveTransfer unit tests", () => {
         const receiver: Receiver = {
           addressRaw: bob.addressRaw,
           type: AccountType.accountId32,
-          network: 0,
+          chain: 0,
         };
 
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -337,7 +324,7 @@ describe("ReserveTransfer unit tests", () => {
                 X1: {
                   AccountId32: {
                     id: receiver.addressRaw,
-                    network: "Any"
+                    chain: "Any"
                   }
                 }
               },
@@ -353,7 +340,7 @@ describe("ReserveTransfer unit tests", () => {
         const receiver: Receiver = {
           addressRaw: bob.addressRaw,
           type: AccountType.accountKey20,
-          network: 0,
+          chain: 0,
         };
 
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -367,7 +354,7 @@ describe("ReserveTransfer unit tests", () => {
                 X1: {
                   AccountKey20: {
                     id: receiver.addressRaw,
-                    network: "Any"
+                    chain: "Any"
                   }
                 }
               },
@@ -408,7 +395,7 @@ describe("ReserveTransfer unit tests", () => {
       it("works with origin para and reserve relay", () => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        expect(ReserveTransfer.getReserve(-1, true)).toStrictEqual({
+        expect(ReserveTransfer.getReserve(0, true)).toStrictEqual({
           parents: 1,
           interior: "Here"
         });
@@ -500,7 +487,7 @@ describe("ReserveTransfer unit tests", () => {
         const destParaId = 2002;
         const beneficiary: Receiver = {
           addressRaw: bob.addressRaw,
-          network: 1,
+          chain: 1,
           type: AccountType.accountId32,
         };
 
@@ -595,7 +582,7 @@ describe("ReserveTransfer unit tests", () => {
                           X1: {
                             AccountId32: {
                               id: bob.addressRaw,
-                              network: "Any",
+                              chain: "Any",
                             },
                           },
                         },
@@ -614,10 +601,10 @@ describe("ReserveTransfer unit tests", () => {
       it("Works from parachain to relaychain", () => {
         const bob = ecdsaKeyring.addFromUri("//Bob");
 
-        const destParaId = -1;
+        const destParaId = 0;
         const beneficiary: Receiver = {
           addressRaw: bob.addressRaw,
-          network: 1,
+          chain: 1,
           type: AccountType.accountId32,
         };
 
@@ -703,7 +690,7 @@ describe("ReserveTransfer unit tests", () => {
                           X1: {
                             AccountId32: {
                               id: bob.addressRaw,
-                              network: "Any",
+                              chain: "Any",
                             },
                           },
                         },
@@ -725,7 +712,7 @@ describe("ReserveTransfer unit tests", () => {
         const destParaId = 1000;
         const beneficiary: Receiver = {
           addressRaw: bob.addressRaw,
-          network: 1,
+          chain: 1,
           type: AccountType.accountId32,
         };
 
@@ -816,7 +803,7 @@ describe("ReserveTransfer unit tests", () => {
                           X1: {
                             AccountId32: {
                               id: bob.addressRaw,
-                              network: "Any",
+                              chain: "Any",
                             },
                           },
                         },
@@ -841,7 +828,7 @@ describe("ReserveTransfer unit tests", () => {
         const destParaId = 2002;
         const beneficiary: Receiver = {
           addressRaw: bob.addressRaw,
-          network: 1,
+          chain: 1,
           type: AccountType.accountId32,
         };
 
@@ -952,7 +939,7 @@ describe("ReserveTransfer unit tests", () => {
                                 X1: {
                                   AccountId32: {
                                     id: bob.addressRaw,
-                                    network: "Any",
+                                    chain: "Any",
                                   },
                                 },
                               },
@@ -974,11 +961,11 @@ describe("ReserveTransfer unit tests", () => {
       it("Works with relaychain being the reserve chain", () => {
         const bob = ecdsaKeyring.addFromUri("//Bob");
 
-        const reserveParaId = -1;
+        const reserveParaId = 0;
         const destParaId = 2002;
         const beneficiary: Receiver = {
           addressRaw: bob.addressRaw,
-          network: 1,
+          chain: 1,
           type: AccountType.accountId32,
         };
 
@@ -1068,7 +1055,7 @@ describe("ReserveTransfer unit tests", () => {
                                 X1: {
                                   AccountId32: {
                                     id: bob.addressRaw,
-                                    network: "Any",
+                                    chain: "Any",
                                   },
                                 },
                               },
@@ -1094,7 +1081,7 @@ describe("ReserveTransfer unit tests", () => {
         const destParaId = 2000;
         const beneficiary: Receiver = {
           addressRaw: bob.addressRaw,
-          network: 1,
+          chain: 1,
           type: AccountType.accountId32,
         };
 
@@ -1205,7 +1192,7 @@ describe("ReserveTransfer unit tests", () => {
                                 X1: {
                                   AccountId32: {
                                     id: bob.addressRaw,
-                                    network: "Any",
+                                    chain: "Any",
                                   },
                                 },
                               },

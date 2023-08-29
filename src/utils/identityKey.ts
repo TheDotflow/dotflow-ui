@@ -2,36 +2,36 @@ import aesjs from "aes-js";
 import crypto from "crypto";
 
 class IdentityKey {
-  public static newCipher(identityKey: string, networkId: number): string {
-    const regexPattern = new RegExp(`\\b${networkId}:`, "g");
+  public static newCipher(identityKey: string, chainId: number): string {
+    const regexPattern = new RegExp(`\\b${chainId}:`, "g");
     if (regexPattern.test(identityKey)) {
-      throw new Error("There already exists a cipher that is attached to the provided networkId");
+      throw new Error("There already exists a cipher that is attached to the provided chainId");
     }
 
     const cipher = this.generateCipher();
 
-    identityKey += `${networkId}:${cipher};`;
+    identityKey += `${chainId}:${cipher};`;
     return identityKey;
   }
 
-  public static updateCipher(identityKey: string, networkId: number): string {
-    const startIndex = identityKey.indexOf(`${networkId}:`);
+  public static updateCipher(identityKey: string, chainId: number): string {
+    const startIndex = identityKey.indexOf(`${chainId}:`);
 
     if (startIndex >= 0) {
       const newCipher = this.generateCipher();
 
       const endIndex = identityKey.indexOf(";", startIndex);
       identityKey =
-        identityKey.substring(0, startIndex + networkId.toString().length + 1) + newCipher + identityKey.substring(endIndex);
+        identityKey.substring(0, startIndex + chainId.toString().length + 1) + newCipher + identityKey.substring(endIndex);
     } else {
-      throw new Error("Cannot find networkId");
+      throw new Error("Cannot find chainId");
     }
 
     return identityKey;
   }
 
-  public static encryptAddress(identityKey: string, networkId: number, address: string): string {
-    const cipher = this.getNetworkCipher(identityKey, networkId);
+  public static encryptAddress(identityKey: string, chainId: number, address: string): string {
+    const cipher = this.getChainCipher(identityKey, chainId);
     const cipherBase64 = Buffer.from(cipher, "base64");
 
     const aesCtr = new aesjs.ModeOfOperation.ctr(cipherBase64);
@@ -40,8 +40,8 @@ class IdentityKey {
     return Buffer.from(encryptedAddress).toString("base64");
   }
 
-  public static decryptAddress(identityKey: string, networkId: number, address: string): string {
-    const cipher = this.getNetworkCipher(identityKey, networkId);
+  public static decryptAddress(identityKey: string, chainId: number, address: string): string {
+    const cipher = this.getChainCipher(identityKey, chainId);
     const cipherBase64 = Buffer.from(cipher, "base64");
 
     const aesCtr = new aesjs.ModeOfOperation.ctr(cipherBase64);
@@ -50,35 +50,35 @@ class IdentityKey {
     return Buffer.from(decryptedAddress.buffer).toString();
   }
 
-  public static getNetworkCipher(identityKey: string, networkId: number): string {
-    const startIndex = identityKey.indexOf(`${networkId}:`);
+  public static getChainCipher(identityKey: string, chainId: number): string {
+    const startIndex = identityKey.indexOf(`${chainId}:`);
 
     if (startIndex >= 0) {
       const endIndex = identityKey.indexOf(";", startIndex);
-      return identityKey.substring(startIndex + networkId.toString().length + 1, endIndex - 1);
+      return identityKey.substring(startIndex + chainId.toString().length + 1, endIndex - 1);
     } else {
-      throw new Error("Cannot find networkId");
+      throw new Error("Cannot find chainId");
     }
   }
 
-  public static getSharedKey(identityKey: string, selectedNetworks: number[]): string { 
+  public static getSharedKey(identityKey: string, selectedChains: number[]): string {
     let sharedKey = "";
-    selectedNetworks.forEach((networkId) => {
-      if (!IdentityKey.containsNetworkId(identityKey, networkId)) {
-        identityKey = IdentityKey.newCipher(identityKey, networkId);
-        throw new Error(`Cipher for network #${networkId} not found`);
+    selectedChains.forEach((chainId) => {
+      if (!IdentityKey.containsChainId(identityKey, chainId)) {
+        identityKey = IdentityKey.newCipher(identityKey, chainId);
+        throw new Error(`Cipher for chain #${chainId} not found`);
       }
-      sharedKey += `${networkId}:${IdentityKey.getNetworkCipher(
+      sharedKey += `${chainId}:${IdentityKey.getChainCipher(
         identityKey,
-        networkId
+        chainId
       )};`;
     });
 
     return sharedKey;
   }
 
-  public static containsNetworkId(identityKey: string, networkId: number): boolean {
-    const startIndex = identityKey.indexOf(`${networkId}:`);
+  public static containsChainId(identityKey: string, chainId: number): boolean {
+    const startIndex = identityKey.indexOf(`${chainId}:`);
 
     return startIndex >= 0 ? true : false;
   }

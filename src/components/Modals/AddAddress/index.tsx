@@ -20,7 +20,7 @@ import KeyStore from '@/utils/keyStore';
 
 import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
-import { NetworkId } from '@/contracts/types';
+import { ChainId } from '@/contracts/types';
 
 interface AddAddressModalProps {
   open: boolean;
@@ -29,11 +29,11 @@ interface AddAddressModalProps {
 
 export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
   const { api, activeAccount } = useInkathon();
-  const { identityNo, networks, contract } = useIdentity();
+  const { identityNo, chains, contract } = useIdentity();
   const { toastError, toastSuccess } = useToast();
 
-  const [networkId, setNetworkId] = useState<NetworkId | undefined>();
-  const [networkAddress, setNetworkAddress] = useState<string | undefined>();
+  const [chainId, setChainId] = useState<ChainId | undefined>();
+  const [chainAddress, setChainAddress] = useState<string | undefined>();
   const [working, setWorking] = useState(false);
 
   const onSubmit = async () => {
@@ -41,23 +41,23 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
       toastError("You don't have an identity yet.");
       return;
     }
-    if (!networkAddress || networkAddress.trim().length === 0) {
+    if (!chainAddress || chainAddress.trim().length === 0) {
       toastError('Please input your address');
       return;
     }
-    if (networkId == undefined) {
-      toastError('Please specify the network');
+    if (chainId == undefined) {
+      toastError('Please specify the chain');
       return;
     }
 
-    if (!isValidAddress(networkAddress, networks[networkId].ss58Prefix)) {
+    if (!isValidAddress(chainAddress, chains[chainId].ss58Prefix)) {
       toastError('Invalid address');
       return;
     }
 
     if (!api || !activeAccount || !contract) {
       toastError(
-        'Cannot add an address. Please check if you are connected to the network'
+        'Cannot add an address. Please check if you are connected to the chain'
       );
       return;
     }
@@ -65,15 +65,15 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
 
     let identityKey = KeyStore.readIdentityKey(identityNo) || '';
 
-    if (!IdentityKey.containsNetworkId(identityKey, networkId)) {
-      identityKey = IdentityKey.newCipher(identityKey, networkId);
+    if (!IdentityKey.containsChainId(identityKey, chainId)) {
+      identityKey = IdentityKey.newCipher(identityKey, chainId);
       KeyStore.updateIdentityKey(identityNo, identityKey);
     }
 
     const encryptedAddress = IdentityKey.encryptAddress(
       identityKey,
-      networkId,
-      networkAddress
+      chainId,
+      chainAddress
     );
 
     try {
@@ -83,7 +83,7 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
         contract,
         'add_address',
         {},
-        [networkId, encryptedAddress]
+        [chainId, encryptedAddress]
       );
 
       toastSuccess('Successfully added your address.');
@@ -91,10 +91,9 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
       onClose();
     } catch (e: any) {
       toastError(
-        `Failed to add address. Error: ${
-          e.errorMessage === 'Error'
-            ? 'Please check your balance.'
-            : e.errorMessage
+        `Failed to add address. Error: ${e.errorMessage === 'Error'
+          ? 'Please check your balance.'
+          : e.errorMessage
         }`
       );
       setWorking(false);
@@ -102,8 +101,8 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
   };
 
   useEffect(() => {
-    setNetworkId(undefined);
-    setNetworkAddress(undefined);
+    setChainId(undefined);
+    setChainAddress(undefined);
     setWorking(false);
   }, [open]);
 
@@ -114,22 +113,22 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
         <DialogContent>
           <Box className='form-group' component='form'>
             <FormControl className='form-item'>
-              <FormLabel>List of networks</FormLabel>
+              <FormLabel>List of chains</FormLabel>
               <TextField
-                label='Select a network'
+                label='Select a chain'
                 select
                 sx={{ mt: '8px' }}
                 required
-                value={networkId}
-                onChange={(e) => setNetworkId(Number(e.target.value))}
+                value={chainId || ""}
+                onChange={(e) => setChainId(Number(e.target.value))}
               >
-                {Object.entries(networks).map(([id, network], index) => (
+                {Object.entries(chains).map(([id, chain], index) => (
                   <MenuItem value={id} key={index}>
-                    {network.name}
+                    {chain.name}
                   </MenuItem>
                 ))}
               </TextField>
-              {networkId !== undefined && (
+              {chainId !== undefined && (
                 <div>
                   <FormHelperText
                     sx={{
@@ -138,7 +137,7 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
                       margin: 0,
                     }}
                   >
-                    <span>{`Ss58 prefix: ${networks[networkId].ss58Prefix}`}</span>
+                    <span>{`Ss58 prefix: ${chains[chainId].ss58Prefix}`}</span>
                   </FormHelperText>
                 </div>
               )}
@@ -151,9 +150,9 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
                   maxLength: 64,
                 }}
                 required
-                value={networkAddress}
-                error={networkAddress === ''}
-                onChange={(e) => setNetworkAddress(e.target.value)}
+                value={chainAddress || ""}
+                error={chainAddress === ''}
+                onChange={(e) => setChainAddress(e.target.value)}
               />
               <FormHelperText
                 sx={{
@@ -164,7 +163,7 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
                 }}
               >
                 <span>Maximum 64 characters</span>
-                <span>{`${(networkAddress || '').length}/64`}</span>
+                <span>{`${(chainAddress || '').length}/64`}</span>
               </FormHelperText>
             </FormControl>
           </Box>

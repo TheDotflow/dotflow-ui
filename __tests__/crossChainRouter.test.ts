@@ -2,12 +2,12 @@ import { ApiPromise, Keyring, WsProvider } from "@polkadot/api";
 import { KeyringPair } from "@polkadot/keyring/types";
 import { u8aToHex } from '@polkadot/util';
 
-import TransactionRouter from "@/utils/transactionRouter";
-import { Fungible, Receiver, Sender } from "@/utils/transactionRouter/types";
+import TransactionRouter from "../src/utils/transactionRouter";
+import { Fungible, Receiver, Sender } from "../src/utils/transactionRouter/types";
 
 import IdentityContractFactory from "../types/constructors/identity";
 import IdentityContract from "../types/contracts/identity";
-import { AccountType, NetworkInfo } from "../types/types-arguments/identity";
+import { AccountType, ChainInfo } from "../types/types-arguments/identity";
 
 const wsProvider = new WsProvider("ws://127.0.0.1:9944");
 const keyring = new Keyring({ type: "sr25519" });
@@ -18,7 +18,7 @@ const WS_ROROCO_LOCAL = "ws://127.0.0.1:9900";
 const WS_ASSET_HUB_LOCAL = "ws://127.0.0.1:9910";
 const WS_TRAPPIST_LOCAL = "ws://127.0.0.1:9920";
 
-describe("TransactionRouter Cross-chain", () => {
+describe("TransactionRouter Cross-chain reserve transfer", () => {
   let swankyApi: ApiPromise;
   let alice: KeyringPair;
   let bob: KeyringPair;
@@ -41,18 +41,18 @@ describe("TransactionRouter Cross-chain", () => {
       swankyApi
     );
 
-    await addNetwork(identityContract, alice, {
-      rpcUrl: WS_ASSET_HUB_LOCAL,
+    await addChain(identityContract, alice, 1000, {
+      rpcUrls: [WS_ASSET_HUB_LOCAL],
       accountType: AccountType.accountId32,
     });
 
-    await addNetwork(identityContract, alice, {
-      rpcUrl: WS_TRAPPIST_LOCAL,
+    await addChain(identityContract, alice, 1836, {
+      rpcUrls: [WS_TRAPPIST_LOCAL],
       accountType: AccountType.accountId32,
     });
 
-    await addNetwork(identityContract, alice, {
-      rpcUrl: "ws://127.0.0.1:9930",
+    await addChain(identityContract, alice, 3000, {
+      rpcUrls: ["ws://127.0.0.1:9930"],
       accountType: AccountType.accountId32,
     });
   });
@@ -60,13 +60,13 @@ describe("TransactionRouter Cross-chain", () => {
   test("Transferring cross-chain from asset's reserve chain works", async () => {
     const sender: Sender = {
       keypair: alice,
-      network: 0
+      chain: 1000
     };
 
     const receiver: Receiver = {
       addressRaw: bob.addressRaw,
       type: AccountType.accountId32,
-      network: 1,
+      chain: 1836,
     };
 
     const rococoProvider = new WsProvider(WS_ROROCO_LOCAL);
@@ -89,7 +89,7 @@ describe("TransactionRouter Cross-chain", () => {
       await deactivateLockdown(trappistApi, alice);
     }
 
-    // Create assets on both networks
+    // Create assets on both chains
 
     if (!(await getAsset(assetHubApi, USDT_ASSET_ID))) {
       await forceCreateAsset(rococoApi, assetHubApi, 1000, alice, USDT_ASSET_ID);
@@ -121,7 +121,7 @@ describe("TransactionRouter Cross-chain", () => {
     const receiverBalanceBefore = await getAssetBalance(trappistApi, USDT_ASSET_ID, bob.address);
 
     const amount = 4000000000000;
-    const assetReserveChainId = 0;
+    const assetReserveChainId = 1000;
 
     const asset: Fungible = {
       multiAsset: {
@@ -137,11 +137,14 @@ describe("TransactionRouter Cross-chain", () => {
     };
 
     await TransactionRouter.sendTokens(
-      identityContract,
       sender,
       receiver,
       assetReserveChainId,
-      asset
+      asset,
+      {
+        originApi: assetHubApi,
+        destApi: trappistApi
+      }
     );
 
     const senderBalanceAfter = await getAssetBalance(assetHubApi, USDT_ASSET_ID, alice.address);
@@ -176,7 +179,7 @@ describe("TransactionRouter Cross-chain", () => {
       await deactivateLockdown(trappistApi, alice);
     }
 
-    // Create assets on both networks.
+    // Create assets on both chains.
 
     if (!(await getAsset(assetHubApi, USDT_ASSET_ID))) {
       await forceCreateAsset(rococoApi, assetHubApi, 1000, alice, USDT_ASSET_ID);
@@ -204,13 +207,13 @@ describe("TransactionRouter Cross-chain", () => {
 
     const sender: Sender = {
       keypair: bob,
-      network: 1
+      chain: 1836
     };
 
     const receiver: Receiver = {
       addressRaw: charlie.addressRaw,
       type: AccountType.accountId32,
-      network: 0,
+      chain: 1000,
     };
 
     const asset: Fungible = {
@@ -231,7 +234,16 @@ describe("TransactionRouter Cross-chain", () => {
     const receiverBalanceBefore = await getAssetBalance(assetHubApi, USDT_ASSET_ID, charlie.address);
 
     // Transfer the tokens to charlies's account on asset hub:
-    await TransactionRouter.sendTokens(identityContract, sender, receiver, receiver.network, asset);
+    await TransactionRouter.sendTokens(
+      sender,
+      receiver,
+      receiver.chain,
+      asset,
+      {
+        originApi: trappistApi,
+        destApi: assetHubApi
+      }
+    );
 
     // We need to wait a bit more to actually receive the assets on the base chain.
     await delay(5000);
@@ -273,7 +285,7 @@ describe("TransactionRouter Cross-chain", () => {
       await deactivateLockdown(trappistApi, alice);
     }
 
-    // Create assets on all networks.
+    // Create assets on all chains.
 
     if (!(await getAsset(assetHubApi, USDT_ASSET_ID))) {
       await forceCreateAsset(rococoApi, assetHubApi, 1000, alice, USDT_ASSET_ID);
@@ -302,17 +314,17 @@ describe("TransactionRouter Cross-chain", () => {
     }
 
     const amount = 950000000000;
-    const assetReserveChainId = 0;
+    const assetReserveChainId = 1000;
 
     const sender: Sender = {
       keypair: bob,
-      network: 1
+      chain: 1836
     };
 
     const receiver: Receiver = {
       addressRaw: bob.addressRaw,
       type: AccountType.accountId32,
-      network: 2,
+      chain: 3000,
     };
 
     const asset: Fungible = {
@@ -333,7 +345,17 @@ describe("TransactionRouter Cross-chain", () => {
     const receiverBalanceBefore = await getAssetBalance(baseApi, USDT_ASSET_ID, bob.address);
 
     // Transfer the tokens to bob's account on base:
-    await TransactionRouter.sendTokens(identityContract, sender, receiver, assetReserveChainId, asset);
+    await TransactionRouter.sendTokens(
+      sender,
+      receiver,
+      assetReserveChainId,
+      asset,
+      {
+        originApi: trappistApi,
+        destApi: baseApi,
+        reserveApi: assetHubApi
+      }
+    );
 
     // We need to wait a bit more to actually receive the assets on the base chain.
     await delay(12000);
@@ -348,14 +370,15 @@ describe("TransactionRouter Cross-chain", () => {
   }, 180000);
 });
 
-const addNetwork = async (
+const addChain = async (
   contract: IdentityContract,
   signer: KeyringPair,
-  network: NetworkInfo
+  chainId: number,
+  chain: ChainInfo
 ): Promise<void> => {
   await contract
     .withSigner(signer)
-    .tx.addNetwork(network);
+    .tx.addChain(chainId, chain);
 };
 
 const createAsset = async (

@@ -59,7 +59,7 @@ export default class EventsClass {
 		return this.__subscribeOnEvent(callbackWrapper, (eventName : string) => eventName == 'IdentityAdded');
 	}
 
-	public subscribeOnNickNameUpdatedEvent(callback : (event : EventTypes.NickNameUpdated) => void) {
+	public subscribeOnNicknameUpdatedEvent(callback : (event : EventTypes.NicknameUpdated) => void) {
 		const callbackWrapper = (args: any[], event: any) => {
 			const _event: Record < string, any > = {};
 
@@ -67,10 +67,10 @@ export default class EventsClass {
 				_event[event.args[i]!.name] = args[i]!.toJSON();
 			}
 
-			callback(handleEventReturn(_event, getEventTypeDescription('NickNameUpdated', EVENT_DATA_TYPE_DESCRIPTIONS)) as EventTypes.NickNameUpdated);
+			callback(handleEventReturn(_event, getEventTypeDescription('NicknameUpdated', EVENT_DATA_TYPE_DESCRIPTIONS)) as EventTypes.NicknameUpdated);
 		};
 
-		return this.__subscribeOnEvent(callbackWrapper, (eventName : string) => eventName == 'NickNameUpdated');
+		return this.__subscribeOnEvent(callbackWrapper, (eventName : string) => eventName == 'NicknameUpdated');
 	}
 
 	public subscribeOnIdentityRemovedEvent(callback : (event : EventTypes.IdentityRemoved) => void) {

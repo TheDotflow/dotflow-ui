@@ -1,29 +1,29 @@
-export type NetworkId = number;
+export type ChainId = number;
 
 export type AccountType = 'AccountId32' | 'AccountId20';
 
-export type NetworkConsts = {
+export type ChainConsts = {
   name: string;
   ss58Prefix: number;
   paraId: number;
 }
 
-export type NetworkInfo = NetworkConsts & {
+export type ChainInfo = ChainConsts & {
   rpcUrls: string[];
   accountType: AccountType;
 }
 
-export type Network = {
-  id: NetworkId;
-  name: NetworkInfo;
+export type Chain = {
+  id: ChainId;
+  name: ChainInfo;
 }
 
 export type Address = {
-  networkId: NetworkId;
+  chainId: ChainId;
   address: string;
 }
 
-export type Networks = Record<NetworkId, NetworkInfo>;
+export type Chains = Record<ChainId, ChainInfo>;
 
 export type IdentityNo = number | null;
 

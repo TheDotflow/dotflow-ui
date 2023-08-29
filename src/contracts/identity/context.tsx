@@ -21,15 +21,15 @@ import { IdentityMetadata } from '.';
 import { CONTRACT_IDENTITY } from '..';
 import {
   Address,
+  ChainConsts,
+  ChainId,
+  Chains,
   IdentityNo,
-  NetworkConsts,
-  NetworkId,
-  Networks,
 } from '../types';
 
 interface IdentityContract {
   identityNo: number | null;
-  networks: Networks;
+  chains: Chains;
   addresses: Array<Address>;
   contract: ContractPromise | undefined;
   fetchIdentityNo: () => Promise<void>;
@@ -39,7 +39,7 @@ interface IdentityContract {
 
 const defaultIdentity: IdentityContract = {
   identityNo: null,
-  networks: {},
+  chains: {},
   addresses: [],
   contract: undefined,
 
@@ -62,10 +62,10 @@ const IdentityContractProvider = ({ children }: Props) => {
   const { contract } = useContract(IdentityMetadata, CONTRACT_IDENTITY);
   const { api, activeAccount } = useInkathon();
   const [identityNo, setIdentityNo] = useState<IdentityNo>(null);
-  const [networks, setNetworks] = useState<Networks>({});
+  const [chains, setChains] = useState<Chains>({});
   const [addresses, setAddresses] = useState<Array<Address>>([]);
   const [loadingIdentityNo, setLoadingIdentityNo] = useState(false);
-  const [loadingNetworks, setLoadingNetworks] = useState(false);
+  const [loadingChains, setLoadingChains] = useState(false);
   const { toastError } = useToast();
 
   const fetchIdentityNo = useCallback(async () => {
@@ -92,15 +92,16 @@ const IdentityContractProvider = ({ children }: Props) => {
     setLoadingIdentityNo(false);
   }, [activeAccount, api, contract]);
 
-  const fetchNetworks = useCallback(async () => {
+  const fetchChains = useCallback(async () => {
     if (!api || !contract) {
-      setNetworks({});
+      setChains({});
       return;
     }
 
     const getChainInfo = async (
-      rpcUrls: string[]
-    ): Promise<NetworkConsts | null> => {
+      rpcUrls: string[],
+      chainId: number
+    ): Promise<ChainConsts | null> => {
       const count = rpcUrls.length;
       const rpcIndex = Math.min(Math.floor(Math.random() * count), count - 1);
       const rpc = rpcUrls[rpcIndex];
@@ -113,9 +114,9 @@ const IdentityContractProvider = ({ children }: Props) => {
         const ss58Prefix: number =
           api.consts.system.ss58Prefix.toPrimitive() as number;
         const name = (await api.rpc.system.chain()).toString();
-        const paraId = (
-          await api.query.parachainInfo.parachainId()
-        ).toPrimitive() as number;
+        const paraId = chainId;
+
+        await api.disconnect();
 
         return {
           name,
@@ -128,40 +129,40 @@ const IdentityContractProvider = ({ children }: Props) => {
       }
     };
 
-    setLoadingNetworks(true);
+    setLoadingChains(true);
     try {
       const result = await contractQuery(
         api,
         '',
         contract,
-        'available_networks',
+        'available_chains',
         {}
       );
       const { output, isError, decodedOutput } = decodeOutput(
         result,
         contract,
-        'available_networks'
+        'available_chains'
       );
       if (isError) throw new Error(decodedOutput);
 
-      const _networks: Networks = {};
+      const _chains: Chains = {};
 
       for await (const item of output) {
-        const networkId = Number(item[0]);
+        const chainId = parseInt(item[0].replace(/,/g, ""));
         const { accountType, rpcUrls } = item[1];
-        const info = await getChainInfo(rpcUrls);
+        const info = await getChainInfo(rpcUrls, chainId);
         if (info)
-          _networks[networkId] = {
+          _chains[chainId] = {
             rpcUrls,
             accountType,
             ...info,
           };
       }
-      setNetworks(_networks);
+      setChains(_chains);
     } catch (e: any) {
       toastError(e.toString());
     }
-    setLoadingNetworks(false);
+    setLoadingChains(false);
   }, [api, contract, toastError]);
 
   const fetchAddresses = useCallback(async () => {
@@ -183,10 +184,10 @@ const IdentityContractProvider = ({ children }: Props) => {
       const _addresses: Array<Address> = [];
       for (let idx = 0; idx < records.length; ++idx) {
         const record = records[idx];
-        const networkId: NetworkId = Number(record[0]);
+        const chainId: ChainId = parseInt(record[0].replace(/,/g, ""));
         const address = record[1]; // FIXME: Decode address here
         _addresses.push({
-          networkId,
+          chainId,
           address,
         });
       }
@@ -205,7 +206,7 @@ const IdentityContractProvider = ({ children }: Props) => {
   }, [api, contract, activeAccount]);
 
   useEffect(() => {
-    fetchNetworks();
+    fetchChains();
   }, [api?.isReady, contract?.address]);
 
   return (
@@ -214,10 +215,10 @@ const IdentityContractProvider = ({ children }: Props) => {
         contract,
         identityNo,
         addresses,
-        networks,
+        chains,
         fetchAddresses,
         fetchIdentityNo,
-        loading: loadingIdentityNo || loadingNetworks,
+        loading: loadingIdentityNo || loadingChains,
       }}
     >
       {children}

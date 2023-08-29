@@ -12,10 +12,10 @@ export const clipAddress = (val: string) => {
   )}`;
 };
 
-export const isValidAddress = (networkAddress: string, ss58Prefix: number) => {
-  if (isHex(networkAddress)) return false;
+export const isValidAddress = (chainAddress: string, ss58Prefix: number) => {
+  if (isHex(chainAddress)) return false;
   try {
-    validateAddress(networkAddress, true, ss58Prefix);
+    validateAddress(chainAddress, true, ss58Prefix);
     return true;
   } catch {
     return false;
@@ -27,6 +27,6 @@ export const getParaId = async (api: ApiPromise): Promise<number> => {
     const response = (await api.query.parachainInfo.parachainId()).toJSON();
     return Number(response);
   } else {
-    return -1;
+    return 0;
   }
 }

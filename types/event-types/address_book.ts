@@ -14,9 +14,9 @@ export interface IdentityAdded {
 	identity: number;
 }
 
-export interface NickNameUpdated {
+export interface NicknameUpdated {
 	owner: ReturnTypes.AccountId;
-	identityNo: number;
+	identity: number;
 	newNickname: string | null;
 }
 

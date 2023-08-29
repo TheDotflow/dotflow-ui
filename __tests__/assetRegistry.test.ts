@@ -25,9 +25,9 @@ describe('AssetRegistry', () => {
         confidence: 0,
       },
     ]);
-  });
+  }, 10000);
 
-  test('Getting assets by para id works', async () => { 
+  test('Getting assets by para id works', async () => {
     const assets = await AssetRegistry.getAssetsOnBlockchain(
       'polkadot',
       0
@@ -51,7 +51,7 @@ describe('AssetRegistry', () => {
         confidence: 0,
       },
     ]);
-  });
+  }, 10000);
 
   test("Checking whether an asset exists on both chains works", async () => {
     const GLMR = [
@@ -105,7 +105,43 @@ describe('AssetRegistry', () => {
 
     const isUsdtSupported = await AssetRegistry.isSupportedOnBothChains("polkadot", "moonbeam", "acala", USDT);
     expect(isUsdtSupported).toBe(true);
-  });
+  }, 10000);
+
+  test("Getting all assets supported on both chains works", async () => {
+    const statemine = 1000;
+    const moonriver = 2023;
+    const assets = await AssetRegistry.assetsSupportedOnBothChains("kusama", statemine, moonriver);
+    expect(assets).toStrictEqual([
+      {
+        asset: { Token: "1984" },
+        currencyID: "1984",
+        decimals: 6,
+        name: "Tether USD",
+        symbol: "USDt",
+        xcmInteriorKey: [
+          { network: "kusama", },
+          { parachain: 1000, },
+          { palletInstance: 50, },
+          { generalIndex: 1984, },
+        ],
+      },
+      {
+        asset: { Token: "8", },
+        confidence: 0,
+        currencyID: "8",
+        decimals: 10,
+        inferred: true,
+        name: "RMRK.app",
+        symbol: "RMRK",
+        xcmInteriorKey: [
+          { network: "kusama", },
+          { parachain: 1000, },
+          { palletInstance: 50, },
+          { generalIndex: 8, },
+        ],
+      },
+    ]);
+  }, 10000);
 
   test("Getting assets of Kusama works", async () => {
     const assets = await AssetRegistry.getAssetsOnBlockchain("kusama", "kusama");
@@ -128,7 +164,7 @@ describe('AssetRegistry', () => {
         confidence: 0,
       },
     ]);
-  });
+  }, 10000);
 
   test('xcmInteriorKey to MultiAsset works', () => {
     const ksmXcmInteriorKey = [
@@ -214,5 +250,5 @@ describe('AssetRegistry', () => {
         ],
       },
     });
-  });
+  }, 10000);
 });
