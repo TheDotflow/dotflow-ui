@@ -309,6 +309,8 @@ const TransferPage = () => {
                 onChange={(e: any) => setSelectedAsset(e.target.value)}
               >
                 {assets.map((asset, index) => (
+                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                  // @ts-ignore
                   <MenuItem value={asset} key={index}>
                     {asset.name}
                   </MenuItem>
