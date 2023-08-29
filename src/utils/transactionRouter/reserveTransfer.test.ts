@@ -13,7 +13,7 @@ import { AccountType } from "../../../types/types-arguments/identity";
 const sr25519Keyring = new Keyring({ type: "sr25519" });
 const ecdsaKeyring = new Keyring({ type: "ecdsa" });
 
-describe("TransactionRouter unit tests", () => {
+describe("ReserveTransfer unit tests", () => {
   describe("getDestination works", () => {
     it("Works with the destination being the relay chain", () => {
       expect(getDestination(true, 69, false)).toStrictEqual({

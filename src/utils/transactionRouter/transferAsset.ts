@@ -22,8 +22,7 @@ class TransferAsset {
     const xcm = this.xcmTransferAssetMessage(
       receiver.addressRaw,
       receiver.type,
-      asset.multiAsset,
-      asset.amount
+      asset,
     );
 
     const xcmPallet = api.tx.xcmPallet || api.tx.polkadotXcm;
@@ -56,8 +55,7 @@ class TransferAsset {
   private static xcmTransferAssetMessage(
     receiverAddress: Uint8Array,
     receiverAccountType: AccountType,
-    multiAsset: any,
-    amount: number
+    asset: Fungible,
   ): any {
     let receiverAccount;
     if (receiverAccountType == AccountType.accountId32) {
@@ -83,10 +81,10 @@ class TransferAsset {
             assets: [
               {
                 fun: {
-                  Fungible: amount,
+                  Fungible: asset.amount,
                 },
                 id: {
-                  Concrete: multiAsset,
+                  Concrete: asset.multiAsset,
                 },
               },
             ],
