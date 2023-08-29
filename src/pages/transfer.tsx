@@ -30,11 +30,7 @@ import { useIdentity } from '@/contracts';
 import { useAddressBook } from '@/contracts/addressbook/context';
 
 const TransferPage = () => {
-  const {
-    chains,
-    getAddresses,
-    contract: identityContract,
-  } = useIdentity();
+  const { chains, getAddresses, contract: identityContract } = useIdentity();
   const { activeAccount, activeSigner } = useInkathon();
   const { toastError } = useToast();
   const { identities } = useAddressBook();
@@ -149,7 +145,9 @@ const TransferPage = () => {
     ) {
       return false;
     }
-    const reserveParaId = getParaIdFromXcmInterior(selectedAsset.xcmInteriorKey);
+    const reserveParaId = getParaIdFromXcmInterior(
+      selectedAsset.xcmInteriorKey
+    );
     // If the origin is the reserve chain that means that we can use the existing
     // `limitedReserveTransferAssets` or `limitedTeleportAssets` extrinsics which are
     // supported on all chains that have the xcm pallet.
@@ -161,13 +159,18 @@ const TransferPage = () => {
 
     if (
       sourceChainId !== destChainId &&
-      isTeleport(sourceChainId, destChainId, getFungible(selectedAsset.xcmInteriorKey, isSourceParachain, 0))
+      isTeleport(
+        sourceChainId,
+        destChainId,
+        getFungible(selectedAsset.xcmInteriorKey, isSourceParachain, 0)
+      )
     ) {
       return true;
     }
 
     const isOriginSupportingLocalXCM = chainsSupportingXcmExecute.findIndex(
-      (chain) => chain.paraId == sourceChainId && chain.relayChain == RELAY_CHAIN
+      (chain) =>
+        chain.paraId == sourceChainId && chain.relayChain == RELAY_CHAIN
     );
 
     // We only need the origin chain to support XCM for any other type of transfer to
@@ -192,7 +195,9 @@ const TransferPage = () => {
       return;
     }
 
-    const reserveChainId = getParaIdFromXcmInterior(selectedAsset.xcmInteriorKey);
+    const reserveChainId = getParaIdFromXcmInterior(
+      selectedAsset.xcmInteriorKey
+    );
 
     const count = Math.min(
       chains[sourceChainId].rpcUrls.length,
@@ -226,7 +231,11 @@ const TransferPage = () => {
             : AccountType.accountKey20,
       },
       reserveChainId,
-      getFungible(selectedAsset.xcmInteriorKey, isSourceParachain, amount * Math.pow(10, selectedAsset.decimals)),
+      getFungible(
+        selectedAsset.xcmInteriorKey,
+        isSourceParachain,
+        amount * Math.pow(10, selectedAsset.decimals)
+      ),
       {
         originApi: await getApi(chains[sourceChainId].rpcUrls[rpcIndex]),
         destApi: await getApi(chains[destChainId].rpcUrls[rpcIndex]),
@@ -252,8 +261,14 @@ const TransferPage = () => {
     return api;
   };
 
-  const getFungible = (xcmInterior: any, isSourceParachain: boolean, amount: number): Fungible => {
-    xcmInterior = Array.isArray(xcmInterior) ? xcmInterior : JSON.parse(xcmInterior.toString());
+  const getFungible = (
+    xcmInterior: any,
+    isSourceParachain: boolean,
+    amount: number
+  ): Fungible => {
+    xcmInterior = Array.isArray(xcmInterior)
+      ? xcmInterior
+      : JSON.parse(xcmInterior.toString());
     return {
       multiAsset: AssetRegistry.xcmInteriorToMultiAsset(
         xcmInterior,
@@ -262,7 +277,7 @@ const TransferPage = () => {
       ),
       amount,
     };
-  }
+  };
 
   return (
     <Box className={styles.transferContainer}>
@@ -339,14 +354,16 @@ const TransferPage = () => {
         {canTransfer && (
           <>
             <TextField
-              value={amount || ''}
+              value={amount === undefined ? '' : amount}
               type='number'
               placeholder={`amount in ${selectedAsset.symbol}`}
               onChange={(e) => setAmount(parseFloat(e.target.value))}
             />
-            {!isTransferSupported() &&
-              <Alert severity="warning">This transfer route is currently not supported.</Alert>
-            }
+            {!isTransferSupported() && (
+              <Alert severity='warning'>
+                This transfer route is currently not supported.
+              </Alert>
+            )}
             <LoadingButton
               fullWidth
               variant='contained'
