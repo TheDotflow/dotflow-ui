@@ -26,6 +26,9 @@ import {
   Chains,
   IdentityNo,
 } from '../types';
+import { getChains } from 'chaindata';
+import { RELAY_CHAIN } from '@/consts';
+import ss58registry from 'chaindata/ss58registry';
 
 interface IdentityContract {
   identityNo: number | null;
@@ -109,29 +112,54 @@ const IdentityContractProvider = ({ children }: Props) => {
       const count = rpcUrls.length;
       const rpcIndex = Math.min(Math.floor(Math.random() * count), count - 1);
       const rpc = rpcUrls[rpcIndex];
+
       try {
-        const provider = new WsProvider(rpc);
-        const api = new ApiPromise({ provider, rpc: jsonrpc });
+        const chainData = (await getChains()).find(
+          (chain) => chain.paraId ?
+            chain.paraId === chainId && chain.relay.id === RELAY_CHAIN
+            :
+            chainId === 0 && chain.id === RELAY_CHAIN
+        );
 
-        await api.isReady;
+        console.log(chainData);
 
-        const ss58Prefix: number =
-          api.consts.system.ss58Prefix.toPrimitive() as number;
-        const name = (await api.rpc.system.chain()).toString();
-        const paraId = chainId;
+        if (!chainData) {
+          return null;
+        }
+        console.log("HEY");
 
-        await api.disconnect();
+        const ss58Result = await ss58registry(chainData.id);
 
+        const rpcCount = chainData.rpcs.length;
+        const rpcIndex = Math.min(Math.floor(Math.random() * rpcCount), rpcCount - 1);
+
+        const ss58Prefix = ss58Result ? ss58Result : await fetchSs58Prefix(chainData.rpcs[rpcIndex].url);
+
+        console.log(`${chainData.name}: ${ss58Prefix}`);
         return {
-          name,
-          ss58Prefix,
-          paraId,
+          name: chainData.name,
+          ss58Prefix: ss58Prefix,
+          paraId: chainId,
         };
       } catch (e) {
         toastError && toastError(`Failed to get chain info for ${rpc}`);
         return null;
       }
     };
+
+    const fetchSs58Prefix = async (rpc: string): Promise<number> => {
+      const provider = new WsProvider(rpc);
+      const api = new ApiPromise({ provider, rpc: jsonrpc });
+
+      await api.isReady;
+
+      const ss58Prefix: number =
+        api.consts.system.ss58Prefix.toPrimitive() as number;
+
+      await api.disconnect();
+
+      return ss58Prefix;
+    }
 
     setLoadingChains(true);
     try {
