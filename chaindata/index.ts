@@ -1,3 +1,4 @@
+import { ChainConsts } from "@/contracts/types";
 import { gql, request } from "graphql-request"
 
 const graphqlUrl = "https://squid.subsquid.io/chaindata/v/v4/graphql"
@@ -20,7 +21,20 @@ query chains {
 }
 `;
 
+const tokensQuery = gql`
+query tokens {
+  tokens(orderBy: id_ASC) {
+    data
+  }
+}
+`;
+
 export const getChains = async (): Promise<Array<any>> => {
   const result: any = await request(graphqlUrl, chainsQuery);
   return result.chains;
+}
+
+export const getTokens = async (): Promise<Array<any>> => {
+  const result: any = await request(graphqlUrl, tokensQuery);
+  return result.tokens;
 }

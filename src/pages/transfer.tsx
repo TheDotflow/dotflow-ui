@@ -19,15 +19,17 @@ import { AccountType } from 'types/types-arguments/identity';
 import AssetRegistry, { Asset } from '@/utils/assetRegistry';
 import IdentityKey from '@/utils/identityKey';
 import KeyStore from '@/utils/keyStore';
-import TransactionRouter, { isTeleport } from '@/utils/transactionRouter';
-import { getTeleportableAssets } from '@/utils/transactionRouter/teleportableRoutes';
-import { Fungible } from '@/utils/transactionRouter/types';
+import TransactionRouter, { isTeleport } from '@/utils/xcmTransfer';
+import { getTeleportableAssets } from '@/utils/xcmTransfer/teleportableRoutes';
+import { Fungible } from '@/utils/xcmTransfer/types';
 
 import { chainsSupportingXcmExecute, RELAY_CHAIN } from '@/consts';
 import { useRelayApi } from '@/contexts/RelayApi';
 import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
 import { useAddressBook } from '@/contracts/addressbook/context';
+import { getChains, getTokens } from 'chaindata';
+import NativeTransfer from '@/utils/nativeTransfer';
 
 const TransferPage = () => {
   const { chains, getAddresses, contract: identityContract } = useIdentity();
@@ -88,10 +90,38 @@ const TransferPage = () => {
         setAssets(_assets);
       }
     } else {
-      const _assets = await AssetRegistry.getAssetsOnBlockchain(
-        RELAY_CHAIN,
-        chains[sourceChainId].paraId
+      const chainData = (await getChains()).find(
+        (chain) => chain.paraId ?
+          chain.paraId === sourceChainId && chain.relay.id === RELAY_CHAIN
+          :
+          sourceChainId === 0 && chain.id === RELAY_CHAIN
       );
+
+      const _assets = [];
+      if (chainData) {
+        console.log(chainData.id);
+        const tokens = (await getTokens()).filter((token) => {
+          const isPartOfSourceChain = token.data.id.startsWith(chainData.id);
+          console.log(isPartOfSourceChain);
+          return isPartOfSourceChain;
+        });
+        console.log(tokens);
+        const assets: Asset[] = tokens.map(t => {
+          const asset: Asset = {
+            asset: "",
+            name: t.data.symbol,
+            symbol: t.data.symbol,
+            decimals: t.data.decimals,
+            xcmInteriorKey: t.data,
+            confidence: 0,
+            inferred: false
+          };
+          return asset;
+        });
+        console.log(assets);
+        _assets.push(...assets);
+      }
+
       _assets.push(...getTeleportableAssets(sourceChainId, destChainId));
       setSelectedAsset([]);
       setAssets(_assets);
@@ -138,6 +168,11 @@ const TransferPage = () => {
 
   // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
   const isTransferSupported = (): boolean => {
+    // We support simple transfers.
+    if (sourceChainId === destChainId) {
+      return true;
+    }
+
     if (
       sourceChainId === undefined ||
       destChainId === undefined ||
@@ -195,6 +230,35 @@ const TransferPage = () => {
       return;
     }
 
+    if (sourceChainId === destChainId) {
+      // Just do a simple token transfer.
+      const count = chains[sourceChainId].rpcUrls.length;
+      const rpcIndex = Math.min(Math.floor(Math.random() * count), count - 1);
+
+      const api = await getApi(chains[sourceChainId].rpcUrls[rpcIndex]);
+
+      const keypair = new Keyring();
+      keypair.addFromAddress(activeAccount.address);
+
+      const receiverKeypair = new Keyring();
+      receiverKeypair.addFromAddress(recipientAddress);
+
+      setTransferring(true);
+
+      await NativeTransfer.transfer(
+        api,
+        keypair.pairs[0],
+        selectedAsset.xcmInteriorKey,
+        receiverKeypair.pairs[0].publicKey,
+        amount * Math.pow(10, selectedAsset.decimals),
+        activeSigner
+      );
+
+      setTransferring(false);
+
+      return;
+    }
+
     const reserveChainId = getParaIdFromXcmInterior(
       selectedAsset.xcmInteriorKey
     );
@@ -219,7 +283,7 @@ const TransferPage = () => {
 
     await TransactionRouter.sendTokens(
       {
-        keypair: keypair.pairs[0], // How to convert active account into a keypair?
+        keypair: keypair.pairs[0],
         chain: sourceChainId,
       },
       {
