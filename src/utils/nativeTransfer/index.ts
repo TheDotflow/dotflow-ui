@@ -3,6 +3,7 @@ import { AccountIdRaw } from "../xcmTransfer/types";
 import SubstrateAssets from "./assets";
 import { Signer } from "@polkadot/api/types";
 import { KeyringPair } from "@polkadot/keyring/types";
+import SubstrateNative from "./native";
 
 class NativeTransfer {
   public static async transfer(
@@ -16,6 +17,7 @@ class NativeTransfer {
 
     switch (token.type) {
       case "substrate-native":
+        await SubstrateNative.transfer(api, sender, token, to, amount, signer);
         break;
       case "substrate-assets":
         await SubstrateAssets.transfer(api, sender, token, to, amount, signer);
