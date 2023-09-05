@@ -7,6 +7,8 @@ import {
   useContract,
   useInkathon,
 } from '@scio-labs/use-inkathon';
+import { getChains } from 'chaindata';
+import ss58registry from 'chaindata/ss58registry';
 import {
   createContext,
   useCallback,
@@ -15,6 +17,7 @@ import {
   useState,
 } from 'react';
 
+import { RELAY_CHAIN } from '@/consts';
 import { useToast } from '@/contexts/Toast';
 
 import { IdentityMetadata } from '.';
@@ -26,9 +29,6 @@ import {
   Chains,
   IdentityNo,
 } from '../types';
-import { getChains } from 'chaindata';
-import { RELAY_CHAIN } from '@/consts';
-import ss58registry from 'chaindata/ss58registry';
 
 interface IdentityContract {
   identityNo: number | null;
@@ -121,12 +121,9 @@ const IdentityContractProvider = ({ children }: Props) => {
             chainId === 0 && chain.id === RELAY_CHAIN
         );
 
-        console.log(chainData);
-
         if (!chainData) {
           return null;
         }
-        console.log("HEY");
 
         const ss58Result = await ss58registry(chainData.id);
 
@@ -135,7 +132,6 @@ const IdentityContractProvider = ({ children }: Props) => {
 
         const ss58Prefix = ss58Result ? ss58Result : await fetchSs58Prefix(chainData.rpcs[rpcIndex].url);
 
-        console.log(`${chainData.name}: ${ss58Prefix}`);
         return {
           name: chainData.name,
           ss58Prefix: ss58Prefix,
