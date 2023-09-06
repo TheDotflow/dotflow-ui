@@ -50,7 +50,15 @@ const IdentityPage = () => {
         {!loading && (
           <Box sx={{ display: 'flex', gap: '16px' }}>
             {identityNo === null ? (
-              <CreateIdentity />
+              <>
+                <CreateIdentity />
+                <Button
+                  variant='outlined'
+                  onClick={() => openOwnershipModal(true)}
+                >
+                  Transfer Ownership
+                </Button>
+              </>
             ) : (
               <>
                 <Button
@@ -87,7 +95,7 @@ const IdentityPage = () => {
                   <MenuItem>
                     <Button
                       variant='outlined'
-                      onClick={() => openRecoveryModal(true)}
+                      onClick={() => openOwnershipModal(true)}
                     >
                       Transfer Ownership
                     </Button>
@@ -123,9 +131,15 @@ const IdentityPage = () => {
       </Box>
       {!loading &&
         (identityNo === null ? (
-          <Typography variant='h5'>
-            {"You don't have an identity yet."}
-          </Typography>
+          <>
+            <Typography variant='h5'>
+              {"You don't have an identity yet."}
+            </Typography>
+            <TransferOwnershipModal
+              open={ownershipModalOpen}
+              onClose={() => openOwnershipModal(false)}
+            />
+          </>
         ) : (
           <>
             <Typography className='section-header'>{`Wallet Addresses(${addresses.length})`}</Typography>
