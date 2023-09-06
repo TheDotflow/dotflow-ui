@@ -4,6 +4,7 @@ import SubstrateAssets from "./assets";
 import { Signer } from "@polkadot/api/types";
 import { KeyringPair } from "@polkadot/keyring/types";
 import SubstrateNative from "./native";
+import SubstrateTokens from "./tokens";
 
 class NativeTransfer {
   public static async transfer(
@@ -23,6 +24,7 @@ class NativeTransfer {
         await SubstrateAssets.transfer(api, sender, token, to, amount, signer);
         break;
       case "substrate-tokens":
+        await SubstrateTokens.transfer(api, sender, token, to, amount, signer);
         break;
       case "substrate-orml":
         break;
