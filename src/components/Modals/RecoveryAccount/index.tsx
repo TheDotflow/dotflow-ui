@@ -72,7 +72,7 @@ export const RecoveryAccountModal = ({
       setWorking(false);
       onClose();
     } catch (e: any) {
-      toastError(`Failed to set recovery address. Error: ${e.errorMessage}`);
+      toastError(`Failed to set recovery account. Error: ${e.errorMessage}`);
       setWorking(false);
     }
   };
