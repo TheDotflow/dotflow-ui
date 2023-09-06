@@ -7,6 +7,8 @@ import {
   Button,
   CircularProgress,
   Grid,
+  Menu,
+  MenuItem,
   Typography,
 } from '@mui/material';
 import styles from '@styles/pages/identity.module.scss';
@@ -18,6 +20,7 @@ import {
   AddAddressModal,
   EditAddressModal,
   ImportKeyModal,
+  RecoveryAccountModal,
   ShareIdentityModal,
 } from '@/components/Modals';
 
@@ -32,6 +35,9 @@ const IdentityPage = () => {
   const [editModalOpen, openEditModal] = useState(false);
   const [importModalOpen, openImportModal] = useState(false);
   const [shareModalOpen, openShareModal] = useState(false);
+  const [recoveryModalOpen, openRecoveryModal] = useState(false);
+
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   return (
     <>
@@ -46,30 +52,60 @@ const IdentityPage = () => {
             ) : (
               <>
                 <Button
-                  startIcon={<ArrowDownwardIcon />}
-                  variant='outlined'
-                  className='btn btn-outline-primary'
-                  onClick={() => openImportModal(true)}
-                >
-                  Import Identity Key
-                </Button>
-                <Button
-                  startIcon={<ShareIcon />}
-                  variant='outlined'
-                  className='btn btn-outline-primary'
-                  onClick={() => openShareModal(true)}
-                >
-                  Share Identity
-                </Button>
-                <RemoveIdentity />
-                <Button
                   variant='contained'
-                  className='btn-primary'
-                  startIcon={<AddIcon />}
-                  onClick={() => openAddAddr(true)}
+                  sx={{ width: 260 }}
+                  onClick={(e) => setAnchorEl(e.currentTarget)}
                 >
-                  Add New Address
+                  Menu
                 </Button>
+                <Menu
+                  open={Boolean(anchorEl)}
+                  onClose={() => setAnchorEl(null)}
+                  anchorEl={anchorEl}
+                  onClick={() => setAnchorEl(null)}
+                >
+                  <MenuItem>
+                    <Button
+                      startIcon={<ArrowDownwardIcon />}
+                      variant='outlined'
+                      className='btn btn-outline-primary'
+                      onClick={() => openImportModal(true)}
+                    >
+                      Import Identity Key
+                    </Button>
+                  </MenuItem>
+                  <MenuItem>
+                    <Button
+                      variant='outlined'
+                      onClick={() => openRecoveryModal(true)}
+                    >
+                      Set Recovery Account
+                    </Button>
+                  </MenuItem>
+                  <MenuItem>
+                    <Button
+                      startIcon={<ShareIcon />}
+                      variant='outlined'
+                      className='btn btn-outline-primary'
+                      onClick={() => openShareModal(true)}
+                    >
+                      Share Identity
+                    </Button>
+                  </MenuItem>
+                  <MenuItem>
+                    <RemoveIdentity />
+                  </MenuItem>
+                  <MenuItem>
+                    <Button
+                      variant='contained'
+                      className='btn-primary'
+                      startIcon={<AddIcon />}
+                      onClick={() => openAddAddr(true)}
+                    >
+                      Add New Address
+                    </Button>
+                  </MenuItem>
+                </Menu>
               </>
             )}
           </Box>
@@ -122,6 +158,11 @@ const IdentityPage = () => {
             <ShareIdentityModal
               open={shareModalOpen}
               onClose={() => openShareModal(false)}
+            />
+            <RecoveryAccountModal
+              open={recoveryModalOpen}
+              onClose={() => openRecoveryModal(false)}
+              identityNo={identityNo}
             />
           </>
         ))}
