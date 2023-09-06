@@ -13,12 +13,14 @@ import {
 import { ApiPromise, Keyring, WsProvider } from '@polkadot/api';
 import { useInkathon } from '@scio-labs/use-inkathon';
 import styles from '@styles/pages/transfer.module.scss';
+import { getChains, getTokens } from 'chaindata';
 import { useCallback, useEffect, useState } from 'react';
 import { AccountType } from 'types/types-arguments/identity';
 
 import AssetRegistry, { Asset } from '@/utils/assetRegistry';
 import IdentityKey from '@/utils/identityKey';
 import KeyStore from '@/utils/keyStore';
+import NativeTransfer from '@/utils/nativeTransfer';
 import TransactionRouter, { isTeleport } from '@/utils/xcmTransfer';
 import { getTeleportableAssets } from '@/utils/xcmTransfer/teleportableRoutes';
 import { Fungible } from '@/utils/xcmTransfer/types';
@@ -28,8 +30,6 @@ import { useRelayApi } from '@/contexts/RelayApi';
 import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
 import { useAddressBook } from '@/contracts/addressbook/context';
-import { getChains, getTokens } from 'chaindata';
-import NativeTransfer from '@/utils/nativeTransfer';
 
 const TransferPage = () => {
   const {
@@ -104,13 +104,10 @@ const TransferPage = () => {
 
       const _assets = [];
       if (chainData) {
-        console.log(chainData.id);
         const tokens = (await getTokens()).filter((token) => {
           const isPartOfSourceChain = token.data.id.startsWith(chainData.id);
-          console.log(isPartOfSourceChain);
           return isPartOfSourceChain;
         });
-        console.log(tokens);
         const assets: Asset[] = tokens.map(t => {
           const asset: Asset = {
             asset: "",
@@ -123,7 +120,6 @@ const TransferPage = () => {
           };
           return asset;
         });
-        console.log(assets);
         _assets.push(...assets);
       }
 

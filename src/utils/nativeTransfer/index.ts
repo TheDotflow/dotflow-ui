@@ -1,11 +1,12 @@
 import { ApiPromise } from "@polkadot/api";
-import { AccountIdRaw } from "../xcmTransfer/types";
-import SubstrateAssets from "./assets";
 import { Signer } from "@polkadot/api/types";
 import { KeyringPair } from "@polkadot/keyring/types";
+
+import SubstrateAssets from "./assets";
 import SubstrateNative from "./native";
-import SubstrateTokens from "./tokens";
 import SubstrateOrml from "./orml";
+import SubstrateTokens from "./tokens";
+import { AccountIdRaw } from "../xcmTransfer/types";
 
 class NativeTransfer {
   public static async transfer(

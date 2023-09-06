@@ -1,7 +1,8 @@
 import { ApiPromise } from "@polkadot/api";
-import { AccountIdRaw } from "../xcmTransfer/types";
 import { Signer } from "@polkadot/api/types";
 import { KeyringPair } from "@polkadot/keyring/types";
+
+import { AccountIdRaw } from "../xcmTransfer/types";
 
 class SubstrateAssets {
   public static async transfer(
