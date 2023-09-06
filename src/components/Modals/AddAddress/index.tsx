@@ -8,6 +8,7 @@ import {
   FormControl,
   FormHelperText,
   FormLabel,
+  ListItemIcon,
   MenuItem,
   TextField,
 } from '@mui/material';
@@ -17,6 +18,7 @@ import { useEffect, useState } from 'react';
 import { isValidAddress } from '@/utils';
 import IdentityKey from '@/utils/identityKey';
 import KeyStore from '@/utils/keyStore';
+import Image from 'next/image';
 
 import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
@@ -91,10 +93,9 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
       onClose();
     } catch (e: any) {
       toastError(
-        `Failed to add address. Error: ${
-          e.errorMessage === 'Error'
-            ? 'Please check your balance.'
-            : e.errorMessage
+        `Failed to add address. Error: ${e.errorMessage === 'Error'
+          ? 'Please check your balance.'
+          : e.errorMessage
         }`
       );
       setWorking(false);
@@ -125,6 +126,9 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
               >
                 {Object.entries(chains).map(([id, chain], index) => (
                   <MenuItem value={id} key={index}>
+                    <ListItemIcon>
+                      <Image src={chain.logo} alt='logo' width={32} height={32} />
+                    </ListItemIcon>
                     {chain.name}
                   </MenuItem>
                 ))}

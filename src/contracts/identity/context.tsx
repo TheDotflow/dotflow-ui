@@ -119,7 +119,7 @@ const IdentityContractProvider = ({ children }: Props) => {
       try {
         const chain = chaindata.getChains().find(
           (c) => c.paraId ?
-            c.paraId === chainId && c.relay.id === RELAY_CHAIN
+            c.paraId === chainId && c.relay?.id === RELAY_CHAIN
             :
             chainId === 0 && c.id === RELAY_CHAIN
         );
@@ -139,6 +139,7 @@ const IdentityContractProvider = ({ children }: Props) => {
           name: chain.name,
           ss58Prefix: ss58Prefix,
           paraId: chainId,
+          logo: chain.logo
         };
       } catch (e) {
         toastError && toastError(`Failed to get chain info for ${rpc}`);

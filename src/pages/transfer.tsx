@@ -6,6 +6,7 @@ import {
   CircularProgress,
   FormControl,
   FormLabel,
+  ListItemIcon,
   MenuItem,
   Select,
   TextField,
@@ -28,7 +29,8 @@ import { useRelayApi } from '@/contexts/RelayApi';
 import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
 import { useAddressBook } from '@/contracts/addressbook/context';
-import { getChains, getTokens } from 'chaindata';
+import { Chaindata } from 'chaindata';
+import Image from 'next/image';
 import NativeTransfer from '@/utils/nativeTransfer';
 
 const TransferPage = () => {
@@ -90,18 +92,20 @@ const TransferPage = () => {
         setAssets(_assets);
       }
     } else {
-      const chainData = (await getChains()).find(
+      const chaindata = new Chaindata();
+      await chaindata.load();
+      const chain = chaindata.getChains().find(
         (chain) => chain.paraId ?
-          chain.paraId === sourceChainId && chain.relay.id === RELAY_CHAIN
+          chain.paraId === sourceChainId && chain.relay?.id === RELAY_CHAIN
           :
           sourceChainId === 0 && chain.id === RELAY_CHAIN
       );
 
       const _assets = [];
-      if (chainData) {
-        console.log(chainData.id);
-        const tokens = (await getTokens()).filter((token) => {
-          const isPartOfSourceChain = token.data.id.startsWith(chainData.id);
+      if (chain) {
+        console.log(chain.id);
+        const tokens = chaindata.getTokens().filter((token) => {
+          const isPartOfSourceChain = token.data.id.startsWith(chain.id);
           console.log(isPartOfSourceChain);
           return isPartOfSourceChain;
         });
@@ -358,6 +362,9 @@ const TransferPage = () => {
           >
             {Object.entries(chains).map(([chainId, network], index) => (
               <MenuItem value={chainId} key={index}>
+                <ListItemIcon>
+                  <Image src={network.logo} alt='logo' width={32} height={32} />
+                </ListItemIcon>
                 {network.name}
               </MenuItem>
             ))}
@@ -375,6 +382,9 @@ const TransferPage = () => {
           >
             {Object.entries(chains).map(([chainId, network], index) => (
               <MenuItem value={chainId} key={index}>
+                <ListItemIcon>
+                  <Image src={network.logo} alt='logo' width={32} height={32} />
+                </ListItemIcon>
                 {network.name}
               </MenuItem>
             ))}
