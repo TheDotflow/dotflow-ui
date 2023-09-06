@@ -22,6 +22,7 @@ import {
   ImportKeyModal,
   RecoveryAccountModal,
   ShareIdentityModal,
+  TransferOwnershipModal,
 } from '@/components/Modals';
 
 import { useIdentity } from '@/contracts';
@@ -36,6 +37,7 @@ const IdentityPage = () => {
   const [importModalOpen, openImportModal] = useState(false);
   const [shareModalOpen, openShareModal] = useState(false);
   const [recoveryModalOpen, openRecoveryModal] = useState(false);
+  const [ownershipModalOpen, openOwnershipModal] = useState(false);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -80,6 +82,14 @@ const IdentityPage = () => {
                       onClick={() => openRecoveryModal(true)}
                     >
                       Set Recovery Account
+                    </Button>
+                  </MenuItem>
+                  <MenuItem>
+                    <Button
+                      variant='outlined'
+                      onClick={() => openRecoveryModal(true)}
+                    >
+                      Transfer Ownership
                     </Button>
                   </MenuItem>
                   <MenuItem>
@@ -163,6 +173,10 @@ const IdentityPage = () => {
               open={recoveryModalOpen}
               onClose={() => openRecoveryModal(false)}
               identityNo={identityNo}
+            />
+            <TransferOwnershipModal
+              open={ownershipModalOpen}
+              onClose={() => openOwnershipModal(false)}
             />
           </>
         ))}
