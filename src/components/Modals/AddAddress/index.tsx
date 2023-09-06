@@ -13,12 +13,12 @@ import {
   TextField,
 } from '@mui/material';
 import { contractTx, useInkathon } from '@scio-labs/use-inkathon';
+import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
 import { isValidAddress } from '@/utils';
 import IdentityKey from '@/utils/identityKey';
 import KeyStore from '@/utils/keyStore';
-import Image from 'next/image';
 
 import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';

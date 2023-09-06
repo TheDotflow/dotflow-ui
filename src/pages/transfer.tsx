@@ -6,6 +6,7 @@ import {
   CircularProgress,
   FormControl,
   FormLabel,
+  ListItemIcon,
   MenuItem,
   Select,
   TextField,
@@ -13,6 +14,7 @@ import {
 import { ApiPromise, Keyring, WsProvider } from '@polkadot/api';
 import { useInkathon } from '@scio-labs/use-inkathon';
 import styles from '@styles/pages/transfer.module.scss';
+import Image from 'next/image';
 import { useCallback, useEffect, useState } from 'react';
 import { AccountType } from 'types/types-arguments/identity';
 
@@ -303,6 +305,9 @@ const TransferPage = () => {
           >
             {Object.entries(chains).map(([chainId, network], index) => (
               <MenuItem value={chainId} key={index}>
+                <ListItemIcon>
+                  <Image src={network.logo} alt='logo' width={32} height={32} />
+                </ListItemIcon>
                 {network.name}
               </MenuItem>
             ))}
@@ -320,6 +325,9 @@ const TransferPage = () => {
           >
             {Object.entries(chains).map(([chainId, network], index) => (
               <MenuItem value={chainId} key={index}>
+                <ListItemIcon>
+                  <Image src={network.logo} alt='logo' width={32} height={32} />
+                </ListItemIcon>
                 {network.name}
               </MenuItem>
             ))}
