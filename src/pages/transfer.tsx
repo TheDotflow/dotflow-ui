@@ -6,6 +6,7 @@ import {
   CircularProgress,
   FormControl,
   FormLabel,
+  ListItem,
   ListItemIcon,
   ListItemText,
   MenuItem,
@@ -310,10 +311,14 @@ const TransferPage = () => {
                 key={index}
                 sx={{ display: 'flex', alignItems: 'center' }}
               >
-                <ListItemIcon>
-                  <Image src={network.logo} alt='logo' width={32} height={32} />
-                </ListItemIcon>
-                <ListItemText>{network.name}</ListItemText>
+                <ListItem >
+                  <ListItemIcon sx={{ mr: '8px' }}>
+                    <Image src={network.logo} alt='logo' width={32} height={32} />
+                  </ListItemIcon>
+                  <ListItemText>
+                    {network.name}
+                  </ListItemText>
+                </ListItem>
               </MenuItem>
             ))}
           </TextField>
@@ -330,10 +335,14 @@ const TransferPage = () => {
           >
             {Object.entries(chains).map(([chainId, network], index) => (
               <MenuItem value={chainId} key={index}>
-                <ListItemIcon>
-                  <Image src={network.logo} alt='logo' width={32} height={32} />
-                </ListItemIcon>
-                {network.name}
+                <ListItem>
+                  <ListItemIcon sx={{ mr: '8px' }}>
+                    <Image src={network.logo} alt='logo' width={32} height={32} />
+                  </ListItemIcon>
+                  <ListItemText>
+                    {network.name}
+                  </ListItemText>
+                </ListItem>
               </MenuItem>
             ))}
           </TextField>
