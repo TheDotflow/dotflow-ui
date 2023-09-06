@@ -5,6 +5,7 @@ import { Signer } from "@polkadot/api/types";
 import { KeyringPair } from "@polkadot/keyring/types";
 import SubstrateNative from "./native";
 import SubstrateTokens from "./tokens";
+import SubstrateOrml from "./orml";
 
 class NativeTransfer {
   public static async transfer(
@@ -27,6 +28,7 @@ class NativeTransfer {
         await SubstrateTokens.transfer(api, sender, token, to, amount, signer);
         break;
       case "substrate-orml":
+        await SubstrateOrml.transfer(api, sender, token, to, amount, signer);
         break;
       case "evm-erc20":
         break;
