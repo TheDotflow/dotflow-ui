@@ -29,12 +29,23 @@ query tokens {
 }
 `;
 
-export const getChains = async (): Promise<Array<any>> => {
-  const result: any = await request(graphqlUrl, chainsQuery);
-  return result.chains;
-}
+export class Chaindata {
+  private chains: Array<any> = [];
+  private tokens: Array<any> = [];
 
-export const getTokens = async (): Promise<Array<any>> => {
-  const result: any = await request(graphqlUrl, tokensQuery);
-  return result.tokens;
+  public async load(): Promise<void> {
+    const chainsResult: any = await request(graphqlUrl, chainsQuery);
+    this.chains = chainsResult.chains;
+
+    const tokensResult: any = await request(graphqlUrl, chainsQuery);
+    this.tokens = tokensResult.tokens;
+  }
+
+  public getChains(): Array<any> {
+    return this.chains;
+  }
+
+  public getTokens(): Array<any> {
+    return this.tokens;
+  }
 }

@@ -7,7 +7,7 @@ import {
   useContract,
   useInkathon,
 } from '@scio-labs/use-inkathon';
-import { getChains } from 'chaindata';
+import { Chaindata } from 'chaindata';
 import ss58registry from 'chaindata/ss58registry';
 import {
   createContext,
@@ -113,27 +113,30 @@ const IdentityContractProvider = ({ children }: Props) => {
       const rpcIndex = Math.min(Math.floor(Math.random() * count), count - 1);
       const rpc = rpcUrls[rpcIndex];
 
+      const chaindata = new Chaindata();
+      await chaindata.load();
+
       try {
-        const chainData = (await getChains()).find(
-          (chain) => chain.paraId ?
-            chain.paraId === chainId && chain.relay.id === RELAY_CHAIN
+        const chain = chaindata.getChains().find(
+          (c) => c.paraId ?
+            c.paraId === chainId && c.relay.id === RELAY_CHAIN
             :
-            chainId === 0 && chain.id === RELAY_CHAIN
+            chainId === 0 && c.id === RELAY_CHAIN
         );
 
-        if (!chainData) {
+        if (!chain) {
           return null;
         }
 
-        const ss58Result = await ss58registry(chainData.id);
+        const ss58Result = await ss58registry(chain.id);
 
-        const rpcCount = chainData.rpcs.length;
+        const rpcCount = chain.rpcs.length;
         const rpcIndex = Math.min(Math.floor(Math.random() * rpcCount), rpcCount - 1);
 
-        const ss58Prefix = ss58Result ? ss58Result : await fetchSs58Prefix(chainData.rpcs[rpcIndex].url);
+        const ss58Prefix = ss58Result ? ss58Result : await fetchSs58Prefix(chain.rpcs[rpcIndex].url);
 
         return {
-          name: chainData.name,
+          name: chain.name,
           ss58Prefix: ss58Prefix,
           paraId: chainId,
         };
