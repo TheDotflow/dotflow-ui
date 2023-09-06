@@ -30,10 +30,6 @@ class NativeTransfer {
       case "substrate-orml":
         await SubstrateOrml.transfer(api, sender, token, to, amount, signer);
         break;
-      case "evm-erc20":
-        break;
-      case "evm-native":
-        break;
     }
   }
 }
