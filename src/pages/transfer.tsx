@@ -30,7 +30,12 @@ import { useIdentity } from '@/contracts';
 import { useAddressBook } from '@/contracts/addressbook/context';
 
 const TransferPage = () => {
-  const { chains, getAddresses, contract: identityContract } = useIdentity();
+  const {
+    chains,
+    getAddresses,
+    contract: identityContract,
+    loading: loadingIdentity,
+  } = useIdentity();
   const { activeAccount, activeSigner } = useInkathon();
   const { toastError } = useToast();
   const { identities } = useAddressBook();
@@ -217,32 +222,36 @@ const TransferPage = () => {
 
     setTransferring(true);
 
-    await TransactionRouter.sendTokens(
-      {
-        keypair: keypair.pairs[0], // How to convert active account into a keypair?
-        chain: sourceChainId,
-      },
-      {
-        addressRaw: receiverKeypair.pairs[0].publicKey,
-        chain: destChainId,
-        type:
-          chains[destChainId].accountType === 'AccountId32'
-            ? AccountType.accountId32
-            : AccountType.accountKey20,
-      },
-      reserveChainId,
-      getFungible(
-        selectedAsset.xcmInteriorKey,
-        isSourceParachain,
-        amount * Math.pow(10, selectedAsset.decimals)
-      ),
-      {
-        originApi: await getApi(chains[sourceChainId].rpcUrls[rpcIndex]),
-        destApi: await getApi(chains[destChainId].rpcUrls[rpcIndex]),
-        reserveApi: await getApi(chains[reserveChainId].rpcUrls[rpcIndex]),
-      },
-      activeSigner
-    );
+    try {
+      await TransactionRouter.sendTokens(
+        {
+          keypair: keypair.pairs[0], // How to convert active account into a keypair?
+          chain: sourceChainId,
+        },
+        {
+          addressRaw: receiverKeypair.pairs[0].publicKey,
+          chain: destChainId,
+          type:
+            chains[destChainId].accountType === 'AccountId32'
+              ? AccountType.accountId32
+              : AccountType.accountKey20,
+        },
+        reserveChainId,
+        getFungible(
+          selectedAsset.xcmInteriorKey,
+          isSourceParachain,
+          amount * Math.pow(10, selectedAsset.decimals)
+        ),
+        {
+          originApi: await getApi(chains[sourceChainId].rpcUrls[rpcIndex]),
+          destApi: await getApi(chains[destChainId].rpcUrls[rpcIndex]),
+          reserveApi: await getApi(chains[reserveChainId].rpcUrls[rpcIndex]),
+        },
+        activeSigner
+      );
+    } catch (e: any) {
+      toastError(`Transfer failed. Error: ${e.toString()}`);
+    }
 
     setTransferring(false);
   };
@@ -379,7 +388,7 @@ const TransferPage = () => {
       </Box>
       <Backdrop
         sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
-        open={loadingAssets}
+        open={loadingAssets || loadingIdentity}
       >
         <CircularProgress color='inherit' />
       </Backdrop>

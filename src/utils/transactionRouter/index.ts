@@ -73,47 +73,51 @@ class TransactionRouter {
       return;
     }
 
-    // The sender chain is the reserve chain of the asset. This will simply use the existing
-    // `limitedReserveTransferAssets` extrinsic
-    if (sender.chain == reserveChainId) {
-      await ReserveTransfer.sendFromReserveChain(
-        transferRpcApis.originApi,
-        destParaId,
-        sender,
-        receiver,
-        asset,
-        signer
-      );
-    } else if (receiver.chain == reserveChainId) {
-      // The destination chain is the reserve chain of the asset:
-      await ReserveTransfer.sendToReserveChain(
-        transferRpcApis.originApi,
-        destParaId,
-        sender,
-        receiver,
-        asset,
-        signer
-      );
-    } else {
-      // The most complex case, the reserve chain is neither the sender or the destination chain.
-      // For this we will have to send tokens accross the reserve chain. 
+    try {
+      // The sender chain is the reserve chain of the asset. This will simply use the existing
+      // `limitedReserveTransferAssets` extrinsic
+      if (sender.chain == reserveChainId) {
+        await ReserveTransfer.sendFromReserveChain(
+          transferRpcApis.originApi,
+          destParaId,
+          sender,
+          receiver,
+          asset,
+          signer
+        );
+      } else if (receiver.chain == reserveChainId) {
+        // The destination chain is the reserve chain of the asset:
+        await ReserveTransfer.sendToReserveChain(
+          transferRpcApis.originApi,
+          destParaId,
+          sender,
+          receiver,
+          asset,
+          signer
+        );
+      } else {
+        // The most complex case, the reserve chain is neither the sender or the destination chain.
+        // For this we will have to send tokens accross the reserve chain. 
 
-      if (!transferRpcApis.reserveApi) {
-        throw new Error("The reserve api must be specified when doing two hop reserve transfers");
+        if (!transferRpcApis.reserveApi) {
+          throw new Error("The reserve api must be specified when doing two hop reserve transfers");
+        }
+
+        ensureContainsXcmPallet(transferRpcApis.reserveApi);
+        const reserveParaId = reserveChainId;
+
+        await ReserveTransfer.sendAcrossReserveChain(
+          transferRpcApis.originApi,
+          destParaId,
+          reserveParaId,
+          sender,
+          receiver,
+          asset,
+          signer
+        );
       }
-
-      ensureContainsXcmPallet(transferRpcApis.reserveApi);
-      const reserveParaId = reserveChainId;
-
-      await ReserveTransfer.sendAcrossReserveChain(
-        transferRpcApis.originApi,
-        destParaId,
-        reserveParaId,
-        sender,
-        receiver,
-        asset,
-        signer
-      );
+    } catch (e: any) {
+      throw new Error(`Failed to send tokens. Error code: [${e.toString()}]`);
     }
   }
 }
