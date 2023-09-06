@@ -7,6 +7,7 @@ import {
   FormControl,
   FormLabel,
   ListItemIcon,
+  ListItemText,
   MenuItem,
   Select,
   TextField,
@@ -304,11 +305,15 @@ const TransferPage = () => {
             onChange={(e) => setSourceChainId(Number(e.target.value))}
           >
             {Object.entries(chains).map(([chainId, network], index) => (
-              <MenuItem value={chainId} key={index}>
+              <MenuItem
+                value={chainId}
+                key={index}
+                sx={{ display: 'flex', alignItems: 'center' }}
+              >
                 <ListItemIcon>
                   <Image src={network.logo} alt='logo' width={32} height={32} />
                 </ListItemIcon>
-                {network.name}
+                <ListItemText>{network.name}</ListItemText>
               </MenuItem>
             ))}
           </TextField>
