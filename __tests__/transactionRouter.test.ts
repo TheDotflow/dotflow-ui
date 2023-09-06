@@ -1,9 +1,9 @@
 import { ApiPromise, Keyring, WsProvider } from "@polkadot/api";
 import { KeyringPair } from "@polkadot/keyring/types";
 
-import { Fungible, Receiver, Sender } from "@/utils/xcmTransfer/types";
+import { Fungible, Receiver, Sender } from "@/utils/transactionRouter/types";
 
-import TransactionRouter from "../src/utils/xcmTransfer";
+import TransactionRouter from "../src/utils/transactionRouter";
 import IdentityContractFactory from "../types/constructors/identity";
 import IdentityContract from "../types/contracts/identity";
 import { AccountType, ChainInfo } from "../types/types-arguments/identity";
