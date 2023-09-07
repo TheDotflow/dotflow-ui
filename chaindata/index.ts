@@ -18,11 +18,13 @@ type Token = {
   data: {
     id: string;
     logo: string;
+    assetId?: any;
+    onChainId?: any;
     type: string;
     symbol: string;
     decimals: number;
     isTestnet: boolean;
-    evmNetwork: {
+    evmNetwork?: {
       id: string;
     };
     themeColor: string;

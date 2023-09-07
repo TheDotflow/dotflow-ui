@@ -29,7 +29,11 @@ class SubstrateAssets {
         const unsub = await transferCall.signAndSend(account, (result: any) => {
           if (result.status.isFinalized) {
             unsub();
-            resolve();
+            if (result.dispatchError !== undefined) {
+              reject(result)
+            } else {
+              resolve(result.dispatchError)
+            }
           }
         })
       } catch (e) {
