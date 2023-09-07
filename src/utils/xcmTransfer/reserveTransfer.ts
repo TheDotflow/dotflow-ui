@@ -41,13 +41,17 @@ class ReserveTransfer {
     const account = signer ? sender.keypair.address : sender.keypair;
 
     // eslint-disable-next-line no-async-promise-executor
-    return new Promise(async (resolve) => {
-      const unsub = await reserveTransfer.signAndSend(account, (result: any) => {
-        if (result.status.isFinalized) {
-          unsub();
-          resolve();
-        }
-      })
+    return new Promise(async (resolve, reject) => {
+      try {
+        const unsub = await reserveTransfer.signAndSend(account, (result: any) => {
+          if (result.status.isFinalized) {
+            unsub();
+            resolve();
+          }
+        })
+      } catch (e) {
+        reject(e);
+      }
     });
   }
 
@@ -80,13 +84,17 @@ class ReserveTransfer {
     const account = signer ? sender.keypair.address : sender.keypair;
 
     // eslint-disable-next-line no-async-promise-executor
-    return new Promise(async (resolve) => {
-      const unsub = await reserveTransfer.signAndSend(account, (result: any) => {
-        if (result.status.isFinalized) {
-          unsub();
-          resolve();
-        }
-      })
+    return new Promise(async (resolve, reject) => {
+      try {
+        const unsub = await reserveTransfer.signAndSend(account, (result: any) => {
+          if (result.status.isFinalized) {
+            unsub();
+            resolve();
+          }
+        })
+      } catch (e) {
+        reject(e);
+      }
     });
   }
 
@@ -119,13 +127,17 @@ class ReserveTransfer {
     const account = signer ? sender.keypair.address : sender.keypair;
 
     // eslint-disable-next-line no-async-promise-executor
-    return new Promise(async (resolve) => {
-      const unsub = await reserveTransfer.signAndSend(account, (result: any) => {
-        if (result.status.isFinalized) {
-          unsub();
-          resolve();
-        }
-      })
+    return new Promise(async (resolve, reject) => {
+      try {
+        const unsub = await reserveTransfer.signAndSend(account, (result: any) => {
+          if (result.status.isFinalized) {
+            unsub();
+            resolve();
+          }
+        })
+      } catch (e) {
+        reject(e);
+      }
     });
   }
 

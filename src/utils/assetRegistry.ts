@@ -10,6 +10,9 @@ export type Asset = {
   symbol: string;
   decimals: number;
   xcmInteriorKey?: any;
+  type?: string;
+  assetId?: any;
+  onChainId?: any;
   inferred: boolean;
   confidence: number;
 };

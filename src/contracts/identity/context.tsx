@@ -7,6 +7,8 @@ import {
   useContract,
   useInkathon,
 } from '@scio-labs/use-inkathon';
+import { getChains } from 'chaindata';
+import ss58registry from 'chaindata/ss58registry';
 import {
   createContext,
   useCallback,
@@ -15,17 +17,12 @@ import {
   useState,
 } from 'react';
 
+import { RELAY_CHAIN } from '@/consts';
 import { useToast } from '@/contexts/Toast';
 
 import { IdentityMetadata } from '.';
 import { CONTRACT_IDENTITY } from '..';
-import {
-  Address,
-  ChainConsts,
-  ChainId,
-  Chains,
-  IdentityNo,
-} from '../types';
+import { Address, ChainConsts, ChainId, Chains, IdentityNo } from '../types';
 
 interface IdentityContract {
   identityNo: number | null;
@@ -109,28 +106,53 @@ const IdentityContractProvider = ({ children }: Props) => {
       const count = rpcUrls.length;
       const rpcIndex = Math.min(Math.floor(Math.random() * count), count - 1);
       const rpc = rpcUrls[rpcIndex];
+
       try {
-        const provider = new WsProvider(rpc);
-        const api = new ApiPromise({ provider, rpc: jsonrpc });
+        const chainData = (await getChains()).find((chain) =>
+          chain.paraId
+            ? chain.paraId === chainId && chain.relay.id === RELAY_CHAIN
+            : chainId === 0 && chain.id === RELAY_CHAIN
+        );
 
-        await api.isReady;
+        if (!chainData) {
+          return null;
+        }
 
-        const ss58Prefix: number =
-          api.consts.system.ss58Prefix.toPrimitive() as number;
-        const name = (await api.rpc.system.chain()).toString();
-        const paraId = chainId;
+        const ss58Result = await ss58registry(chainData.id);
 
-        await api.disconnect();
+        const rpcCount = chainData.rpcs.length;
+        const rpcIndex = Math.min(
+          Math.floor(Math.random() * rpcCount),
+          rpcCount - 1
+        );
+
+        const ss58Prefix = ss58Result
+          ? ss58Result
+          : await fetchSs58Prefix(chainData.rpcs[rpcIndex].url);
 
         return {
-          name,
-          ss58Prefix,
-          paraId,
+          name: chainData.name,
+          ss58Prefix: ss58Prefix,
+          paraId: chainId,
         };
       } catch (e) {
         toastError && toastError(`Failed to get chain info for ${rpc}`);
         return null;
       }
+    };
+
+    const fetchSs58Prefix = async (rpc: string): Promise<number> => {
+      const provider = new WsProvider(rpc);
+      const api = new ApiPromise({ provider, rpc: jsonrpc });
+
+      await api.isReady;
+
+      const ss58Prefix: number =
+        api.consts.system.ss58Prefix.toPrimitive() as number;
+
+      await api.disconnect();
+
+      return ss58Prefix;
     };
 
     setLoadingChains(true);
@@ -152,7 +174,7 @@ const IdentityContractProvider = ({ children }: Props) => {
       const _chains: Chains = {};
 
       for await (const item of output) {
-        const chainId = parseInt(item[0].replace(/,/g, ""));
+        const chainId = parseInt(item[0].replace(/,/g, ''));
         const { accountType, rpcUrls } = item[1];
         const info = await getChainInfo(rpcUrls, chainId);
         if (info)
@@ -185,7 +207,7 @@ const IdentityContractProvider = ({ children }: Props) => {
       const _addresses: Array<Address> = [];
       for (let idx = 0; idx < records.length; ++idx) {
         const record = records[idx];
-        const chainId: ChainId = parseInt(record[0].replace(/,/g, ""));
+        const chainId: ChainId = parseInt(record[0].replace(/,/g, ''));
         const address = record[1]; // FIXME: Decode address here
         _addresses.push({
           chainId,
