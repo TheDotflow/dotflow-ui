@@ -17,7 +17,6 @@ import {
   useState,
 } from 'react';
 
-import { RELAY_CHAIN } from '@/consts';
 import { useToast } from '@/contexts/Toast';
 
 import { IdentityMetadata } from '.';
@@ -184,7 +183,6 @@ const IdentityContractProvider = ({ children }: Props) => {
             ...info,
           };
       }
-      console.log(_chains);
       setChains(_chains);
     } catch (e: any) {
       toastError(e.toString());

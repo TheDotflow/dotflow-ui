@@ -3,8 +3,6 @@ import { gql, request } from "graphql-request"
 
 const graphqlUrl = "https://squid.subsquid.io/chaindata/v/v4/graphql"
 
-/// NOTE: this file is copied from the talisman chaindata.
-
 type Chain = {
   id: string;
   name: string;
