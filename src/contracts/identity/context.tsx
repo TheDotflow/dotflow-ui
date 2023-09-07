@@ -7,7 +7,7 @@ import {
   useContract,
   useInkathon,
 } from '@scio-labs/use-inkathon';
-import { getChains } from 'chaindata';
+import { Chaindata } from 'chaindata';
 import ss58registry from 'chaindata/ss58registry';
 import {
   createContext,
@@ -17,7 +17,6 @@ import {
   useState,
 } from 'react';
 
-import { RELAY_CHAIN } from '@/consts';
 import { useToast } from '@/contexts/Toast';
 
 import { IdentityMetadata } from '.';
@@ -107,33 +106,27 @@ const IdentityContractProvider = ({ children }: Props) => {
       const rpcIndex = Math.min(Math.floor(Math.random() * count), count - 1);
       const rpc = rpcUrls[rpcIndex];
 
-      try {
-        const chainData = (await getChains()).find((chain) =>
-          chain.paraId
-            ? chain.paraId === chainId && chain.relay.id === RELAY_CHAIN
-            : chainId === 0 && chain.id === RELAY_CHAIN
-        );
+      const chaindata = new Chaindata();
 
-        if (!chainData) {
+      try {
+        const chain = await chaindata.getChain(chainId);
+
+        if (!chain) {
           return null;
         }
 
-        const ss58Result = await ss58registry(chainData.id);
+        const ss58Result = await ss58registry(chain.id);
 
-        const rpcCount = chainData.rpcs.length;
-        const rpcIndex = Math.min(
-          Math.floor(Math.random() * rpcCount),
-          rpcCount - 1
-        );
+        const rpcCount = chain.rpcs.length;
+        const rpcIndex = Math.min(Math.floor(Math.random() * rpcCount), rpcCount - 1);
 
-        const ss58Prefix = ss58Result
-          ? ss58Result
-          : await fetchSs58Prefix(chainData.rpcs[rpcIndex].url);
+        const ss58Prefix = ss58Result ? ss58Result : await fetchSs58Prefix(chain.rpcs[rpcIndex].url);
 
         return {
-          name: chainData.name,
+          name: chain.name,
           ss58Prefix: ss58Prefix,
           paraId: chainId,
+          logo: chain.logo
         };
       } catch (e) {
         toastError && toastError(`Failed to get chain info for ${rpc}`);
@@ -153,7 +146,7 @@ const IdentityContractProvider = ({ children }: Props) => {
       await api.disconnect();
 
       return ss58Prefix;
-    };
+    }
 
     setLoadingChains(true);
     try {

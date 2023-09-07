@@ -6,6 +6,7 @@ export type ChainConsts = {
   name: string;
   ss58Prefix: number;
   paraId: number;
+  logo: string;
 }
 
 export type ChainInfo = ChainConsts & {

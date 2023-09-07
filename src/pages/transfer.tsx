@@ -6,6 +6,9 @@ import {
   CircularProgress,
   FormControl,
   FormLabel,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
   MenuItem,
   Select,
   TextField,
@@ -13,7 +16,8 @@ import {
 import { ApiPromise, Keyring, WsProvider } from '@polkadot/api';
 import { useInkathon } from '@scio-labs/use-inkathon';
 import styles from '@styles/pages/transfer.module.scss';
-import { getChains, getTokens } from 'chaindata';
+import { Chaindata } from 'chaindata';
+import Image from 'next/image';
 import { useCallback, useEffect, useState } from 'react';
 import { AccountType } from 'types/types-arguments/identity';
 
@@ -39,7 +43,7 @@ const TransferPage = () => {
     loading: loadingIdentity,
   } = useIdentity();
   const { activeAccount, activeSigner } = useInkathon();
-  const { toastError } = useToast();
+  const { toastError, toastSuccess } = useToast();
   const { identities } = useAddressBook();
 
   const [sourceChainId, setSourceChainId] = useState<number>();
@@ -95,17 +99,15 @@ const TransferPage = () => {
         setAssets(_assets);
       }
     } else {
-      const chainData = (await getChains()).find(
-        (chain) => chain.paraId ?
-          chain.paraId === sourceChainId && chain.relay.id === RELAY_CHAIN
-          :
-          sourceChainId === 0 && chain.id === RELAY_CHAIN
-      );
+      const chaindata = new Chaindata();
+      const chain = await chaindata.getChain(sourceChainId);
+
+      await chaindata.load();
 
       const _assets = [];
-      if (chainData) {
-        const tokens = (await getTokens()).filter((token) => {
-          const prefix = `${chainData.id}-${token.data.type}`;
+      if (chain) {
+        const tokens = chaindata.getTokens().filter((token) => {
+          const prefix = `${chain.id}-${token.data.type}`;
           const isPartOfSourceChain = token.data.id.startsWith(prefix);
           return isPartOfSourceChain;
         });
@@ -258,6 +260,7 @@ const TransferPage = () => {
           amount * Math.pow(10, selectedAsset.decimals),
           activeSigner
         );
+        toastSuccess(`Transfer succeeded`);
       } catch (e: any) {
         toastError(`Transfer failed. Error: ${e.toString()}`);
       } finally {
@@ -316,6 +319,7 @@ const TransferPage = () => {
         },
         activeSigner
       );
+      toastSuccess(`Transfer succeded`);
     } catch (e: any) {
       toastError(`Transfer failed. Error: ${e.toString()}`);
     }
@@ -369,8 +373,19 @@ const TransferPage = () => {
             onChange={(e) => setSourceChainId(Number(e.target.value))}
           >
             {Object.entries(chains).map(([chainId, network], index) => (
-              <MenuItem value={chainId} key={index}>
-                {network.name}
+              <MenuItem
+                value={chainId}
+                key={index}
+                sx={{ display: 'flex', alignItems: 'center' }}
+              >
+                <ListItem >
+                  <ListItemIcon sx={{ mr: '8px' }}>
+                    <Image src={network.logo} alt='logo' width={32} height={32} />
+                  </ListItemIcon>
+                  <ListItemText>
+                    {network.name}
+                  </ListItemText>
+                </ListItem>
               </MenuItem>
             ))}
           </TextField>
@@ -387,7 +402,14 @@ const TransferPage = () => {
           >
             {Object.entries(chains).map(([chainId, network], index) => (
               <MenuItem value={chainId} key={index}>
-                {network.name}
+                <ListItem>
+                  <ListItemIcon sx={{ mr: '8px' }}>
+                    <Image src={network.logo} alt='logo' width={32} height={32} />
+                  </ListItemIcon>
+                  <ListItemText>
+                    {network.name}
+                  </ListItemText>
+                </ListItem>
               </MenuItem>
             ))}
           </TextField>

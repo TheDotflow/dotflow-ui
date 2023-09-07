@@ -46,7 +46,11 @@ class ReserveTransfer {
         const unsub = await reserveTransfer.signAndSend(account, (result: any) => {
           if (result.status.isFinalized) {
             unsub();
-            resolve();
+            if (result.dispatchError !== undefined) {
+              reject(result.dispatchError)
+            } else {
+              resolve(result)
+            }
           }
         })
       } catch (e) {
@@ -89,7 +93,11 @@ class ReserveTransfer {
         const unsub = await reserveTransfer.signAndSend(account, (result: any) => {
           if (result.status.isFinalized) {
             unsub();
-            resolve();
+            if (result.dispatchError !== undefined) {
+              reject(result.dispatchError)
+            } else {
+              resolve(result)
+            }
           }
         })
       } catch (e) {
@@ -132,7 +140,11 @@ class ReserveTransfer {
         const unsub = await reserveTransfer.signAndSend(account, (result: any) => {
           if (result.status.isFinalized) {
             unsub();
-            resolve();
+            if (result.dispatchError !== undefined) {
+              reject(result.dispatchError)
+            } else {
+              resolve(result)
+            }
           }
         })
       } catch (e) {
