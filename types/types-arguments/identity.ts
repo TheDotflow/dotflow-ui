@@ -7,7 +7,6 @@ export enum LangError {
 }
 
 export type ChainInfo = {
-	rpcUrls: Array<string>,
 	accountType: AccountType
 }
 
@@ -27,7 +26,6 @@ export enum Error {
 	invalidChain = 'InvalidChain',
 	addressSizeExceeded = 'AddressSizeExceeded',
 	chainNameTooLong = 'ChainNameTooLong',
-	chainRpcUrlTooLong = 'ChainRpcUrlTooLong',
 	alreadyIdentityOwner = 'AlreadyIdentityOwner'
 }
 

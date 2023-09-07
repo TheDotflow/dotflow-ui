@@ -114,26 +114,6 @@
     "name": "Array",
     "body": {
       "0": {
-        "name": "string",
-        "isResult": false,
-        "isPrimitive": true,
-        "isConvertable": false
-      }
-    },
-    "isResult": false,
-    "isPrimitive": false,
-    "isConvertable": false
-  },
-  "8": {
-    "name": "string",
-    "isResult": false,
-    "isPrimitive": true,
-    "isConvertable": false
-  },
-  "9": {
-    "name": "Array",
-    "body": {
-      "0": {
         "name": "number",
         "isResult": false,
         "isPrimitive": true,
@@ -144,13 +124,13 @@
     "isPrimitive": false,
     "isConvertable": false
   },
-  "11": {
+  "9": {
     "name": "null",
     "isResult": false,
     "isPrimitive": true,
     "isConvertable": false
   },
-  "12": {
+  "10": {
     "name": "LangError",
     "body": {
       "CouldNotReadInput": null
@@ -159,26 +139,12 @@
     "isPrimitive": false,
     "isConvertable": false
   },
-  "13": {
+  "11": {
     "name": "Array",
     "body": {
       "0": {
         "name": "ChainInfo",
         "body": {
-          "rpcUrls": {
-            "name": "Array",
-            "body": {
-              "0": {
-                "name": "string",
-                "isResult": false,
-                "isPrimitive": true,
-                "isConvertable": false
-              }
-            },
-            "isResult": false,
-            "isPrimitive": false,
-            "isConvertable": false
-          },
           "accountType": {
             "name": "AccountType",
             "body": {
@@ -199,23 +165,9 @@
     "isPrimitive": false,
     "isConvertable": false
   },
-  "14": {
+  "12": {
     "name": "ChainInfo",
     "body": {
-      "rpcUrls": {
-        "name": "Array",
-        "body": {
-          "0": {
-            "name": "string",
-            "isResult": false,
-            "isPrimitive": true,
-            "isConvertable": false
-          }
-        },
-        "isResult": false,
-        "isPrimitive": false,
-        "isConvertable": false
-      },
       "accountType": {
         "name": "AccountType",
         "body": {
@@ -231,7 +183,7 @@
     "isPrimitive": false,
     "isConvertable": false
   },
-  "15": {
+  "13": {
     "name": "AccountType",
     "body": {
       "AccountId32": null,
@@ -241,7 +193,7 @@
     "isPrimitive": false,
     "isConvertable": false
   },
-  "16": {
+  "14": {
     "name": "Result<Option, LangError",
     "body": {
       "ok": {
@@ -316,7 +268,7 @@
     "isPrimitive": false,
     "isConvertable": false
   },
-  "17": {
+  "15": {
     "name": "Option",
     "body": {
       "0": {
@@ -374,7 +326,7 @@
     "isPrimitive": false,
     "isConvertable": false
   },
-  "18": {
+  "16": {
     "name": "IdentityInfo",
     "body": {
       "addresses": {
@@ -418,7 +370,7 @@
     "isPrimitive": false,
     "isConvertable": false
   },
-  "19": {
+  "17": {
     "name": "Result<Option, LangError",
     "body": {
       "ok": {
@@ -456,7 +408,7 @@
     "isPrimitive": false,
     "isConvertable": false
   },
-  "20": {
+  "18": {
     "name": "Option",
     "body": {
       "0": {
@@ -477,7 +429,7 @@
     "isPrimitive": false,
     "isConvertable": false
   },
-  "21": {
+  "19": {
     "name": "Result<Option, LangError",
     "body": {
       "ok": {
@@ -514,7 +466,7 @@
     "isPrimitive": false,
     "isConvertable": false
   },
-  "22": {
+  "20": {
     "name": "Option",
     "body": {
       "0": {
@@ -534,7 +486,7 @@
     "isPrimitive": false,
     "isConvertable": false
   },
-  "23": {
+  "21": {
     "name": "Result<Option, LangError",
     "body": {
       "ok": {
@@ -543,20 +495,6 @@
           "0": {
             "name": "ChainInfo",
             "body": {
-              "rpcUrls": {
-                "name": "Array",
-                "body": {
-                  "0": {
-                    "name": "string",
-                    "isResult": false,
-                    "isPrimitive": true,
-                    "isConvertable": false
-                  }
-                },
-                "isResult": false,
-                "isPrimitive": false,
-                "isConvertable": false
-              },
               "accountType": {
                 "name": "AccountType",
                 "body": {
@@ -597,26 +535,12 @@
     "isPrimitive": false,
     "isConvertable": false
   },
-  "24": {
+  "22": {
     "name": "Option",
     "body": {
       "0": {
         "name": "ChainInfo",
         "body": {
-          "rpcUrls": {
-            "name": "Array",
-            "body": {
-              "0": {
-                "name": "string",
-                "isResult": false,
-                "isPrimitive": true,
-                "isConvertable": false
-              }
-            },
-            "isResult": false,
-            "isPrimitive": false,
-            "isConvertable": false
-          },
           "accountType": {
             "name": "AccountType",
             "body": {
@@ -643,7 +567,7 @@
     "isPrimitive": false,
     "isConvertable": false
   },
-  "25": {
+  "23": {
     "name": "Result<Result<Array, Error, LangError",
     "body": {
       "ok": {
@@ -672,7 +596,6 @@
               "InvalidChain": null,
               "AddressSizeExceeded": null,
               "ChainNameTooLong": null,
-              "ChainRpcUrlTooLong": null,
               "AlreadyIdentityOwner": null
             },
             "isResult": false,
@@ -698,7 +621,7 @@
     "isPrimitive": false,
     "isConvertable": false
   },
-  "26": {
+  "24": {
     "name": "Result<Array, Error",
     "body": {
       "ok": {
@@ -724,7 +647,6 @@
           "InvalidChain": null,
           "AddressSizeExceeded": null,
           "ChainNameTooLong": null,
-          "ChainRpcUrlTooLong": null,
           "AlreadyIdentityOwner": null
         },
         "isResult": false,
@@ -736,7 +658,7 @@
     "isPrimitive": false,
     "isConvertable": false
   },
-  "27": {
+  "25": {
     "name": "Error",
     "body": {
       "NotAllowed": null,
@@ -745,14 +667,13 @@
       "InvalidChain": null,
       "AddressSizeExceeded": null,
       "ChainNameTooLong": null,
-      "ChainRpcUrlTooLong": null,
       "AlreadyIdentityOwner": null
     },
     "isResult": false,
     "isPrimitive": false,
     "isConvertable": false
   },
-  "28": {
+  "26": {
     "name": "Result<Array, LangError",
     "body": {
       "ok": {
@@ -770,20 +691,6 @@
               "1": {
                 "name": "ChainInfo",
                 "body": {
-                  "rpcUrls": {
-                    "name": "Array",
-                    "body": {
-                      "0": {
-                        "name": "string",
-                        "isResult": false,
-                        "isPrimitive": true,
-                        "isConvertable": false
-                      }
-                    },
-                    "isResult": false,
-                    "isPrimitive": false,
-                    "isConvertable": false
-                  },
                   "accountType": {
                     "name": "AccountType",
                     "body": {
@@ -823,7 +730,7 @@
     "isPrimitive": false,
     "isConvertable": false
   },
-  "29": {
+  "27": {
     "name": "Array",
     "body": {
       "0": {
@@ -838,20 +745,6 @@
           "1": {
             "name": "ChainInfo",
             "body": {
-              "rpcUrls": {
-                "name": "Array",
-                "body": {
-                  "0": {
-                    "name": "string",
-                    "isResult": false,
-                    "isPrimitive": true,
-                    "isConvertable": false
-                  }
-                },
-                "isResult": false,
-                "isPrimitive": false,
-                "isConvertable": false
-              },
               "accountType": {
                 "name": "AccountType",
                 "body": {
@@ -877,7 +770,7 @@
     "isPrimitive": false,
     "isConvertable": false
   },
-  "30": {
+  "28": {
     "name": "Tuple",
     "body": {
       "0": {
@@ -889,20 +782,6 @@
       "1": {
         "name": "ChainInfo",
         "body": {
-          "rpcUrls": {
-            "name": "Array",
-            "body": {
-              "0": {
-                "name": "string",
-                "isResult": false,
-                "isPrimitive": true,
-                "isConvertable": false
-              }
-            },
-            "isResult": false,
-            "isPrimitive": false,
-            "isConvertable": false
-          },
           "accountType": {
             "name": "AccountType",
             "body": {
@@ -923,7 +802,7 @@
     "isPrimitive": false,
     "isConvertable": false
   },
-  "31": {
+  "29": {
     "name": "Result<Result<number, Error, LangError",
     "body": {
       "ok": {
@@ -944,7 +823,81 @@
               "InvalidChain": null,
               "AddressSizeExceeded": null,
               "ChainNameTooLong": null,
-              "ChainRpcUrlTooLong": null,
+              "AlreadyIdentityOwner": null
+            },
+            "isResult": false,
+            "isPrimitive": false,
+            "isConvertable": false
+          }
+        },
+        "isResult": true,
+        "isPrimitive": false,
+        "isConvertable": false
+      },
+      "err": {
+        "name": "LangError",
+        "body": {
+          "CouldNotReadInput": null
+        },
+        "isResult": false,
+        "isPrimitive": false,
+        "isConvertable": false
+      }
+    },
+    "isResult": true,
+    "isPrimitive": false,
+    "isConvertable": false
+  },
+  "30": {
+    "name": "Result<number, Error",
+    "body": {
+      "ok": {
+        "name": "number",
+        "isResult": false,
+        "isPrimitive": true,
+        "isConvertable": false
+      },
+      "err": {
+        "name": "Error",
+        "body": {
+          "NotAllowed": null,
+          "IdentityDoesntExist": null,
+          "AddressAlreadyAdded": null,
+          "InvalidChain": null,
+          "AddressSizeExceeded": null,
+          "ChainNameTooLong": null,
+          "AlreadyIdentityOwner": null
+        },
+        "isResult": false,
+        "isPrimitive": false,
+        "isConvertable": false
+      }
+    },
+    "isResult": true,
+    "isPrimitive": false,
+    "isConvertable": false
+  },
+  "31": {
+    "name": "Result<Result<null, Error, LangError",
+    "body": {
+      "ok": {
+        "name": "Result<null, Error",
+        "body": {
+          "ok": {
+            "name": "null",
+            "isResult": false,
+            "isPrimitive": true,
+            "isConvertable": false
+          },
+          "err": {
+            "name": "Error",
+            "body": {
+              "NotAllowed": null,
+              "IdentityDoesntExist": null,
+              "AddressAlreadyAdded": null,
+              "InvalidChain": null,
+              "AddressSizeExceeded": null,
+              "ChainNameTooLong": null,
               "AlreadyIdentityOwner": null
             },
             "isResult": false,
@@ -971,83 +924,6 @@
     "isConvertable": false
   },
   "32": {
-    "name": "Result<number, Error",
-    "body": {
-      "ok": {
-        "name": "number",
-        "isResult": false,
-        "isPrimitive": true,
-        "isConvertable": false
-      },
-      "err": {
-        "name": "Error",
-        "body": {
-          "NotAllowed": null,
-          "IdentityDoesntExist": null,
-          "AddressAlreadyAdded": null,
-          "InvalidChain": null,
-          "AddressSizeExceeded": null,
-          "ChainNameTooLong": null,
-          "ChainRpcUrlTooLong": null,
-          "AlreadyIdentityOwner": null
-        },
-        "isResult": false,
-        "isPrimitive": false,
-        "isConvertable": false
-      }
-    },
-    "isResult": true,
-    "isPrimitive": false,
-    "isConvertable": false
-  },
-  "33": {
-    "name": "Result<Result<null, Error, LangError",
-    "body": {
-      "ok": {
-        "name": "Result<null, Error",
-        "body": {
-          "ok": {
-            "name": "null",
-            "isResult": false,
-            "isPrimitive": true,
-            "isConvertable": false
-          },
-          "err": {
-            "name": "Error",
-            "body": {
-              "NotAllowed": null,
-              "IdentityDoesntExist": null,
-              "AddressAlreadyAdded": null,
-              "InvalidChain": null,
-              "AddressSizeExceeded": null,
-              "ChainNameTooLong": null,
-              "ChainRpcUrlTooLong": null,
-              "AlreadyIdentityOwner": null
-            },
-            "isResult": false,
-            "isPrimitive": false,
-            "isConvertable": false
-          }
-        },
-        "isResult": true,
-        "isPrimitive": false,
-        "isConvertable": false
-      },
-      "err": {
-        "name": "LangError",
-        "body": {
-          "CouldNotReadInput": null
-        },
-        "isResult": false,
-        "isPrimitive": false,
-        "isConvertable": false
-      }
-    },
-    "isResult": true,
-    "isPrimitive": false,
-    "isConvertable": false
-  },
-  "34": {
     "name": "Result<null, Error",
     "body": {
       "ok": {
@@ -1065,7 +941,6 @@
           "InvalidChain": null,
           "AddressSizeExceeded": null,
           "ChainNameTooLong": null,
-          "ChainRpcUrlTooLong": null,
           "AlreadyIdentityOwner": null
         },
         "isResult": false,
@@ -1077,27 +952,7 @@
     "isPrimitive": false,
     "isConvertable": false
   },
-  "35": {
-    "name": "Option",
-    "body": {
-      "0": {
-        "name": "string",
-        "isResult": false,
-        "isPrimitive": true,
-        "isConvertable": false
-      },
-      "1": {
-        "name": "null",
-        "isResult": false,
-        "isPrimitive": true,
-        "isConvertable": false
-      }
-    },
-    "isResult": false,
-    "isPrimitive": false,
-    "isConvertable": false
-  },
-  "36": {
+  "33": {
     "name": "Option",
     "body": {
       "0": {

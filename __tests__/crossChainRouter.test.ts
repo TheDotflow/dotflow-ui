@@ -41,17 +41,14 @@ describe("TransactionRouter Cross-chain reserve transfer", () => {
     );
 
     await addChain(identityContract, alice, 1000, {
-      rpcUrls: [WS_ASSET_HUB_LOCAL],
       accountType: AccountType.accountId32,
     });
 
     await addChain(identityContract, alice, 1836, {
-      rpcUrls: [WS_TRAPPIST_LOCAL],
       accountType: AccountType.accountId32,
     });
 
     await addChain(identityContract, alice, 3000, {
-      rpcUrls: ["ws://127.0.0.1:9930"],
       accountType: AccountType.accountId32,
     });
   });
