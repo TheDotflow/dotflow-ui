@@ -8,7 +8,9 @@ import {
   FormControl,
   FormHelperText,
   FormLabel,
+  ListItem,
   ListItemIcon,
+  ListItemText,
   MenuItem,
   TextField,
 } from '@mui/material';
@@ -126,10 +128,14 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
               >
                 {Object.entries(chains).map(([id, chain], index) => (
                   <MenuItem value={id} key={index}>
-                    <ListItemIcon>
-                      <Image src={chain.logo} alt='logo' width={32} height={32} />
-                    </ListItemIcon>
-                    {chain.name}
+                    <ListItem>
+                      <ListItemIcon sx={{ mr: '8px' }}>
+                        <Image src={chain.logo} alt='logo' width={32} height={32} />
+                      </ListItemIcon>
+                      <ListItemText>
+                        {chain.name}
+                      </ListItemText>
+                    </ListItem>
                   </MenuItem>
                 ))}
               </TextField>

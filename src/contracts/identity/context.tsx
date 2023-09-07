@@ -98,14 +98,7 @@ const IdentityContractProvider = ({ children }: Props) => {
       return;
     }
 
-    const getChainInfo = async (
-      rpcUrls: string[],
-      chainId: number
-    ): Promise<ChainConsts | null> => {
-      const count = rpcUrls.length;
-      const rpcIndex = Math.min(Math.floor(Math.random() * count), count - 1);
-      const rpc = rpcUrls[rpcIndex];
-
+    const getChainInfo = async (chainId: number): Promise<ChainConsts | null> => {
       const chaindata = new Chaindata();
 
       try {
@@ -119,17 +112,19 @@ const IdentityContractProvider = ({ children }: Props) => {
 
         const rpcCount = chain.rpcs.length;
         const rpcIndex = Math.min(Math.floor(Math.random() * rpcCount), rpcCount - 1);
+        const rpc = chain.rpcs[rpcIndex].url;
 
-        const ss58Prefix = ss58Result ? ss58Result : await fetchSs58Prefix(chain.rpcs[rpcIndex].url);
+        const ss58Prefix = ss58Result ? ss58Result : await fetchSs58Prefix(rpc);
 
         return {
           name: chain.name,
           ss58Prefix: ss58Prefix,
           paraId: chainId,
-          logo: chain.logo
+          logo: chain.logo,
+          rpc
         };
       } catch (e) {
-        toastError && toastError(`Failed to get chain info for ${rpc}`);
+        toastError && toastError(`Failed to get chain info.`);
         return null;
       }
     };
@@ -168,11 +163,10 @@ const IdentityContractProvider = ({ children }: Props) => {
 
       for await (const item of output) {
         const chainId = parseInt(item[0].replace(/,/g, ''));
-        const { accountType, rpcUrls } = item[1];
-        const info = await getChainInfo(rpcUrls, chainId);
+        const { accountType } = item[1];
+        const info = await getChainInfo(chainId);
         if (info)
           _chains[chainId] = {
-            rpcUrls,
             accountType,
             ...info,
           };
