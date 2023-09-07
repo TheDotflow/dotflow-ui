@@ -114,15 +114,9 @@ const IdentityContractProvider = ({ children }: Props) => {
       const rpc = rpcUrls[rpcIndex];
 
       const chaindata = new Chaindata();
-      await chaindata.load();
 
       try {
-        const chain = chaindata.getChains().find(
-          (c) => c.paraId ?
-            c.paraId === chainId && c.relay?.id === RELAY_CHAIN
-            :
-            chainId === 0 && c.id === RELAY_CHAIN
-        );
+        const chain = await chaindata.getChain(chainId);
 
         if (!chain) {
           return null;
@@ -190,6 +184,7 @@ const IdentityContractProvider = ({ children }: Props) => {
             ...info,
           };
       }
+      console.log(_chains);
       setChains(_chains);
     } catch (e: any) {
       toastError(e.toString());
