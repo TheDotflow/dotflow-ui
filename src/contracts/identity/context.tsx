@@ -144,7 +144,6 @@ const IdentityContractProvider = ({ children }: Props) => {
     }
 
     setLoadingChains(true);
-    console.log(contract);
     try {
       const result = await contractQuery(
         api,
