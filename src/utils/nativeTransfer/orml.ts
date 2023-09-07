@@ -18,7 +18,6 @@ class SubstrateOrml {
 
     const currencyId = { Token: token.symbol.toUpperCase() }
 
-
     const transferCall = api.tx.tokens ?
       api.tx.tokens.transfer(to, currencyId, amount)
       :

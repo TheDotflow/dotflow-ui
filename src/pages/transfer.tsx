@@ -105,16 +105,19 @@ const TransferPage = () => {
       const _assets = [];
       if (chainData) {
         const tokens = (await getTokens()).filter((token) => {
-          const isPartOfSourceChain = token.data.id.startsWith(chainData.id);
+          const prefix = `${chainData.id}-${token.data.type}`;
+          const isPartOfSourceChain = token.data.id.startsWith(prefix);
           return isPartOfSourceChain;
         });
         const assets: Asset[] = tokens.map(t => {
           const asset: Asset = {
             asset: "",
+            assetId: t.data?.assetId,
+            onChainId: t.data?.onChainId,
             name: t.data.symbol,
             symbol: t.data.symbol,
             decimals: t.data.decimals,
-            xcmInteriorKey: t.data,
+            type: t.data.type,
             confidence: 0,
             inferred: false
           };
@@ -123,7 +126,6 @@ const TransferPage = () => {
         _assets.push(...assets);
       }
 
-      _assets.push(...getTeleportableAssets(sourceChainId, destChainId));
       setSelectedAsset([]);
       setAssets(_assets);
     }
@@ -177,7 +179,8 @@ const TransferPage = () => {
     if (
       sourceChainId === undefined ||
       destChainId === undefined ||
-      selectedAsset === undefined
+      selectedAsset === undefined ||
+      selectedAsset.xcmInteriorKey === undefined
     ) {
       return false;
     }
@@ -249,7 +252,7 @@ const TransferPage = () => {
       await NativeTransfer.transfer(
         api,
         keypair.pairs[0],
-        selectedAsset.xcmInteriorKey,
+        selectedAsset,
         receiverKeypair.pairs[0].publicKey,
         amount * Math.pow(10, selectedAsset.decimals),
         activeSigner
