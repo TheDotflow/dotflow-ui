@@ -249,16 +249,20 @@ const TransferPage = () => {
 
       setTransferring(true);
 
-      await NativeTransfer.transfer(
-        api,
-        keypair.pairs[0],
-        selectedAsset,
-        receiverKeypair.pairs[0].publicKey,
-        amount * Math.pow(10, selectedAsset.decimals),
-        activeSigner
-      );
-
-      setTransferring(false);
+      try {
+        await NativeTransfer.transfer(
+          api,
+          keypair.pairs[0],
+          selectedAsset,
+          receiverKeypair.pairs[0].publicKey,
+          amount * Math.pow(10, selectedAsset.decimals),
+          activeSigner
+        );
+      } catch (e: any) {
+        toastError(`Transfer failed. Error: ${e.toString()}`);
+      } finally {
+        setTransferring(false);
+      }
 
       return;
     }

@@ -27,13 +27,17 @@ class SubstrateOrml {
 
     const account = signer ? sender.address : sender;
     // eslint-disable-next-line no-async-promise-executor
-    return new Promise(async (resolve) => {
-      const unsub = await transferCall.signAndSend(account, (result: any) => {
-        if (result.status.isFinalized) {
-          unsub();
-          resolve();
-        }
-      })
+    return new Promise(async (resolve, reject) => {
+      try {
+        const unsub = await transferCall.signAndSend(account, (result: any) => {
+          if (result.status.isFinalized) {
+            unsub();
+            resolve();
+          }
+        })
+      } catch (e) {
+        reject(e);
+      }
     });
   }
 }
