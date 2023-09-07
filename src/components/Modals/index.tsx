@@ -3,5 +3,7 @@ export * from './AddIdentity';
 export * from './EditAddress';
 export * from './EditNickname';
 export * from './ImportKey';
+export * from './RecoveryAccount';
 export * from './ShareIdentity';
+export * from './TransferOwnership';
 export * from './WalletModal';

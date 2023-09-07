@@ -2,8 +2,8 @@ import { ApiPromise, Keyring, WsProvider } from "@polkadot/api";
 import { KeyringPair } from "@polkadot/keyring/types";
 import { u8aToHex } from '@polkadot/util';
 
-import TransactionRouter from "../src/utils/transactionRouter";
-import { Fungible, Receiver, Sender } from "../src/utils/transactionRouter/types";
+import TransactionRouter from "../src/utils/xcmTransfer";
+import { Fungible, Receiver, Sender } from "../src/utils/xcmTransfer/types";
 import IdentityContractFactory from "../types/constructors/identity";
 import IdentityContract from "../types/contracts/identity";
 import { AccountType, ChainInfo } from "../types/types-arguments/identity";

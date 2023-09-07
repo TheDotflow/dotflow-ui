@@ -17,17 +17,12 @@ import {
   useState,
 } from 'react';
 
+import { RELAY_CHAIN } from '@/consts';
 import { useToast } from '@/contexts/Toast';
 
 import { IdentityMetadata } from '.';
 import { CONTRACT_IDENTITY } from '..';
-import {
-  Address,
-  ChainConsts,
-  ChainId,
-  Chains,
-  IdentityNo,
-} from '../types';
+import { Address, ChainConsts, ChainId, Chains, IdentityNo } from '../types';
 
 interface IdentityContract {
   identityNo: number | null;
@@ -173,7 +168,7 @@ const IdentityContractProvider = ({ children }: Props) => {
       const _chains: Chains = {};
 
       for await (const item of output) {
-        const chainId = parseInt(item[0].replace(/,/g, ""));
+        const chainId = parseInt(item[0].replace(/,/g, ''));
         const { accountType, rpcUrls } = item[1];
         const info = await getChainInfo(rpcUrls, chainId);
         if (info)
@@ -206,7 +201,7 @@ const IdentityContractProvider = ({ children }: Props) => {
       const _addresses: Array<Address> = [];
       for (let idx = 0; idx < records.length; ++idx) {
         const record = records[idx];
-        const chainId: ChainId = parseInt(record[0].replace(/,/g, ""));
+        const chainId: ChainId = parseInt(record[0].replace(/,/g, ''));
         const address = record[1]; // FIXME: Decode address here
         _addresses.push({
           chainId,

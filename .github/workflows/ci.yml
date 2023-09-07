@@ -62,7 +62,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: yarn install
       - run: 'CI=false yarn build'
-      - run: yarn test -- src/utils/transactionRouter/reserveTransfer.test.ts
+      - run: yarn test -- src/utils/xcmTransfer/reserveTransfer.test.ts
   transfer-asset-test:
     runs-on: ubuntu-latest
     strategy:
@@ -76,7 +76,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: yarn install
       - run: 'CI=false yarn build'
-      - run: yarn test -- src/utils/transactionRouter/transferAsset.test.ts
+      - run: yarn test -- src/utils/xcmTransfer/transferAsset.test.ts
 
   all:
     needs: [build]
