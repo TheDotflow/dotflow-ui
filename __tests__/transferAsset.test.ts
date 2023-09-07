@@ -37,7 +37,6 @@ describe("TransactionRouter e2e tests", () => {
     // First lets add a chain and create an identity.
 
     await addChain(identityContract, alice, 1836, {
-      rpcUrls: ["ws://127.0.0.1:9910"],
       accountType: AccountType.accountId32,
     });
 
@@ -100,7 +99,6 @@ describe("TransactionRouter e2e tests", () => {
 
     // First lets add a chain.
     await addChain(identityContract, alice, 0, {
-      rpcUrls: ["ws://127.0.0.1:9900"],
       accountType: AccountType.accountId32,
     });
 
@@ -184,7 +182,6 @@ describe("TransactionRouter e2e tests", () => {
 
     // First lets add a chain.
     await addChain(identityContract, alice, 1836, {
-      rpcUrls: ["ws://127.0.0.1:9920"],
       accountType: AccountType.accountId32,
     });
 

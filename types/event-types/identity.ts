@@ -29,13 +29,11 @@ export interface IdentityRemoved {
 
 export interface ChainAdded {
 	chainId: number;
-	rpcUrls: Array<string>;
 	accountType: ReturnTypes.AccountType;
 }
 
 export interface ChainUpdated {
 	chainId: number;
-	rpcUrls: Array<string>;
 	accountType: ReturnTypes.AccountType;
 }
 

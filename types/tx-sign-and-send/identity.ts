@@ -202,18 +202,16 @@ export default class Methods {
 	* updateChain
 	*
 	* @param { (number | string | BN) } chainId,
-	* @param { string | null } newRpcUrl,
 	* @param { ArgumentTypes.AccountType | null } newAddressType,
 	*/
 	"updateChain" (
 		chainId: (number | string | BN),
-		newRpcUrl: string | null,
 		newAddressType: ArgumentTypes.AccountType | null,
 		__options ? : GasLimit,
 	){
 		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "updateChain", (events: EventRecord) => {
 			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
-		}, [chainId, newRpcUrl, newAddressType], __options);
+		}, [chainId, newAddressType], __options);
 	}
 
 	/**

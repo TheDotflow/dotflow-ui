@@ -170,16 +170,14 @@ export default class Methods {
 	 * updateChain
 	 *
 	 * @param { (number | string | BN) } chainId,
-	 * @param { string | null } newRpcUrl,
 	 * @param { ArgumentTypes.AccountType | null } newAddressType,
 	*/
 	"updateChain" (
 		chainId: (number | string | BN),
-		newRpcUrl: string | null,
 		newAddressType: ArgumentTypes.AccountType | null,
 		__options: GasLimit,
 	){
-		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "updateChain", [chainId, newRpcUrl, newAddressType], __options);
+		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "updateChain", [chainId, newAddressType], __options);
 	}
 
 	/**

@@ -39,12 +39,10 @@ describe("TransactionRouter Cross-chain teleport", () => {
     );
 
     await addChain(identityContract, alice, 0, {
-      rpcUrls: [WS_ROROCO_LOCAL],
       accountType: AccountType.accountId32,
     });
 
     await addChain(identityContract, alice, 1000, {
-      rpcUrls: [WS_ASSET_HUB_LOCAL],
       accountType: AccountType.accountId32,
     });
   });
