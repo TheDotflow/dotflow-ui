@@ -260,7 +260,7 @@ const TransferPage = () => {
           amount * Math.pow(10, selectedAsset.decimals),
           activeSigner
         );
-        toastSuccess(`Transfer succeded`);
+        toastSuccess(`Transfer succeeded`);
       } catch (e: any) {
         toastError(`Transfer failed. Error: ${e.toString()}`);
       } finally {
