@@ -28,7 +28,7 @@ class SubstrateNative {
           if (result.status.isFinalized) {
             unsub();
             if (result.dispatchError !== undefined) {
-              reject(result)
+              reject(result.dispatchError)
             } else {
               resolve(result)
             }
