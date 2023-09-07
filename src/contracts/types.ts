@@ -7,10 +7,10 @@ export type ChainConsts = {
   ss58Prefix: number;
   paraId: number;
   logo: string;
+  rpc: string;
 }
 
 export type ChainInfo = ChainConsts & {
-  rpcUrls: string[];
   accountType: AccountType;
 }
 

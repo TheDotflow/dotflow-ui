@@ -238,10 +238,7 @@ const TransferPage = () => {
 
     if (sourceChainId === destChainId) {
       // Just do a simple token transfer.
-      const count = chains[sourceChainId].rpcUrls.length;
-      const rpcIndex = Math.min(Math.floor(Math.random() * count), count - 1);
-
-      const api = await getApi(chains[sourceChainId].rpcUrls[rpcIndex]);
+      const api = await getApi(chains[sourceChainId].rpc);
 
       const keypair = new Keyring();
       keypair.addFromAddress(activeAccount.address);
@@ -274,14 +271,6 @@ const TransferPage = () => {
       selectedAsset.xcmInteriorKey
     );
 
-    const count = Math.min(
-      chains[sourceChainId].rpcUrls.length,
-      chains[destChainId].rpcUrls.length,
-      chains[reserveChainId].rpcUrls.length
-    );
-
-    const rpcIndex = Math.min(Math.floor(Math.random() * count), count - 1);
-
     const isSourceParachain = sourceChainId > 0;
 
     const keypair = new Keyring();
@@ -313,9 +302,9 @@ const TransferPage = () => {
           amount * Math.pow(10, selectedAsset.decimals)
         ),
         {
-          originApi: await getApi(chains[sourceChainId].rpcUrls[rpcIndex]),
-          destApi: await getApi(chains[destChainId].rpcUrls[rpcIndex]),
-          reserveApi: await getApi(chains[reserveChainId].rpcUrls[rpcIndex]),
+          originApi: await getApi(chains[sourceChainId].rpc),
+          destApi: await getApi(chains[destChainId].rpc),
+          reserveApi: await getApi(chains[reserveChainId].rpc),
         },
         activeSigner
       );
