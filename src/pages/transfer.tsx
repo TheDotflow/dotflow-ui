@@ -301,7 +301,7 @@ const TransferPage = () => {
         },
         reserveChainId,
         getFungible(
-          selectedAsset.xcmInteriorKey,
+          JSON.parse(JSON.stringify(selectedAsset.xcmInteriorKey)), // Make a hard copy.
           isSourceParachain,
           amount * Math.pow(10, selectedAsset.decimals)
         ),
