@@ -34,13 +34,23 @@ export const ImportKeyModal = ({
       toastError("You don't have an identity yet.");
       return;
     }
+    let key = identityKey;
+    if (key.startsWith("identityNo:")) {
+      const indexOfSeparator = key.indexOf(';');
+      key = key.substring(indexOfSeparator + 1);
+    }
     confirm({
       description:
         'This operation updates the identity key and you might lose access to your addresses.',
     }).then(() => {
-      KeyStore.updateIdentityKey(identityNo, identityKey);
-      toastSuccess('Successfully imported identity key.');
-      onClose();
+      try {
+        KeyStore.updateIdentityKey(identityNo, key);
+        toastSuccess('Successfully imported identity key.');
+      } catch (e) {
+        toastError("Invalid identity key");
+      } finally {
+        onClose();
+      }
     });
   };
 

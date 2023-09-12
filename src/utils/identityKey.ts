@@ -2,6 +2,46 @@ import aesjs from "aes-js";
 import crypto from "crypto";
 
 class IdentityKey {
+  public static sanityCheck(identityKey: string): boolean {
+    let key = identityKey;
+
+    const separatorIndex = key.indexOf(';')
+    if (separatorIndex === -1) {
+      return false;
+    }
+
+    if (key.startsWith("identityNo:")) {
+      if (key.length === separatorIndex + 1) {
+        return true;
+      }
+      key = key.substring(separatorIndex + 1);
+    }
+
+    let result = true;
+
+    while (result) {
+      const separatorIndex = key.indexOf(';')
+      if (separatorIndex === -1) {
+        break;
+      }
+      const colonIndex = key.indexOf(':');
+      if (colonIndex === -1) {
+        result = false;
+        break;
+      }
+
+      const cipher = Buffer.from(key.substring(colonIndex + 1, separatorIndex - 1), "base64");
+      if (cipher.length !== 16) {
+        result = false;
+        break;
+      }
+
+      key = key.substring(separatorIndex + 1);
+    }
+
+    return result;
+  }
+
   public static newCipher(identityKey: string, chainId: number): string {
     const regexPattern = new RegExp(`\\b${chainId}:`, "g");
     if (regexPattern.test(identityKey)) {
@@ -55,21 +95,22 @@ class IdentityKey {
 
     if (startIndex >= 0) {
       const endIndex = identityKey.indexOf(";", startIndex);
-      return identityKey.substring(startIndex + chainId.toString().length + 1, endIndex - 1);
+      return identityKey.substring(startIndex + chainId.toString().length + 1, endIndex);
     } else {
       throw new Error("Cannot find chainId");
     }
   }
 
   public static getSharedKey(identityKey: string, selectedChains: number[]): string {
+    let key = JSON.parse(JSON.stringify(identityKey));
     let sharedKey = "";
     selectedChains.forEach((chainId) => {
-      if (!IdentityKey.containsChainId(identityKey, chainId)) {
-        identityKey = IdentityKey.newCipher(identityKey, chainId);
+      if (!IdentityKey.containsChainId(key, chainId)) {
+        key = IdentityKey.newCipher(key, chainId);
         throw new Error(`Cipher for chain #${chainId} not found`);
       }
       sharedKey += `${chainId}:${IdentityKey.getChainCipher(
-        identityKey,
+        key,
         chainId
       )};`;
     });

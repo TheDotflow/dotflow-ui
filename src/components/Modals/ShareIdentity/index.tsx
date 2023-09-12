@@ -47,7 +47,7 @@ export const ShareIdentityModal = ({
 
     try {
       const sharedKey = IdentityKey.getSharedKey(identityKey, selectedChains);
-      setSharedKey(sharedKey);
+      setSharedKey(`identityNo:${identityNo};`.concat(sharedKey));
     } catch (e: any) {
       toastError(`Failed to get the identity key. Error: ${e.message}`);
     }
@@ -62,17 +62,6 @@ export const ShareIdentityModal = ({
       <Box className='modal-wrapper'>
         <DialogTitle>Share Identity</DialogTitle>
         <DialogContent>
-          <Box className={styles.identityNo}>
-            <Typography>{`Identity No: ${identityNo}`}</Typography>
-            <CopyToClipboard
-              text={identityNo.toString()}
-              onCopy={() => toastSuccess('Identity no copied to clipboard.')}
-            >
-              <IconButton>
-                <ContentCopyIcon />
-              </IconButton>
-            </CopyToClipboard>
-          </Box>
           <Typography mt='2em'>
             Specify the chains that the receiver of the identity key will be
             able to access:
@@ -110,9 +99,7 @@ export const ShareIdentityModal = ({
             </CopyToClipboard>
           </Box>
           <Typography color='primary' align='center'>
-            {'This identity key has to be sent alongside the identity no.'}
-            <br />
-            {"Without it, the receiver won't have access to your addresses"}
+            {'This identity key will be sent alongside the identity no.'}
           </Typography>
           <Button
             className='btn-ok'
