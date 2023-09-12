@@ -346,7 +346,6 @@ const TransferPage = () => {
     }
   }
 
-
   const getParaIdFromXcmInterior = (xcmInterior: any): number => {
     if (xcmInterior.length > 1 && Object.hasOwn(xcmInterior[1], 'parachain')) {
       return xcmInterior[1].parachain;
