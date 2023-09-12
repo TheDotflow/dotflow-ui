@@ -237,6 +237,21 @@ const TransferPage = () => {
       return;
     }
 
+    if (amount === 0) {
+      toastError("Transfer amount must be greater than 0");
+      return;
+    }
+
+    if (Number.isNaN(amount)) {
+      toastError("Amount must be specified")
+      return;
+    }
+
+    if (countDecimalDigits(amount) > selectedAsset.decimals) {
+      toastError(`The asset can have only ${selectedAsset.decimals} decimals`);
+      return;
+    }
+
     if (sourceChainId === destChainId) {
       // Just do a simple token transfer.
       const api = await getApi(chains[sourceChainId].rpc);
@@ -316,6 +331,21 @@ const TransferPage = () => {
 
     setTransferring(false);
   };
+
+  const countDecimalDigits = (n: number): number => {
+    const numberStr = n.toString();
+
+    // Check for scientific notation
+    if (numberStr.includes('e')) {
+      const parts = numberStr.split('e');
+      const decimalPart = (parts[0].split('.')[1] || '').length;
+      const exponentPart = parseInt(parts[1], 10);
+      return decimalPart - exponentPart;
+    } else {
+      const decimalPart = (numberStr.split('.')[1] || '').length;
+      return decimalPart;
+    }
+  }
 
   const getParaIdFromXcmInterior = (xcmInterior: any): number => {
     if (xcmInterior.length > 1 && Object.hasOwn(xcmInterior[1], 'parachain')) {
