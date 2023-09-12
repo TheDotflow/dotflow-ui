@@ -21,7 +21,8 @@ class IdentityKey {
 
     while (result) {
       const separatorIndex = key.indexOf(';')
-      if (separatorIndex + 1 === key.length) {
+      console.log(key);
+      if (separatorIndex === -1) {
         break;
       }
       const colonIndex = key.indexOf(':');
@@ -31,12 +32,13 @@ class IdentityKey {
       }
 
       const cipher = Buffer.from(key.substring(colonIndex + 1, separatorIndex - 1), "base64");
-      if (cipher.length !== 32) {
+      console.log(cipher);
+      if (cipher.length !== 16) {
         result = false;
         break;
       }
 
-      key.substring(separatorIndex + 1);
+      key = key.substring(separatorIndex + 1);
     }
 
     return result;
