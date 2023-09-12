@@ -196,7 +196,8 @@ const TransferPage = () => {
       return true;
     }
 
-    const isSourceParachain = sourceChainId > 0;
+    // Even if it is we want to get the perspective from the relay chain.
+    const isSourceParachain = false;
 
     if (
       sourceChainId !== destChainId &&
@@ -430,11 +431,15 @@ const TransferPage = () => {
               value={recipientId === undefined ? '' : recipientId}
               onChange={(e) => setRecipientId(Number(e.target.value))}
             >
-              {identities.map((identity, index) => (
-                <MenuItem value={index} key={index}>
-                  {identity.nickName}
-                </MenuItem>
-              ))}
+              {identities.filter(
+                (identity) =>
+                  IdentityKey.containsChainId(
+                    KeyStore.readIdentityKey(identity.identityNo) || '', destChainId
+                  )).map((identity, index) => (
+                    <MenuItem value={index} key={index}>
+                      {identity.nickName}
+                    </MenuItem>
+                  ))}
             </Select>
           </FormControl>
         )}
