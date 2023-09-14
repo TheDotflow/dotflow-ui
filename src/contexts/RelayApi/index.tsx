@@ -81,23 +81,21 @@ const RelayContext = React.createContext(
 const RelayContextProvider = (props: any) => {
   const [relay, setRelay]: [relay: "polkadot" | "kusama", setRelay: any] = useState("polkadot");
 
-  const handleChange = (value: string) => {
-    console.log(value);
-    setRelay(value);
-  }
-
   return (
-    <RelayContext.Provider value={{ relay: relay, setRelay: handleChange }}>
+    <RelayContext.Provider value={{ relay: relay, setRelay: setRelay }}>
       {props.children}
     </RelayContext.Provider>
   );
 }
+
+const useRelay = () => useContext(RelayContext);
 
 const RelayApiContext = React.createContext(defaultValue);
 
 const RelayApiContextProvider = (props: any) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { toastError, toastSuccess } = useToast();
+  const { relay } = useRelay();
 
   useEffect(() => {
     state.apiError &&
@@ -112,9 +110,9 @@ const RelayApiContextProvider = (props: any) => {
   }, [state.apiState]);
 
   useEffect(() => {
-    console.log(props.relay);
-    connect(state, getRelayChainApiURL(props.relay), dispatch);
-  }, [props.relay]);
+    console.log(relay);
+    connect(state, getRelayChainApiURL(relay), dispatch);
+  }, [relay]);
 
   return (
     <RelayApiContext.Provider value={{ state }}>
@@ -122,7 +120,7 @@ const RelayApiContextProvider = (props: any) => {
     </RelayApiContext.Provider>
   );
 };
-const useRelay = () => useContext(RelayContext);
+
 const useRelayApi = () => useContext(RelayApiContext);
 
 export { RelayApiContextProvider, RelayContextProvider, useRelayApi, useRelay };

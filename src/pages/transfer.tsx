@@ -30,12 +30,12 @@ import { getTeleportableAssets } from '@/utils/xcmTransfer/teleportableRoutes';
 import { Fungible } from '@/utils/xcmTransfer/types';
 
 import { chainsSupportingXcmExecute } from '@/consts';
-import { useRelayApi } from '@/contexts/RelayApi';
+import { RelayContextProvider, useRelay, useRelayApi } from '@/contexts/RelayApi';
 import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
 import { useAddressBook } from '@/contracts/addressbook/context';
 
-const TransferPage = ({ relay }: { relay: "polkadot" | "kusama" }) => {
+const TransferPage = () => {
   const {
     chains,
     getAddresses,
@@ -60,6 +60,8 @@ const TransferPage = ({ relay }: { relay: "polkadot" | "kusama" }) => {
   const [recipientAddress, setRecipientAddress] = useState<string>();
   const [amount, setAmount] = useState<number>();
   const [transferring, setTransferring] = useState<boolean>(false);
+
+  const { relay } = useRelay();
 
   const chainsSelected =
     !loadingAssets && sourceChainId !== undefined && destChainId !== undefined;
@@ -506,4 +508,13 @@ const TransferPage = ({ relay }: { relay: "polkadot" | "kusama" }) => {
   );
 };
 
-export default TransferPage;
+
+const TransferPageWrapped = () => {
+  return (
+    <RelayContextProvider>
+      <TransferPage />
+    </RelayContextProvider>
+  )
+}
+
+export default TransferPageWrapped;

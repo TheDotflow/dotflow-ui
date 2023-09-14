@@ -8,18 +8,16 @@ import { Sidebar } from '../Sidebar';
 
 interface Props {
   children: ReactElement | ReactElement[];
-  relay: string,
-  setRelay: (relay: string) => void
 }
 
-export const Layout = ({ relay, setRelay, children }: Props) => {
+export const Layout = ({ children }: Props) => {
   const { isConnected } = useInkathon();
   return (
     <div className={styles.layout}>
       <Header />
       <div className={styles.content}>
         <div className={styles.sidebar}>
-          <Sidebar relay={relay} setRelay={setRelay} />
+          <Sidebar />
         </div>
         <div className={styles.main}>
           {isConnected ? (

@@ -1,7 +1,8 @@
+import { useRelay } from "@/contexts/RelayApi";
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material"
 
-const RelaySelect = ({ relay, setRelay }: { relay: string, setRelay: (relay: string) => void }) => {
-
+const RelaySelect = () => {
+  const { relay, setRelay } = useRelay();
   const handleChange = (e: any) => {
     setRelay(e.target.value);
   };

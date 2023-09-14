@@ -14,11 +14,10 @@ import theme from '@/utils/muiTheme';
 
 import { Layout } from '@/components/Layout';
 
-import { RelayApiContextProvider, RelayContextProvider, useRelay } from '@/contexts/RelayApi';
+import { RelayApiContextProvider, RelayContextProvider } from '@/contexts/RelayApi';
 import { ToastProvider } from '@/contexts/Toast';
 import { IdentityContractProvider } from '@/contracts';
 import { AddressBookContractProvider } from '@/contracts/addressbook/context';
-import { createContext, useState } from 'react';
 
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
@@ -32,10 +31,9 @@ interface MyAppProps extends AppProps {
 
 export default function MyApp(props: MyAppProps) {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
-  const { relay, setRelay } = useRelay();
   const getLayout = Component.getLayout ?? ((page) =>
     <RelayContextProvider>
-      <Layout relay={relay} setRelay={setRelay}>{page}</Layout>
+      <Layout>{page}</Layout>
     </RelayContextProvider>
   );
 
@@ -50,7 +48,7 @@ export default function MyApp(props: MyAppProps) {
         <CssBaseline />
         <ToastProvider>
           <RelayContextProvider>
-            <RelayApiContextProvider relay={relay}>
+            <RelayApiContextProvider>
               <UseInkathonProvider
                 appName='DotFlow UI'
                 connectOnInit={false}
@@ -64,10 +62,10 @@ export default function MyApp(props: MyAppProps) {
                   faucetUrls: [],
                 }}
               >
-                <IdentityContractProvider relay={relay}>
+                <IdentityContractProvider>
                   <AddressBookContractProvider>
                     <ConfirmProvider>
-                      {getLayout(<Component {...pageProps} relay={relay} />)}
+                      {getLayout(<Component {...pageProps} />)}
                     </ConfirmProvider>
                   </AddressBookContractProvider>
                 </IdentityContractProvider>

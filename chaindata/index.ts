@@ -86,7 +86,6 @@ export class Chaindata {
   }
 
   public async getChain(chainId: number, relay: string): Promise<Chain> {
-    console.log(relay);
     if (chainId === 0) {
       const result: any = await request(graphqlUrl, relayQuery, {
         relayId: relay

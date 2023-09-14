@@ -28,8 +28,7 @@ const MenuItem = ({ label, route, icon }: MenuItemProps) => {
   );
 };
 
-export const Sidebar = ({ relay, setRelay }: { relay: string, setRelay: (relay: string) => void }) => {
-  console.log(setRelay);
+export const Sidebar = () => {
   const menuItems: MenuItemProps[] = [
     {
       label: 'My Identity',
@@ -53,7 +52,7 @@ export const Sidebar = ({ relay, setRelay }: { relay: string, setRelay: (relay: 
         <MenuItem key={index} {...item} />
       ))}
       <div className={styles.networkSelect}>
-        <RelaySelect relay={relay} setRelay={setRelay} />
+        <RelaySelect />
       </div>
     </div>
   );

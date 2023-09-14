@@ -22,6 +22,7 @@ import { useToast } from '@/contexts/Toast';
 import { IdentityMetadata } from '.';
 import { CONTRACT_IDENTITY } from '..';
 import { Address, ChainConsts, ChainId, Chains, IdentityNo } from '../types';
+import { useRelay } from '@/contexts/RelayApi';
 
 interface IdentityContract {
   identityNo: number | null;
@@ -56,10 +57,9 @@ const IdentityContext = createContext<IdentityContract>(defaultIdentity);
 
 interface Props {
   children: React.ReactNode;
-  relay: "polkadot" | "kusama";
 }
 
-const IdentityContractProvider = ({ children, relay }: Props) => {
+const IdentityContractProvider = ({ children }: Props) => {
   const { contract } = useContract(IdentityMetadata, CONTRACT_IDENTITY);
   const { api, activeAccount } = useInkathon();
   const [identityNo, setIdentityNo] = useState<IdentityNo>(null);
@@ -68,6 +68,7 @@ const IdentityContractProvider = ({ children, relay }: Props) => {
   const [loadingIdentityNo, setLoadingIdentityNo] = useState(false);
   const [loadingChains, setLoadingChains] = useState(false);
   const { toastError } = useToast();
+  const { relay } = useRelay();
 
   const fetchIdentityNo = useCallback(async () => {
     if (!api || !contract || !activeAccount) {
