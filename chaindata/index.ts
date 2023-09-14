@@ -1,4 +1,3 @@
-import { RELAY_CHAIN } from "@/consts";
 import { gql, request } from "graphql-request"
 
 const graphqlUrl = "https://squid.subsquid.io/chaindata/v/v4/graphql"
@@ -86,16 +85,17 @@ export class Chaindata {
     this.tokens = tokensResult.tokens;
   }
 
-  public async getChain(chainId: number): Promise<Chain> {
+  public async getChain(chainId: number, relay: string): Promise<Chain> {
+    console.log(relay);
     if (chainId === 0) {
       const result: any = await request(graphqlUrl, relayQuery, {
-        relayId: RELAY_CHAIN
+        relayId: relay
       });
       return result.chains[0];
     } else {
       const result: any = await request(graphqlUrl, chainQuery, {
         paraId: chainId,
-        relayId: RELAY_CHAIN
+        relayId: relay
       });
       return result.chains[0];
     }

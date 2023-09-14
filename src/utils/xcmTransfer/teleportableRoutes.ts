@@ -2,7 +2,6 @@
 // teleportation.
 
 import AssetRegistry, { Asset } from "../assetRegistry";
-import { RELAY_CHAIN } from "../../consts";
 
 export type TeleportableRoute = {
   relayChain: string,
@@ -135,11 +134,11 @@ export const teleportableRoutes: TeleportableRoute[] = [
   }
 ];
 
-export const getTeleportableAssets = (originChainId: number, destChainId: number): Asset[] => {
+export const getTeleportableAssets = (originChainId: number, destChainId: number, relay: "polkadot" | "kusama"): Asset[] => {
   const routes = teleportableRoutes.filter(
     (route) => route.originParaId === originChainId
       && route.destParaId === destChainId
-      && route.relayChain === RELAY_CHAIN
+      && route.relayChain === relay
   );
 
   return routes.map((route) => route.asset);

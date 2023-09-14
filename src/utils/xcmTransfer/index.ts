@@ -36,6 +36,7 @@ class TransactionRouter {
     reserveChainId: number,
     asset: Fungible,
     transferRpcApis: TransferRpcApis,
+    relay: "polkadot" | "kusama",
     signer?: Signer,
   ): Promise<void> {
     if (sender.chain === receiver.chain && sender.keypair.addressRaw === receiver.addressRaw) {
@@ -60,7 +61,7 @@ class TransactionRouter {
     const originParaId = sender.chain;
     const destParaId = receiver.chain;
 
-    if (isTeleport(originParaId, destParaId, asset)) {
+    if (isTeleport(originParaId, destParaId, asset, relay)) {
       // The asset is allowed to be teleported between the origin and the destination.
       await TeleportTransfer.send(
         transferRpcApis.originApi,
@@ -211,9 +212,7 @@ const ensureContainsXcmPallet = (api: ApiPromise) => {
 }
 
 // Returns whether the transfer is a teleport.
-export const isTeleport = (originParaId: number, destParaId: number, asset: Fungible): boolean => {
-  const relayChain = process.env.RELAY_CHAIN ? process.env.RELAY_CHAIN : "rococo";
-
+export const isTeleport = (originParaId: number, destParaId: number, asset: Fungible, relayChain: "polkadot" | "kusama"): boolean => {
   return teleportableRoutes.some(route => {
     return relayChain === route.relayChain &&
       originParaId === route.originParaId &&

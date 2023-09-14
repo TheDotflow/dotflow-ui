@@ -1,17 +1,15 @@
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import jsonrpc from '@polkadot/types/interfaces/jsonrpc';
 import { DefinitionRpcExt } from '@polkadot/types/types';
-import React, { useContext, useEffect, useReducer } from 'react';
-
-import { RELAY_CHAIN_ENDPOINT } from '@/consts';
+import React, { useContext, useEffect, useReducer, useState } from 'react';
 
 import { useToast } from '../Toast';
+import { getRelayChainApiURL } from '@/consts';
 
 ///
 // Initial state for `useReducer`
 
 type State = {
-  socket: string;
   jsonrpc: Record<string, Record<string, DefinitionRpcExt>>;
   api: any;
   apiError: any;
@@ -20,7 +18,6 @@ type State = {
 
 const initialState: State = {
   // These are the states
-  socket: RELAY_CHAIN_ENDPOINT,
   jsonrpc: { ...jsonrpc },
   api: null,
   apiError: null,
@@ -48,8 +45,8 @@ const reducer = (state: any, action: any) => {
 ///
 // Connecting to the Substrate node
 
-const connect = (state: any, dispatch: any) => {
-  const { apiState, socket, jsonrpc } = state;
+const connect = (state: any, socket: string, dispatch: any) => {
+  const { apiState, jsonrpc } = state;
   // We only want this function to be performed once
   if (apiState) return;
 
@@ -72,6 +69,30 @@ const defaultValue = {
   state: initialState,
 };
 
+type Relay = {
+  relay: "polkadot" | "kusama",
+  setRelay(value: string): void
+}
+
+const RelayContext = React.createContext(
+  { relay: "polkadot", setRelay: (_: string) => { } } as Relay
+);
+
+const RelayContextProvider = (props: any) => {
+  const [relay, setRelay]: [relay: "polkadot" | "kusama", setRelay: any] = useState("polkadot");
+
+  const handleChange = (value: string) => {
+    console.log(value);
+    setRelay(value);
+  }
+
+  return (
+    <RelayContext.Provider value={{ relay: relay, setRelay: handleChange }}>
+      {props.children}
+    </RelayContext.Provider>
+  );
+}
+
 const RelayApiContext = React.createContext(defaultValue);
 
 const RelayApiContextProvider = (props: any) => {
@@ -91,8 +112,9 @@ const RelayApiContextProvider = (props: any) => {
   }, [state.apiState]);
 
   useEffect(() => {
-    connect(state, dispatch);
-  }, [process.env.RELAY_CHAIN_ENDPOINT]);
+    console.log(props.relay);
+    connect(state, getRelayChainApiURL(props.relay), dispatch);
+  }, [props.relay]);
 
   return (
     <RelayApiContext.Provider value={{ state }}>
@@ -100,6 +122,7 @@ const RelayApiContextProvider = (props: any) => {
     </RelayApiContext.Provider>
   );
 };
+const useRelay = () => useContext(RelayContext);
 const useRelayApi = () => useContext(RelayApiContext);
 
-export { RelayApiContextProvider, useRelayApi };
+export { RelayApiContextProvider, RelayContextProvider, useRelayApi, useRelay };

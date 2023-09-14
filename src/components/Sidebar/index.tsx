@@ -3,6 +3,7 @@ import ContactsIcon from '@mui/icons-material/Contacts';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import { useRouter } from 'next/router';
 import React from 'react';
+import RelaySelect from '../RelaySelect';
 
 import styles from './index.module.scss';
 interface MenuItemProps {
@@ -15,9 +16,8 @@ const MenuItem = ({ label, route, icon }: MenuItemProps) => {
   const isActive = pathname === route;
   return (
     <div
-      className={`${styles.menuItem} ${
-        isActive ? styles.active : styles.inactive
-      }`}
+      className={`${styles.menuItem} ${isActive ? styles.active : styles.inactive
+        }`}
       onClick={() => push(route)}
     >
       {{
@@ -28,7 +28,8 @@ const MenuItem = ({ label, route, icon }: MenuItemProps) => {
   );
 };
 
-export const Sidebar = () => {
+export const Sidebar = ({ relay, setRelay }: { relay: string, setRelay: (relay: string) => void }) => {
+  console.log(setRelay);
   const menuItems: MenuItemProps[] = [
     {
       label: 'My Identity',
@@ -51,6 +52,9 @@ export const Sidebar = () => {
       {menuItems.map((item, index) => (
         <MenuItem key={index} {...item} />
       ))}
+      <div className={styles.networkSelect}>
+        <RelaySelect relay={relay} setRelay={setRelay} />
+      </div>
     </div>
   );
 };

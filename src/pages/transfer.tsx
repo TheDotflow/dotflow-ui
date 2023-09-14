@@ -29,13 +29,13 @@ import TransactionRouter, { isTeleport } from '@/utils/xcmTransfer';
 import { getTeleportableAssets } from '@/utils/xcmTransfer/teleportableRoutes';
 import { Fungible } from '@/utils/xcmTransfer/types';
 
-import { chainsSupportingXcmExecute, RELAY_CHAIN } from '@/consts';
+import { chainsSupportingXcmExecute } from '@/consts';
 import { useRelayApi } from '@/contexts/RelayApi';
 import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
 import { useAddressBook } from '@/contracts/addressbook/context';
 
-const TransferPage = () => {
+const TransferPage = ({ relay }: { relay: "polkadot" | "kusama" }) => {
   const {
     chains,
     getAddresses,
@@ -91,16 +91,16 @@ const TransferPage = () => {
         setAssets([]);
       } else {
         const _assets = await AssetRegistry.assetsSupportedOnBothChains(
-          RELAY_CHAIN,
+          relay,
           chains[sourceChainId].paraId,
           chains[destChainId].paraId
         );
-        _assets.push(...getTeleportableAssets(sourceChainId, destChainId));
+        _assets.push(...getTeleportableAssets(sourceChainId, destChainId, relay));
         setAssets(_assets);
       }
     } else {
       const chaindata = new Chaindata();
-      const chain = await chaindata.getChain(sourceChainId);
+      const chain = await chaindata.getChain(sourceChainId, relay);
 
       await chaindata.load();
 
@@ -203,7 +203,8 @@ const TransferPage = () => {
       isTeleport(
         sourceChainId,
         destChainId,
-        getFungible(selectedAsset.xcmInteriorKey, isSourceParachain, 0)
+        getFungible(selectedAsset.xcmInteriorKey, isSourceParachain, 0),
+        relay
       )
     ) {
       return true;
@@ -211,7 +212,7 @@ const TransferPage = () => {
 
     const isOriginSupportingLocalXCM = chainsSupportingXcmExecute.findIndex(
       (chain) =>
-        chain.paraId == sourceChainId && chain.relayChain == RELAY_CHAIN
+        chain.paraId == sourceChainId && chain.relayChain == relay
     );
 
     // We only need the origin chain to support XCM for any other type of transfer to
@@ -321,6 +322,7 @@ const TransferPage = () => {
           destApi: await getApi(chains[destChainId].rpc),
           reserveApi: await getApi(chains[reserveChainId].rpc),
         },
+        relay,
         activeSigner
       );
       toastSuccess(`Transfer succeded`);

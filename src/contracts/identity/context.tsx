@@ -56,9 +56,10 @@ const IdentityContext = createContext<IdentityContract>(defaultIdentity);
 
 interface Props {
   children: React.ReactNode;
+  relay: "polkadot" | "kusama";
 }
 
-const IdentityContractProvider = ({ children }: Props) => {
+const IdentityContractProvider = ({ children, relay }: Props) => {
   const { contract } = useContract(IdentityMetadata, CONTRACT_IDENTITY);
   const { api, activeAccount } = useInkathon();
   const [identityNo, setIdentityNo] = useState<IdentityNo>(null);
@@ -102,7 +103,7 @@ const IdentityContractProvider = ({ children }: Props) => {
       const chaindata = new Chaindata();
 
       try {
-        const chain = await chaindata.getChain(chainId);
+        const chain = await chaindata.getChain(chainId, relay);
 
         if (!chain) {
           return null;
