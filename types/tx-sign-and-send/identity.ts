@@ -73,10 +73,10 @@ export default class Methods {
 	/**
 	* chainInfoOf
 	*
-	* @param { (number | string | BN) } chainId,
+	* @param { [(number | string | BN), ArgumentTypes.Network] } chainId,
 	*/
 	"chainInfoOf" (
-		chainId: (number | string | BN),
+		chainId: [(number | string | BN), ArgumentTypes.Network],
 		__options ? : GasLimit,
 	){
 		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "chainInfoOf", (events: EventRecord) => {
@@ -88,11 +88,11 @@ export default class Methods {
 	* transactionDestination
 	*
 	* @param { (number | string | BN) } receiver,
-	* @param { (number | string | BN) } chain,
+	* @param { [(number | string | BN), ArgumentTypes.Network] } chain,
 	*/
 	"transactionDestination" (
 		receiver: (number | string | BN),
-		chain: (number | string | BN),
+		chain: [(number | string | BN), ArgumentTypes.Network],
 		__options ? : GasLimit,
 	){
 		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "transactionDestination", (events: EventRecord) => {
@@ -127,11 +127,11 @@ export default class Methods {
 	/**
 	* addAddress
 	*
-	* @param { (number | string | BN) } chain,
+	* @param { [(number | string | BN), ArgumentTypes.Network] } chain,
 	* @param { Array<(number | string | BN)> } address,
 	*/
 	"addAddress" (
-		chain: (number | string | BN),
+		chain: [(number | string | BN), ArgumentTypes.Network],
 		address: Array<(number | string | BN)>,
 		__options ? : GasLimit,
 	){
@@ -143,11 +143,11 @@ export default class Methods {
 	/**
 	* updateAddress
 	*
-	* @param { (number | string | BN) } chain,
+	* @param { [(number | string | BN), ArgumentTypes.Network] } chain,
 	* @param { Array<(number | string | BN)> } address,
 	*/
 	"updateAddress" (
-		chain: (number | string | BN),
+		chain: [(number | string | BN), ArgumentTypes.Network],
 		address: Array<(number | string | BN)>,
 		__options ? : GasLimit,
 	){
@@ -159,10 +159,10 @@ export default class Methods {
 	/**
 	* removeAddress
 	*
-	* @param { (number | string | BN) } chain,
+	* @param { [(number | string | BN), ArgumentTypes.Network] } chain,
 	*/
 	"removeAddress" (
-		chain: (number | string | BN),
+		chain: [(number | string | BN), ArgumentTypes.Network],
 		__options ? : GasLimit,
 	){
 		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "removeAddress", (events: EventRecord) => {
@@ -185,11 +185,11 @@ export default class Methods {
 	/**
 	* addChain
 	*
-	* @param { (number | string | BN) } chainId,
+	* @param { [(number | string | BN), ArgumentTypes.Network] } chainId,
 	* @param { ArgumentTypes.ChainInfo } info,
 	*/
 	"addChain" (
-		chainId: (number | string | BN),
+		chainId: [(number | string | BN), ArgumentTypes.Network],
 		info: ArgumentTypes.ChainInfo,
 		__options ? : GasLimit,
 	){
@@ -201,11 +201,11 @@ export default class Methods {
 	/**
 	* updateChain
 	*
-	* @param { (number | string | BN) } chainId,
+	* @param { [(number | string | BN), ArgumentTypes.Network] } chainId,
 	* @param { ArgumentTypes.AccountType | null } newAddressType,
 	*/
 	"updateChain" (
-		chainId: (number | string | BN),
+		chainId: [(number | string | BN), ArgumentTypes.Network],
 		newAddressType: ArgumentTypes.AccountType | null,
 		__options ? : GasLimit,
 	){
@@ -217,10 +217,10 @@ export default class Methods {
 	/**
 	* removeChain
 	*
-	* @param { (number | string | BN) } chainId,
+	* @param { [(number | string | BN), ArgumentTypes.Network] } chainId,
 	*/
 	"removeChain" (
-		chainId: (number | string | BN),
+		chainId: [(number | string | BN), ArgumentTypes.Network],
 		__options ? : GasLimit,
 	){
 		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "removeChain", (events: EventRecord) => {

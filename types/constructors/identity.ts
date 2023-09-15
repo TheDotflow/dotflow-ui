@@ -52,11 +52,11 @@ export default class Constructors {
 	* initWithChains
 	*
 	* @param { Array<ArgumentTypes.ChainInfo> } chains,
-	* @param { Array<(number | string | BN)> } chainIds,
+	* @param { Array<[(number | string | BN), ArgumentTypes.Network]> } chainIds,
 	*/
    	async "initWithChains" (
 		chains: Array<ArgumentTypes.ChainInfo>,
-		chainIds: Array<(number | string | BN)>,
+		chainIds: Array<[(number | string | BN), ArgumentTypes.Network]>,
 		__options ? : ConstructorOptions,
    	) {
    		const __contract = JSON.parse(ContractFile);

@@ -23,6 +23,7 @@ import { IdentityMetadata } from '.';
 import { CONTRACT_IDENTITY } from '..';
 import { Address, ChainConsts, ChainId, Chains, IdentityNo } from '../types';
 import { useRelay } from '@/contexts/RelayApi';
+import { Network } from 'types/types-arguments/identity';
 
 interface IdentityContract {
   identityNo: number | null;
@@ -100,11 +101,11 @@ const IdentityContractProvider = ({ children }: Props) => {
       return;
     }
 
-    const getChainInfo = async (chainId: number): Promise<ChainConsts | null> => {
+    const getChainInfo = async (chainId: [number, Network]): Promise<ChainConsts | null> => {
       const chaindata = new Chaindata();
 
       try {
-        const chain = await chaindata.getChain(chainId, relay);
+        const chain = await chaindata.getChain(chainId[0], chainId[1].toLowerCase());
 
         if (!chain) {
           return null;
@@ -121,7 +122,7 @@ const IdentityContractProvider = ({ children }: Props) => {
         return {
           name: chain.name,
           ss58Prefix: ss58Prefix,
-          paraId: chainId,
+          paraId: chainId[0],
           logo: chain.logo,
           rpc
         };
@@ -164,11 +165,11 @@ const IdentityContractProvider = ({ children }: Props) => {
       const _chains: Chains = {};
 
       for await (const item of output) {
-        const chainId = parseInt(item[0].replace(/,/g, ''));
+        const chainId: [number, Network] = [parseInt(item[0][0].replace(/,/g, '')), item[0][1]];
         const { accountType } = item[1];
         const info = await getChainInfo(chainId);
         if (info)
-          _chains[chainId] = {
+          _chains[chainId[0]] = {
             accountType,
             ...info,
           };
