@@ -113,7 +113,6 @@ const RelayApiContextProvider = (props: any) => {
   }, [state.apiState]);
 
   useEffect(() => {
-    console.log(relay);
     const force = prevRelay !== relay;
     setPrevRelay(relay);
     connect(state, getRelayChainApiURL(relay), force, dispatch);

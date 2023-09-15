@@ -178,7 +178,7 @@ const IdentityContractProvider = ({ children }: Props) => {
       toastError(e.toString());
     }
     setLoadingChains(false);
-  }, [api, contract, toastError]);
+  }, [api, contract, toastError, relay]);
 
   const getAddresses = async (no: number): Promise<Address[]> => {
     if (!api || !contract) return [];
@@ -232,7 +232,7 @@ const IdentityContractProvider = ({ children }: Props) => {
 
   useEffect(() => {
     fetchChains();
-  }, [api?.isReady, contract?.address]);
+  }, [api?.isReady, contract?.address, relay]);
 
   return (
     <IdentityContext.Provider
