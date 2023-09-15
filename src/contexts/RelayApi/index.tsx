@@ -45,10 +45,10 @@ const reducer = (state: any, action: any) => {
 ///
 // Connecting to the Substrate node
 
-const connect = (state: any, socket: string, dispatch: any) => {
+const connect = (state: any, socket: string, force: boolean, dispatch: any) => {
   const { apiState, jsonrpc } = state;
   // We only want this function to be performed once
-  if (apiState) return;
+  if (apiState && !force) return;
 
   dispatch({ type: 'CONNECT_INIT' });
 
@@ -74,12 +74,14 @@ type Relay = {
   setRelay(value: string): void
 }
 
+const DEFAULT_RELAY = "kusama";
+
 const RelayContext = React.createContext(
   { relay: "polkadot", setRelay: (_: string) => { } } as Relay
 );
 
 const RelayContextProvider = (props: any) => {
-  const [relay, setRelay]: [relay: "polkadot" | "kusama", setRelay: any] = useState("polkadot");
+  const [relay, setRelay]: [relay: "polkadot" | "kusama", setRelay: any] = useState(DEFAULT_RELAY);
 
   return (
     <RelayContext.Provider value={{ relay: relay, setRelay: setRelay }}>
@@ -94,6 +96,7 @@ const RelayApiContext = React.createContext(defaultValue);
 
 const RelayApiContextProvider = (props: any) => {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const [prevRelay, setPrevRelay] = useState(DEFAULT_RELAY);
   const { toastError, toastSuccess } = useToast();
   const { relay } = useRelay();
 
@@ -111,7 +114,9 @@ const RelayApiContextProvider = (props: any) => {
 
   useEffect(() => {
     console.log(relay);
-    connect(state, getRelayChainApiURL(relay), dispatch);
+    const force = prevRelay !== relay;
+    setPrevRelay(relay);
+    connect(state, getRelayChainApiURL(relay), force, dispatch);
   }, [relay]);
 
   return (
