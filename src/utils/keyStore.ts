@@ -1,3 +1,5 @@
+import IdentityKey from "./identityKey";
+
 const LS_KEY_STORE = 'dotflow-key-store';
 
 interface IKeyStore {
@@ -21,6 +23,12 @@ class KeyStore {
   }
 
   public static updateKeyStore(ks: IKeyStore) {
+    for (const key in ks) {
+      if (!IdentityKey.sanityCheck(JSON.parse(JSON.stringify(ks[key])))) {
+        throw new Error("The identity key is invalid");
+      }
+    }
+
     localStorage.setItem(LS_KEY_STORE, JSON.stringify(ks));
   }
 
