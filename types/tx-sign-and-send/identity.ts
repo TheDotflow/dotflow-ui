@@ -103,13 +103,15 @@ export default class Methods {
 	/**
 	* availableChains
 	*
+	* @param { ArgumentTypes.Network } network,
 	*/
 	"availableChains" (
+		network: ArgumentTypes.Network,
 		__options ? : GasLimit,
 	){
 		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "availableChains", (events: EventRecord) => {
 			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
-		}, [], __options);
+		}, [network], __options);
 	}
 
 	/**

@@ -25,6 +25,8 @@ import KeyStore from '@/utils/keyStore';
 import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
 import { ChainId } from '@/contracts/types';
+import { useRelay } from '@/contexts/RelayApi';
+import { Network } from 'types/types-arguments/identity';
 
 interface AddAddressModalProps {
   open: boolean;
@@ -39,6 +41,7 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
   const [chainId, setChainId] = useState<ChainId | undefined>();
   const [chainAddress, setChainAddress] = useState<string | undefined>();
   const [working, setWorking] = useState(false);
+  const { relay } = useRelay();
 
   const onSubmit = async () => {
     if (identityNo === null) {
@@ -87,7 +90,7 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
         contract,
         'add_address',
         {},
-        [chainId, encryptedAddress]
+        [[chainId, relay === "polkadot" ? Network.polkadot : Network.kusama], encryptedAddress]
       );
 
       toastSuccess('Successfully added your address.');

@@ -825,27 +825,9 @@
             "name": "Tuple",
             "body": {
               "0": {
-                "name": "Tuple",
-                "body": {
-                  "0": {
-                    "name": "number",
-                    "isResult": false,
-                    "isPrimitive": true,
-                    "isConvertable": false
-                  },
-                  "1": {
-                    "name": "Network",
-                    "body": {
-                      "Polkadot": null,
-                      "Kusama": null
-                    },
-                    "isResult": false,
-                    "isPrimitive": false,
-                    "isConvertable": false
-                  }
-                },
+                "name": "number",
                 "isResult": false,
-                "isPrimitive": false,
+                "isPrimitive": true,
                 "isConvertable": false
               },
               "1": {
@@ -897,27 +879,9 @@
         "name": "Tuple",
         "body": {
           "0": {
-            "name": "Tuple",
-            "body": {
-              "0": {
-                "name": "number",
-                "isResult": false,
-                "isPrimitive": true,
-                "isConvertable": false
-              },
-              "1": {
-                "name": "Network",
-                "body": {
-                  "Polkadot": null,
-                  "Kusama": null
-                },
-                "isResult": false,
-                "isPrimitive": false,
-                "isConvertable": false
-              }
-            },
+            "name": "number",
             "isResult": false,
-            "isPrimitive": false,
+            "isPrimitive": true,
             "isConvertable": false
           },
           "1": {
@@ -952,27 +916,9 @@
     "name": "Tuple",
     "body": {
       "0": {
-        "name": "Tuple",
-        "body": {
-          "0": {
-            "name": "number",
-            "isResult": false,
-            "isPrimitive": true,
-            "isConvertable": false
-          },
-          "1": {
-            "name": "Network",
-            "body": {
-              "Polkadot": null,
-              "Kusama": null
-            },
-            "isResult": false,
-            "isPrimitive": false,
-            "isConvertable": false
-          }
-        },
+        "name": "number",
         "isResult": false,
-        "isPrimitive": false,
+        "isPrimitive": true,
         "isConvertable": false
       },
       "1": {

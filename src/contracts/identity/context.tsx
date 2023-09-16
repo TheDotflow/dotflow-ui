@@ -101,11 +101,11 @@ const IdentityContractProvider = ({ children }: Props) => {
       return;
     }
 
-    const getChainInfo = async (chainId: [number, Network]): Promise<ChainConsts | null> => {
+    const getChainInfo = async (chainId: number): Promise<ChainConsts | null> => {
       const chaindata = new Chaindata();
 
       try {
-        const chain = await chaindata.getChain(chainId[0], chainId[1].toLowerCase());
+        const chain = await chaindata.getChain(chainId, relay);
 
         if (!chain) {
           return null;
@@ -122,7 +122,7 @@ const IdentityContractProvider = ({ children }: Props) => {
         return {
           name: chain.name,
           ss58Prefix: ss58Prefix,
-          paraId: chainId[0],
+          paraId: chainId,
           logo: chain.logo,
           rpc
         };
@@ -153,7 +153,8 @@ const IdentityContractProvider = ({ children }: Props) => {
         '',
         contract,
         'available_chains',
-        {}
+        {},
+        [relay == "polkadot" ? Network.polkadot : Network.kusama]
       );
       const { output, isError, decodedOutput } = decodeOutput(
         result,
@@ -165,11 +166,11 @@ const IdentityContractProvider = ({ children }: Props) => {
       const _chains: Chains = {};
 
       for await (const item of output) {
-        const chainId: [number, Network] = [parseInt(item[0][0].replace(/,/g, '')), item[0][1]];
+        const chainId: number = parseInt(item[0].replace(/,/g, ''));
         const { accountType } = item[1];
         const info = await getChainInfo(chainId);
         if (info)
-          _chains[chainId[0]] = {
+          _chains[chainId] = {
             accountType,
             ...info,
           };
@@ -193,7 +194,10 @@ const IdentityContractProvider = ({ children }: Props) => {
         'identity'
       );
       if (isError) throw new Error(decodedOutput);
-      const records = output.addresses;
+      console.log(output);
+      const records = output.addresses
+        .filter((address: any) => address[0][1].toLowerCase() === relay)
+        .map((address: any) => [address[0][0], address[1]]);
       const _addresses: Array<Address> = [];
       for (let idx = 0; idx < records.length; ++idx) {
         const record = records[idx];
@@ -221,7 +225,7 @@ const IdentityContractProvider = ({ children }: Props) => {
     } catch {
       setAddresses([]);
     }
-  }, [api, contract, identityNo]);
+  }, [api, contract, identityNo, relay]);
 
   useEffect(() => {
     void fetchAddresses();

@@ -85,11 +85,13 @@ export default class Methods {
 	/**
 	 * availableChains
 	 *
+	 * @param { ArgumentTypes.Network } network,
 	*/
 	"availableChains" (
+		network: ArgumentTypes.Network,
 		__options: GasLimit,
 	){
-		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "availableChains", [], __options);
+		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "availableChains", [network], __options);
 	}
 
 	/**

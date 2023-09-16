@@ -1,8 +1,8 @@
 {
   "source": {
-    "hash": "0x346ec5dff86b81927c76fb7599bf829b2d36f55adb888964ab979d56e589c0f7",
+    "hash": "0xadae9a54cba29dc70cf8a634dd570472407cecbecb0812178adc0c38caab5894",
     "language": "ink! 4.3.0",
-    "compiler": "rustc 1.68.0-nightly",
+    "compiler": "rustc 1.74.0-nightly",
     "build_info": {
       "build_mode": "Debug",
       "cargo_contract_version": "3.2.0",
@@ -565,10 +565,21 @@
         "selector": "0x525505e4"
       },
       {
-        "args": [],
+        "args": [
+          {
+            "label": "network",
+            "type": {
+              "displayName": [
+                "Network"
+              ],
+              "type": 4
+            }
+          }
+        ],
         "default": false,
         "docs": [
-          " A list of all the available chains each associated with a `ChainId`."
+          " A list of all the available chains each associated with the associated",
+          " `ChainId`."
         ],
         "label": "available_chains",
         "mutates": false,
@@ -1783,7 +1794,7 @@
       "type": {
         "def": {
           "tuple": [
-            2,
+            3,
             14
           ]
         }

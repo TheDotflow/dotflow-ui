@@ -99,12 +99,14 @@ export default class Methods {
 	/**
 	* availableChains
 	*
-	* @returns { Result<Array<[[number, ReturnTypes.Network], ReturnTypes.ChainInfo]>, ReturnTypes.LangError> }
+	* @param { ArgumentTypes.Network } network,
+	* @returns { Result<Array<[number, ReturnTypes.ChainInfo]>, ReturnTypes.LangError> }
 	*/
 	"availableChains" (
+		network: ArgumentTypes.Network,
 		__options ? : GasLimit,
-	): Promise< QueryReturnType< Result<Array<[[number, ReturnTypes.Network], ReturnTypes.ChainInfo]>, ReturnTypes.LangError> > >{
-		return queryOkJSON( this.__apiPromise, this.__nativeContract, this.__callerAddress, "availableChains", [], __options , (result) => { return handleReturnType(result, getTypeDescription(28, DATA_TYPE_DESCRIPTIONS)); });
+	): Promise< QueryReturnType< Result<Array<[number, ReturnTypes.ChainInfo]>, ReturnTypes.LangError> > >{
+		return queryOkJSON( this.__apiPromise, this.__nativeContract, this.__callerAddress, "availableChains", [network], __options , (result) => { return handleReturnType(result, getTypeDescription(28, DATA_TYPE_DESCRIPTIONS)); });
 	}
 
 	/**
