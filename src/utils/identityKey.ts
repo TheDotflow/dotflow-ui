@@ -42,7 +42,7 @@ class IdentityKey {
     return result;
   }
 
-  public static newCipher(identityKey: string, chainId: number): string {
+  public static newCipher(identityKey: string, chainId: number, relay: string): string {
     const regexPattern = new RegExp(`\\b${chainId}:`, "g");
     if (regexPattern.test(identityKey)) {
       throw new Error("There already exists a cipher that is attached to the provided chainId");
@@ -54,7 +54,7 @@ class IdentityKey {
     return identityKey;
   }
 
-  public static updateCipher(identityKey: string, chainId: number): string {
+  public static updateCipher(identityKey: string, chainId: number, relay: string): string {
     const startIndex = identityKey.indexOf(`${chainId}:`);
 
     if (startIndex >= 0) {
@@ -70,8 +70,8 @@ class IdentityKey {
     return identityKey;
   }
 
-  public static encryptAddress(identityKey: string, chainId: number, address: string): string {
-    const cipher = this.getChainCipher(identityKey, chainId);
+  public static encryptAddress(identityKey: string, chainId: number, address: string, relay: string): string {
+    const cipher = this.getChainCipher(identityKey, chainId, relay);
     const cipherBase64 = Buffer.from(cipher, "base64");
 
     const aesCtr = new aesjs.ModeOfOperation.ctr(cipherBase64);
@@ -80,8 +80,8 @@ class IdentityKey {
     return Buffer.from(encryptedAddress).toString("base64");
   }
 
-  public static decryptAddress(identityKey: string, chainId: number, address: string): string {
-    const cipher = this.getChainCipher(identityKey, chainId);
+  public static decryptAddress(identityKey: string, chainId: number, address: string, relay: string): string {
+    const cipher = this.getChainCipher(identityKey, chainId, relay);
     const cipherBase64 = Buffer.from(cipher, "base64");
 
     const aesCtr = new aesjs.ModeOfOperation.ctr(cipherBase64);
@@ -90,7 +90,7 @@ class IdentityKey {
     return Buffer.from(decryptedAddress.buffer).toString();
   }
 
-  public static getChainCipher(identityKey: string, chainId: number): string {
+  public static getChainCipher(identityKey: string, chainId: number, relay: string): string {
     const startIndex = identityKey.indexOf(`${chainId}:`);
 
     if (startIndex >= 0) {
@@ -101,25 +101,26 @@ class IdentityKey {
     }
   }
 
-  public static getSharedKey(identityKey: string, selectedChains: number[]): string {
+  public static getSharedKey(identityKey: string, selectedChains: number[], relay: string): string {
     let key = JSON.parse(JSON.stringify(identityKey));
     let sharedKey = "";
     selectedChains.forEach((chainId) => {
-      if (!IdentityKey.containsChainId(key, chainId)) {
-        key = IdentityKey.newCipher(key, chainId);
+      if (!IdentityKey.containsChainId(key, chainId, relay)) {
+        key = IdentityKey.newCipher(key, chainId, relay);
         throw new Error(`Cipher for chain #${chainId} not found`);
       }
       sharedKey += `${chainId}:${IdentityKey.getChainCipher(
         key,
-        chainId
+        chainId,
+        relay
       )};`;
     });
 
     return sharedKey;
   }
 
-  public static containsChainId(identityKey: string, chainId: number): boolean {
-    const startIndex = identityKey.indexOf(`${chainId}:`);
+  public static containsChainId(identityKey: string, chainId: number, relay: string): boolean {
+    const startIndex = identityKey.indexOf(`${chainId}${relay}:`);
 
     return startIndex >= 0 ? true : false;
   }

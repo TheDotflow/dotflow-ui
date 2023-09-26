@@ -22,6 +22,7 @@ import KeyStore from '@/utils/keyStore';
 import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
 import { ChainId } from '@/contracts/types';
+import { useRelay } from '@/contexts/RelayApi';
 
 interface EditAddressModalProps {
   open: boolean;
@@ -39,6 +40,7 @@ export const EditAddressModal = ({
   const [newAddress, setNewAddress] = useState<string>('');
   const [working, setWorking] = useState(false);
   const [regenerate, setRegenerate] = useState(false);
+  const { relay } = useRelay();
 
   const onSave = async () => {
     if (identityNo === null) {
@@ -69,17 +71,18 @@ export const EditAddressModal = ({
 
     let identityKey = KeyStore.readIdentityKey(identityNo) || '';
 
-    if (!IdentityKey.containsChainId(identityKey, chainId)) {
-      identityKey = IdentityKey.newCipher(identityKey, chainId);
+    if (!IdentityKey.containsChainId(identityKey, chainId, relay)) {
+      identityKey = IdentityKey.newCipher(identityKey, chainId, relay);
       KeyStore.updateIdentityKey(identityNo, identityKey);
     }
 
     if (regenerate)
-      identityKey = IdentityKey.updateCipher(identityKey, chainId);
+      identityKey = IdentityKey.updateCipher(identityKey, chainId, relay);
 
     const encryptedAddress = IdentityKey.encryptAddress(
       identityKey,
       chainId,
+      relay,
       newAddress
     );
 

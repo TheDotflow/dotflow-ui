@@ -72,14 +72,15 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
 
     let identityKey = KeyStore.readIdentityKey(identityNo) || '';
 
-    if (!IdentityKey.containsChainId(identityKey, chainId)) {
-      identityKey = IdentityKey.newCipher(identityKey, chainId);
+    if (!IdentityKey.containsChainId(identityKey, chainId, relay)) {
+      identityKey = IdentityKey.newCipher(identityKey, chainId, relay);
       KeyStore.updateIdentityKey(identityNo, identityKey);
     }
 
     const encryptedAddress = IdentityKey.encryptAddress(
       identityKey,
       chainId,
+      relay,
       chainAddress
     );
 

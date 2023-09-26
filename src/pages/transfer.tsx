@@ -157,11 +157,12 @@ const TransferPage = () => {
         const recepientIdentityNo = identities[recipientId].identityNo;
         const identityKey = KeyStore.readIdentityKey(recepientIdentityNo) || '';
         const destAddressRaw = addresses[index].address;
-        if (IdentityKey.containsChainId(identityKey, destChainId)) {
+        if (IdentityKey.containsChainId(identityKey, destChainId, relay)) {
           const decryptedAddress = IdentityKey.decryptAddress(
             identityKey,
             destChainId,
-            destAddressRaw
+            relay,
+            destAddressRaw,
           );
           setRecipientAddress(decryptedAddress);
         } else {

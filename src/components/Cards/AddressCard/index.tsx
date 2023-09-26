@@ -22,6 +22,7 @@ import { useIdentity } from '@/contracts';
 import { Address, ChainId } from '@/contracts/types';
 
 import styles from './index.module.scss';
+import { useRelay } from '@/contexts/RelayApi';
 interface AddressCardProps {
   data: Address;
   onEdit?: () => void;
@@ -37,6 +38,7 @@ export const AddressCard = ({ data, onEdit }: AddressCardProps) => {
   const { api, activeAccount } = useInkathon();
   const { toastSuccess, toastError } = useToast();
   const { identityNo, chains, contract, fetchAddresses } = useIdentity();
+  const { relay } = useRelay();
 
   const [working, setWorking] = useState(false);
 
@@ -82,10 +84,11 @@ export const AddressCard = ({ data, onEdit }: AddressCardProps) => {
     const identityKey = KeyStore.readIdentityKey(identityNo) || '';
 
     let decryptedAddress = address;
-    if (IdentityKey.containsChainId(identityKey, chainId)) {
+    if (IdentityKey.containsChainId(identityKey, chainId, relay)) {
       decryptedAddress = IdentityKey.decryptAddress(
         identityKey,
         chainId,
+        relay,
         address
       );
 
