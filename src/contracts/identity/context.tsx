@@ -28,6 +28,8 @@ import { Network } from 'types/types-arguments/identity';
 interface IdentityContract {
   identityNo: number | null;
   chains: Chains;
+  // These are the chains on both kusama and polkadot.
+  getAllChains: (_id: number) => Promise<Array<{ id: number, name: string }>>;
   addresses: Array<Address>;
   contract: ContractPromise | undefined;
   fetchIdentityNo: () => Promise<void>;
@@ -39,6 +41,9 @@ interface IdentityContract {
 const defaultIdentity: IdentityContract = {
   identityNo: null,
   chains: {},
+  getAllChains: async (): Promise<Array<{ id: number, name: string }>> => {
+    return []
+  },
   addresses: [],
   contract: undefined,
 
@@ -194,7 +199,6 @@ const IdentityContractProvider = ({ children }: Props) => {
         'identity'
       );
       if (isError) throw new Error(decodedOutput);
-      console.log(output);
       const records = output.addresses
         .filter((address: any) => address[0][1].toLowerCase() === relay)
         .map((address: any) => [address[0][0], address[1]]);
@@ -213,6 +217,31 @@ const IdentityContractProvider = ({ children }: Props) => {
       return [];
     }
   };
+
+  const getAllChains = async (no: number): Promise<Array<{ id: number, name: string }>> => {
+    if (!api || !contract) return [];
+
+    try {
+      const result = await contractQuery(api, '', contract, 'identity', {}, [
+        no,
+      ]);
+      const { output, isError, decodedOutput } = decodeOutput(
+        result,
+        contract,
+        'identity'
+      );
+      if (isError) throw new Error(decodedOutput);
+
+      return output.addresses.map((record: any) => {
+        return {
+          id: record[0][0],
+          name: record[0][1]
+        }
+      });
+    } catch (e) {
+      return [];
+    }
+  }
 
   const fetchAddresses = useCallback(async () => {
     if (!api || !contract || identityNo === null) {
@@ -246,6 +275,7 @@ const IdentityContractProvider = ({ children }: Props) => {
         identityNo,
         addresses,
         chains,
+        getAllChains,
         fetchAddresses,
         fetchIdentityNo,
         getAddresses,

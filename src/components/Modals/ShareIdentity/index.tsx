@@ -32,11 +32,25 @@ export const ShareIdentityModal = ({
   open,
   onClose,
 }: ShareIdentityModalProps) => {
-  const { identityNo, addresses, chains } = useIdentity();
+  const { identityNo, getAllChains } = useIdentity();
   const { toastError, toastSuccess } = useToast();
+  const [chains, setChains] = useState([] as Array<{ id: number, name: string }>);
   const [checks, setChecks] = useState<Record<number, boolean>>({});
   const [sharedKey, setSharedKey] = useState('');
   const { relay } = useRelay();
+
+  useEffect(() => {
+    if (identityNo == null) {
+      return;
+    }
+
+    const getChains = async () => {
+      const result = await getAllChains(identityNo);
+      setChains(result);
+    }
+
+    getChains();
+  }, []);
 
   useEffect(() => {
     if (identityNo === null) return;
@@ -46,10 +60,6 @@ export const ShareIdentityModal = ({
       .map((item) => Number(item[0]));
 
     const identityKey = KeyStore.readIdentityKey(identityNo) || '';
-
-    if (identityKey === "") {
-      return;
-    }
 
     try {
       const sharedKey = IdentityKey.getSharedKey(identityKey, selectedChains, relay);
@@ -73,16 +83,16 @@ export const ShareIdentityModal = ({
             able to access:
           </Typography>
           <Grid container sx={{ pt: '12px', pb: '24px' }} mb='1em'>
-            {addresses.map(({ chainId }, index) => (
-              <Grid item key={index} sx={{ flexGrow: 1 }}>
+            {chains.map(({ id, name }) => (
+              <Grid item key={`${id}${name}`} sx={{ flexGrow: 1 }}>
                 <FormControlLabel
-                  label={chains[chainId].name}
+                  label={name}
                   control={
                     <Checkbox
                       onChange={(e) =>
                         setChecks({
                           ...checks,
-                          [chainId]: e.target.checked,
+                          [id]: e.target.checked,
                         })
                       }
                     />

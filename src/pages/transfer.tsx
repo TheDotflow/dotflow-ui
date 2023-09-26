@@ -469,7 +469,7 @@ const TransferPage = () => {
               {identities.filter(
                 (identity) =>
                   IdentityKey.containsChainId(
-                    KeyStore.readIdentityKey(identity.identityNo) || '', destChainId
+                    KeyStore.readIdentityKey(identity.identityNo) || '', destChainId, relay
                   )).map((identity, index) => (
                     <MenuItem value={index} key={index}>
                       {identity.nickName}
