@@ -23,6 +23,7 @@ import { Address, ChainId } from '@/contracts/types';
 
 import styles from './index.module.scss';
 import { useRelay } from '@/contexts/RelayApi';
+import { Network } from 'types/types-returns/identity';
 interface AddressCardProps {
   data: Address;
   onEdit?: () => void;
@@ -59,7 +60,7 @@ export const AddressCard = ({ data, onEdit }: AddressCardProps) => {
         contract,
         'remove_address',
         {},
-        [chainId]
+        [[chainId, relay]]
       );
 
       toastSuccess('Address is removed successfully.');
@@ -88,8 +89,8 @@ export const AddressCard = ({ data, onEdit }: AddressCardProps) => {
       decryptedAddress = IdentityKey.decryptAddress(
         identityKey,
         chainId,
+        address,
         relay,
-        address
       );
 
       return {

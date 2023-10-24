@@ -23,6 +23,7 @@ import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
 import { ChainId } from '@/contracts/types';
 import { useRelay } from '@/contexts/RelayApi';
+import { Network } from 'types/types-arguments/identity';
 
 interface EditAddressModalProps {
   open: boolean;
@@ -82,8 +83,8 @@ export const EditAddressModal = ({
     const encryptedAddress = IdentityKey.encryptAddress(
       identityKey,
       chainId,
-      relay,
-      newAddress
+      newAddress,
+      relay
     );
 
     try {
@@ -93,7 +94,7 @@ export const EditAddressModal = ({
         contract,
         'update_address',
         {},
-        [chainId, encryptedAddress]
+        [[chainId, relay === "polkadot" ? Network.polkadot : Network.kusama], encryptedAddress]
       );
       // Update the identity key when the user has updated his on-chain data
       KeyStore.updateIdentityKey(identityNo, identityKey);

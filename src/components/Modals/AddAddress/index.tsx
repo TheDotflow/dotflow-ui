@@ -80,8 +80,8 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
     const encryptedAddress = IdentityKey.encryptAddress(
       identityKey,
       chainId,
-      relay,
-      chainAddress
+      chainAddress,
+      relay
     );
 
     try {

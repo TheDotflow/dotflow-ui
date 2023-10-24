@@ -29,7 +29,7 @@ interface IdentityContract {
   identityNo: number | null;
   chains: Chains;
   // These are the chains on both kusama and polkadot.
-  getAllChains: (_id: number) => Promise<Array<{ id: number, name: string }>>;
+  getAllChains: (_id: number) => Promise<Array<{ id: number, relay: string, name: string }>>;
   addresses: Array<Address>;
   contract: ContractPromise | undefined;
   fetchIdentityNo: () => Promise<void>;
@@ -41,7 +41,7 @@ interface IdentityContract {
 const defaultIdentity: IdentityContract = {
   identityNo: null,
   chains: {},
-  getAllChains: async (): Promise<Array<{ id: number, name: string }>> => {
+  getAllChains: async (): Promise<Array<{ id: number, relay: string, name: string }>> => {
     return []
   },
   addresses: [],
@@ -218,9 +218,10 @@ const IdentityContractProvider = ({ children }: Props) => {
     }
   };
 
-  const getAllChains = async (no: number): Promise<Array<{ id: number, name: string }>> => {
+  const getAllChains = async (no: number): Promise<Array<{ id: number, relay: string, name: string }>> => {
     if (!api || !contract) return [];
 
+    const chaindata = new Chaindata();
     try {
       const result = await contractQuery(api, '', contract, 'identity', {}, [
         no,
@@ -235,7 +236,8 @@ const IdentityContractProvider = ({ children }: Props) => {
       return output.addresses.map((record: any) => {
         return {
           id: record[0][0],
-          name: record[0][1]
+          name: record[0][1],
+          relay: record[0][1].toString().toLowerCase()
         }
       });
     } catch (e) {

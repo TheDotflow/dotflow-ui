@@ -161,8 +161,8 @@ const TransferPage = () => {
           const decryptedAddress = IdentityKey.decryptAddress(
             identityKey,
             destChainId,
-            relay,
             destAddressRaw,
+            relay,
           );
           setRecipientAddress(decryptedAddress);
         } else {
