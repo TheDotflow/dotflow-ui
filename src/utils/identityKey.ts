@@ -43,7 +43,7 @@ class IdentityKey {
   }
 
   public static newCipher(identityKey: string, chainId: number, relay: string): string {
-    const regexPattern = new RegExp(`\\b${chainId}:`, "g");
+    const regexPattern = new RegExp(`\\b${relay}${chainId}:`, "g");
     if (regexPattern.test(identityKey)) {
       throw new Error("There already exists a cipher that is attached to the provided chainId");
     }
@@ -56,23 +56,20 @@ class IdentityKey {
 
   public static updateCipher(identityKey: string, chainId: number, relay: string): string {
     const startIndex = identityKey.indexOf(`${relay}${chainId}:`);
+    const chainIdAndNetwork = `${relay}${chainId}`;
 
     if (startIndex >= 0) {
       const newCipher = this.generateCipher();
-
       const endIndex = identityKey.indexOf(";", startIndex);
-      identityKey =
-        identityKey.substring(0, startIndex + chainId.toString().length + 1) + newCipher + identityKey.substring(endIndex);
-    } else {
-      throw new Error("Cannot find chainId");
-    }
 
-    return identityKey;
+      return identityKey.substring(0, startIndex + chainIdAndNetwork.toString().length + 1) + newCipher + identityKey.substring(endIndex);
+    } else {
+      return this.newCipher(identityKey, chainId, relay);
+    }
   }
 
   public static encryptAddress(identityKey: string, chainId: number, address: string, relay: string): string {
     const cipher = this.getChainCipher(identityKey, chainId, relay);
-    console.log(cipher);
     const cipherBase64 = Buffer.from(cipher, "base64");
 
     const aesCtr = new aesjs.ModeOfOperation.ctr(cipherBase64);
@@ -122,9 +119,6 @@ class IdentityKey {
   }
 
   public static containsChainId(identityKey: string, chainId: number, relay: string): boolean {
-    console.log(identityKey);
-    console.log(chainId);
-    console.log(relay);
     const startIndex = identityKey.indexOf(`${relay}${chainId}:`);
 
     return startIndex >= 0 ? true : false;

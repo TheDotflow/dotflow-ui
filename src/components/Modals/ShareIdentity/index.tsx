@@ -21,7 +21,6 @@ import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
 
 import styles from './index.module.scss';
-import { useRelay } from '@/contexts/RelayApi';
 
 interface ShareIdentityModalProps {
   open: boolean;
@@ -37,7 +36,6 @@ export const ShareIdentityModal = ({
   const [chains, setChains] = useState([] as Array<{ id: number, name: string, relay: string }>);
   const [checks, setChecks] = useState<Record<string, boolean>>({});
   const [sharedKey, setSharedKey] = useState('');
-  const { relay } = useRelay();
 
   useEffect(() => {
     if (identityNo == null) {
@@ -46,10 +44,8 @@ export const ShareIdentityModal = ({
 
     const getChains = async () => {
       const result = await getAllChains(identityNo);
-      console.log(result);
       setChains(result);
     }
-
     getChains();
   }, []);
 
@@ -76,14 +72,13 @@ export const ShareIdentityModal = ({
 
     const identityKey = KeyStore.readIdentityKey(identityNo) || '';
 
-    console.log(selectedChains);
     try {
       const sharedKey = IdentityKey.getSharedKey(identityKey, selectedChains);
       setSharedKey(`identityNo:${identityNo};`.concat(sharedKey));
     } catch (e: any) {
       toastError(`Failed to get the identity key. Error: ${e.message}`);
     }
-  }, [checks, identityNo, toastError]);
+  }, [checks, identityNo, chains, sharedKey]);
 
   useEffect(() => setChecks({}), [open]);
 

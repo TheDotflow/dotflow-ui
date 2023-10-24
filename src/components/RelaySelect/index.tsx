@@ -1,5 +1,6 @@
-import { useRelay } from "@/contexts/RelayApi";
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material"
+
+import { useRelay } from "@/contexts/RelayApi";
 
 const RelaySelect = () => {
   const { relay, setRelay } = useRelay();

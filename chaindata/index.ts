@@ -70,21 +70,22 @@ query ChainByParaIdAndRelay($relayId: String!) {
 `;
 
 const tokensQuery = gql`
+query tokens($relayId: String!) {
+  tokens(orderBy: id_ASC, where: {squidImplementationDetailChain: {relay: {id_eq: $relayId}}}) {
+    data
+  }
+}
+`;
+
+const relayTokensQuery = gql`
 query tokens {
-  tokens(orderBy: id_ASC) {
+  tokens(orderBy: id_ASC, where: {squidImplementationDetailChain: {relay_isNull: true}}) {
     data
   }
 }
 `;
 
 export class Chaindata {
-  private tokens: Array<Token> = [];
-
-  public async load(): Promise<void> {
-    const tokensResult: any = await request(graphqlUrl, tokensQuery);
-    this.tokens = tokensResult.tokens;
-  }
-
   public async getChain(chainId: number, relay: string): Promise<Chain> {
     if (chainId === 0) {
       const result: any = await request(graphqlUrl, relayQuery, {
@@ -100,7 +101,19 @@ export class Chaindata {
     }
   }
 
-  public getTokens(): Array<Token> {
-    return this.tokens;
+  public async getTokens(relay: string | null): Promise<Array<Token>> {
+    if (relay === null) {
+      const tokensResult: any = await request(graphqlUrl, relayTokensQuery, {
+        relayId: relay
+      });
+
+      return tokensResult.tokens;
+    } else {
+      const tokensResult: any = await request(graphqlUrl, tokensQuery, {
+        relayId: relay
+      });
+
+      return tokensResult.tokens;
+    }
   }
 }

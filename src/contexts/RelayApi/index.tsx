@@ -3,8 +3,9 @@ import jsonrpc from '@polkadot/types/interfaces/jsonrpc';
 import { DefinitionRpcExt } from '@polkadot/types/types';
 import React, { useContext, useEffect, useReducer, useState } from 'react';
 
-import { useToast } from '../Toast';
 import { getRelayChainApiURL } from '@/consts';
+
+import { useToast } from '../Toast';
 
 ///
 // Initial state for `useReducer`
@@ -127,4 +128,4 @@ const RelayApiContextProvider = (props: any) => {
 
 const useRelayApi = () => useContext(RelayApiContext);
 
-export { RelayApiContextProvider, RelayContextProvider, useRelayApi, useRelay };
+export { RelayApiContextProvider, RelayContextProvider, useRelay,useRelayApi };

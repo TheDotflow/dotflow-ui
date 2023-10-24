@@ -102,14 +102,15 @@ const TransferPage = () => {
       }
     } else {
       const chaindata = new Chaindata();
+      console.log(relay);
       const chain = await chaindata.getChain(sourceChainId, relay);
-
-      await chaindata.load();
 
       const _assets = [];
       if (chain) {
-        const tokens = chaindata.getTokens().filter((token) => {
+        const allTokens = (await chaindata.getTokens((chain.id === "kusama" || chain.id === "polkadot") ? null : relay));
+        const tokens = allTokens.filter((token) => {
           const prefix = `${chain.id}-${token.data.type}`;
+          console.log(`${chain.id}-${token.data.type}`);
           const isPartOfSourceChain = token.data.id.startsWith(prefix);
           return isPartOfSourceChain;
         });
@@ -135,7 +136,7 @@ const TransferPage = () => {
     }
 
     setLoadingAssets(false);
-  }, [sourceChainId, destChainId, relayApi]);
+  }, [sourceChainId, destChainId, relayApi, relay]);
 
   useEffect(() => {
     loadAssets();

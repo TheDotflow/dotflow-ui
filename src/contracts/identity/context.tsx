@@ -16,14 +16,14 @@ import {
   useEffect,
   useState,
 } from 'react';
+import { Network } from 'types/types-arguments/identity';
 
+import { useRelay } from '@/contexts/RelayApi';
 import { useToast } from '@/contexts/Toast';
 
 import { IdentityMetadata } from '.';
 import { CONTRACT_IDENTITY } from '..';
 import { Address, ChainConsts, ChainId, Chains, IdentityNo } from '../types';
-import { useRelay } from '@/contexts/RelayApi';
-import { Network } from 'types/types-arguments/identity';
 
 interface IdentityContract {
   identityNo: number | null;
@@ -221,7 +221,6 @@ const IdentityContractProvider = ({ children }: Props) => {
   const getAllChains = async (no: number): Promise<Array<{ id: number, relay: string, name: string }>> => {
     if (!api || !contract) return [];
 
-    const chaindata = new Chaindata();
     try {
       const result = await contractQuery(api, '', contract, 'identity', {}, [
         no,

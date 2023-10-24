@@ -3,9 +3,9 @@ import ContactsIcon from '@mui/icons-material/Contacts';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import { useRouter } from 'next/router';
 import React from 'react';
-import RelaySelect from '../RelaySelect';
 
 import styles from './index.module.scss';
+import RelaySelect from '../RelaySelect';
 interface MenuItemProps {
   label: string;
   route: string;

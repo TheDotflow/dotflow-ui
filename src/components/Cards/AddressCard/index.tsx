@@ -17,13 +17,12 @@ import { clipAddress } from '@/utils';
 import IdentityKey from '@/utils/identityKey';
 import KeyStore from '@/utils/keyStore';
 
+import { useRelay } from '@/contexts/RelayApi';
 import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
 import { Address, ChainId } from '@/contracts/types';
 
 import styles from './index.module.scss';
-import { useRelay } from '@/contexts/RelayApi';
-import { Network } from 'types/types-returns/identity';
 interface AddressCardProps {
   data: Address;
   onEdit?: () => void;

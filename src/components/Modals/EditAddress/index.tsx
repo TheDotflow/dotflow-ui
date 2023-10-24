@@ -14,16 +14,16 @@ import {
 } from '@mui/material';
 import { contractTx, useInkathon } from '@scio-labs/use-inkathon';
 import { useEffect, useState } from 'react';
+import { Network } from 'types/types-arguments/identity';
 
 import { isValidAddress } from '@/utils';
 import IdentityKey from '@/utils/identityKey';
 import KeyStore from '@/utils/keyStore';
 
+import { useRelay } from '@/contexts/RelayApi';
 import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
 import { ChainId } from '@/contracts/types';
-import { useRelay } from '@/contexts/RelayApi';
-import { Network } from 'types/types-arguments/identity';
 
 interface EditAddressModalProps {
   open: boolean;
