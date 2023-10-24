@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 import React from 'react';
 
 import styles from './index.module.scss';
+import RelaySelect from '../RelaySelect';
 interface MenuItemProps {
   label: string;
   route: string;
@@ -15,9 +16,8 @@ const MenuItem = ({ label, route, icon }: MenuItemProps) => {
   const isActive = pathname === route;
   return (
     <div
-      className={`${styles.menuItem} ${
-        isActive ? styles.active : styles.inactive
-      }`}
+      className={`${styles.menuItem} ${isActive ? styles.active : styles.inactive
+        }`}
       onClick={() => push(route)}
     >
       {{
@@ -51,6 +51,9 @@ export const Sidebar = () => {
       {menuItems.map((item, index) => (
         <MenuItem key={index} {...item} />
       ))}
+      <div className={styles.networkSelect}>
+        <RelaySelect />
+      </div>
     </div>
   );
 };

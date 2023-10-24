@@ -6,9 +6,27 @@
         "name": "Tuple",
         "body": {
           "0": {
-            "name": "number",
+            "name": "Tuple",
+            "body": {
+              "0": {
+                "name": "number",
+                "isResult": false,
+                "isPrimitive": true,
+                "isConvertable": false
+              },
+              "1": {
+                "name": "Network",
+                "body": {
+                  "Polkadot": null,
+                  "Kusama": null
+                },
+                "isResult": false,
+                "isPrimitive": false,
+                "isConvertable": false
+              }
+            },
             "isResult": false,
-            "isPrimitive": true,
+            "isPrimitive": false,
             "isConvertable": false
           },
           "1": {
@@ -39,9 +57,27 @@
     "name": "Tuple",
     "body": {
       "0": {
-        "name": "number",
+        "name": "Tuple",
+        "body": {
+          "0": {
+            "name": "number",
+            "isResult": false,
+            "isPrimitive": true,
+            "isConvertable": false
+          },
+          "1": {
+            "name": "Network",
+            "body": {
+              "Polkadot": null,
+              "Kusama": null
+            },
+            "isResult": false,
+            "isPrimitive": false,
+            "isConvertable": false
+          }
+        },
         "isResult": false,
-        "isPrimitive": true,
+        "isPrimitive": false,
         "isConvertable": false
       },
       "1": {
@@ -64,12 +100,46 @@
     "isConvertable": false
   },
   "2": {
+    "name": "Tuple",
+    "body": {
+      "0": {
+        "name": "number",
+        "isResult": false,
+        "isPrimitive": true,
+        "isConvertable": false
+      },
+      "1": {
+        "name": "Network",
+        "body": {
+          "Polkadot": null,
+          "Kusama": null
+        },
+        "isResult": false,
+        "isPrimitive": false,
+        "isConvertable": false
+      }
+    },
+    "isResult": false,
+    "isPrimitive": false,
+    "isConvertable": false
+  },
+  "3": {
     "name": "number",
     "isResult": false,
     "isPrimitive": true,
     "isConvertable": false
   },
-  "3": {
+  "4": {
+    "name": "Network",
+    "body": {
+      "Polkadot": null,
+      "Kusama": null
+    },
+    "isResult": false,
+    "isPrimitive": false,
+    "isConvertable": false
+  },
+  "5": {
     "name": "Array",
     "body": {
       "0": {
@@ -83,34 +153,20 @@
     "isPrimitive": false,
     "isConvertable": false
   },
-  "4": {
+  "6": {
     "name": "number",
     "isResult": false,
     "isPrimitive": true,
     "isConvertable": false
   },
-  "5": {
+  "7": {
     "name": "AccountId",
     "body": "string | number[]",
     "isResult": false,
     "isPrimitive": true,
     "isConvertable": false
   },
-  "6": {
-    "name": "Array",
-    "body": {
-      "0": {
-        "name": "number",
-        "isResult": false,
-        "isPrimitive": true,
-        "isConvertable": false
-      }
-    },
-    "isResult": false,
-    "isPrimitive": false,
-    "isConvertable": false
-  },
-  "7": {
+  "8": {
     "name": "Array",
     "body": {
       "0": {
@@ -125,12 +181,44 @@
     "isConvertable": false
   },
   "9": {
+    "name": "Array",
+    "body": {
+      "0": {
+        "name": "Tuple",
+        "body": {
+          "0": {
+            "name": "number",
+            "isResult": false,
+            "isPrimitive": true,
+            "isConvertable": false
+          },
+          "1": {
+            "name": "Network",
+            "body": {
+              "Polkadot": null,
+              "Kusama": null
+            },
+            "isResult": false,
+            "isPrimitive": false,
+            "isConvertable": false
+          }
+        },
+        "isResult": false,
+        "isPrimitive": false,
+        "isConvertable": false
+      }
+    },
+    "isResult": false,
+    "isPrimitive": false,
+    "isConvertable": false
+  },
+  "11": {
     "name": "null",
     "isResult": false,
     "isPrimitive": true,
     "isConvertable": false
   },
-  "10": {
+  "12": {
     "name": "LangError",
     "body": {
       "CouldNotReadInput": null
@@ -139,7 +227,7 @@
     "isPrimitive": false,
     "isConvertable": false
   },
-  "11": {
+  "13": {
     "name": "Array",
     "body": {
       "0": {
@@ -165,7 +253,7 @@
     "isPrimitive": false,
     "isConvertable": false
   },
-  "12": {
+  "14": {
     "name": "ChainInfo",
     "body": {
       "accountType": {
@@ -183,7 +271,7 @@
     "isPrimitive": false,
     "isConvertable": false
   },
-  "13": {
+  "15": {
     "name": "AccountType",
     "body": {
       "AccountId32": null,
@@ -193,7 +281,7 @@
     "isPrimitive": false,
     "isConvertable": false
   },
-  "14": {
+  "16": {
     "name": "Result<Option, LangError",
     "body": {
       "ok": {
@@ -209,9 +297,27 @@
                     "name": "Tuple",
                     "body": {
                       "0": {
-                        "name": "number",
+                        "name": "Tuple",
+                        "body": {
+                          "0": {
+                            "name": "number",
+                            "isResult": false,
+                            "isPrimitive": true,
+                            "isConvertable": false
+                          },
+                          "1": {
+                            "name": "Network",
+                            "body": {
+                              "Polkadot": null,
+                              "Kusama": null
+                            },
+                            "isResult": false,
+                            "isPrimitive": false,
+                            "isConvertable": false
+                          }
+                        },
                         "isResult": false,
-                        "isPrimitive": true,
+                        "isPrimitive": false,
                         "isConvertable": false
                       },
                       "1": {
@@ -268,7 +374,7 @@
     "isPrimitive": false,
     "isConvertable": false
   },
-  "15": {
+  "17": {
     "name": "Option",
     "body": {
       "0": {
@@ -281,9 +387,27 @@
                 "name": "Tuple",
                 "body": {
                   "0": {
-                    "name": "number",
+                    "name": "Tuple",
+                    "body": {
+                      "0": {
+                        "name": "number",
+                        "isResult": false,
+                        "isPrimitive": true,
+                        "isConvertable": false
+                      },
+                      "1": {
+                        "name": "Network",
+                        "body": {
+                          "Polkadot": null,
+                          "Kusama": null
+                        },
+                        "isResult": false,
+                        "isPrimitive": false,
+                        "isConvertable": false
+                      }
+                    },
                     "isResult": false,
-                    "isPrimitive": true,
+                    "isPrimitive": false,
                     "isConvertable": false
                   },
                   "1": {
@@ -326,7 +450,7 @@
     "isPrimitive": false,
     "isConvertable": false
   },
-  "16": {
+  "18": {
     "name": "IdentityInfo",
     "body": {
       "addresses": {
@@ -336,9 +460,27 @@
             "name": "Tuple",
             "body": {
               "0": {
-                "name": "number",
+                "name": "Tuple",
+                "body": {
+                  "0": {
+                    "name": "number",
+                    "isResult": false,
+                    "isPrimitive": true,
+                    "isConvertable": false
+                  },
+                  "1": {
+                    "name": "Network",
+                    "body": {
+                      "Polkadot": null,
+                      "Kusama": null
+                    },
+                    "isResult": false,
+                    "isPrimitive": false,
+                    "isConvertable": false
+                  }
+                },
                 "isResult": false,
-                "isPrimitive": true,
+                "isPrimitive": false,
                 "isConvertable": false
               },
               "1": {
@@ -370,7 +512,7 @@
     "isPrimitive": false,
     "isConvertable": false
   },
-  "17": {
+  "19": {
     "name": "Result<Option, LangError",
     "body": {
       "ok": {
@@ -408,7 +550,7 @@
     "isPrimitive": false,
     "isConvertable": false
   },
-  "18": {
+  "20": {
     "name": "Option",
     "body": {
       "0": {
@@ -429,7 +571,7 @@
     "isPrimitive": false,
     "isConvertable": false
   },
-  "19": {
+  "21": {
     "name": "Result<Option, LangError",
     "body": {
       "ok": {
@@ -466,7 +608,7 @@
     "isPrimitive": false,
     "isConvertable": false
   },
-  "20": {
+  "22": {
     "name": "Option",
     "body": {
       "0": {
@@ -486,7 +628,7 @@
     "isPrimitive": false,
     "isConvertable": false
   },
-  "21": {
+  "23": {
     "name": "Result<Option, LangError",
     "body": {
       "ok": {
@@ -535,7 +677,7 @@
     "isPrimitive": false,
     "isConvertable": false
   },
-  "22": {
+  "24": {
     "name": "Option",
     "body": {
       "0": {
@@ -567,7 +709,7 @@
     "isPrimitive": false,
     "isConvertable": false
   },
-  "23": {
+  "25": {
     "name": "Result<Result<Array, Error, LangError",
     "body": {
       "ok": {
@@ -621,7 +763,7 @@
     "isPrimitive": false,
     "isConvertable": false
   },
-  "24": {
+  "26": {
     "name": "Result<Array, Error",
     "body": {
       "ok": {
@@ -658,7 +800,7 @@
     "isPrimitive": false,
     "isConvertable": false
   },
-  "25": {
+  "27": {
     "name": "Error",
     "body": {
       "NotAllowed": null,
@@ -673,7 +815,7 @@
     "isPrimitive": false,
     "isConvertable": false
   },
-  "26": {
+  "28": {
     "name": "Result<Array, LangError",
     "body": {
       "ok": {
@@ -730,7 +872,7 @@
     "isPrimitive": false,
     "isConvertable": false
   },
-  "27": {
+  "29": {
     "name": "Array",
     "body": {
       "0": {
@@ -770,7 +912,7 @@
     "isPrimitive": false,
     "isConvertable": false
   },
-  "28": {
+  "30": {
     "name": "Tuple",
     "body": {
       "0": {
@@ -802,7 +944,7 @@
     "isPrimitive": false,
     "isConvertable": false
   },
-  "29": {
+  "31": {
     "name": "Result<Result<number, Error, LangError",
     "body": {
       "ok": {
@@ -848,7 +990,7 @@
     "isPrimitive": false,
     "isConvertable": false
   },
-  "30": {
+  "32": {
     "name": "Result<number, Error",
     "body": {
       "ok": {
@@ -877,7 +1019,7 @@
     "isPrimitive": false,
     "isConvertable": false
   },
-  "31": {
+  "33": {
     "name": "Result<Result<null, Error, LangError",
     "body": {
       "ok": {
@@ -923,7 +1065,7 @@
     "isPrimitive": false,
     "isConvertable": false
   },
-  "32": {
+  "34": {
     "name": "Result<null, Error",
     "body": {
       "ok": {
@@ -952,7 +1094,7 @@
     "isPrimitive": false,
     "isConvertable": false
   },
-  "33": {
+  "35": {
     "name": "Option",
     "body": {
       "0": {

@@ -29,8 +29,8 @@ import TransactionRouter, { isTeleport } from '@/utils/xcmTransfer';
 import { getTeleportableAssets } from '@/utils/xcmTransfer/teleportableRoutes';
 import { Fungible } from '@/utils/xcmTransfer/types';
 
-import { chainsSupportingXcmExecute, RELAY_CHAIN } from '@/consts';
-import { useRelayApi } from '@/contexts/RelayApi';
+import { chainsSupportingXcmExecute } from '@/consts';
+import { useRelay, useRelayApi } from '@/contexts/RelayApi';
 import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
 import { useAddressBook } from '@/contracts/addressbook/context';
@@ -60,6 +60,8 @@ const TransferPage = () => {
   const [recipientAddress, setRecipientAddress] = useState<string>();
   const [amount, setAmount] = useState<number>();
   const [transferring, setTransferring] = useState<boolean>(false);
+
+  const { relay } = useRelay();
 
   const chainsSelected =
     !loadingAssets && sourceChainId !== undefined && destChainId !== undefined;
@@ -91,22 +93,21 @@ const TransferPage = () => {
         setAssets([]);
       } else {
         const _assets = await AssetRegistry.assetsSupportedOnBothChains(
-          RELAY_CHAIN,
+          relay,
           chains[sourceChainId].paraId,
           chains[destChainId].paraId
         );
-        _assets.push(...getTeleportableAssets(sourceChainId, destChainId));
+        _assets.push(...getTeleportableAssets(sourceChainId, destChainId, relay));
         setAssets(_assets);
       }
     } else {
       const chaindata = new Chaindata();
-      const chain = await chaindata.getChain(sourceChainId);
-
-      await chaindata.load();
+      const chain = await chaindata.getChain(sourceChainId, relay);
 
       const _assets = [];
       if (chain) {
-        const tokens = chaindata.getTokens().filter((token) => {
+        const allTokens = (await chaindata.getTokens((chain.id === "kusama" || chain.id === "polkadot") ? null : relay));
+        const tokens = allTokens.filter((token) => {
           const prefix = `${chain.id}-${token.data.type}`;
           const isPartOfSourceChain = token.data.id.startsWith(prefix);
           return isPartOfSourceChain;
@@ -133,7 +134,7 @@ const TransferPage = () => {
     }
 
     setLoadingAssets(false);
-  }, [sourceChainId, destChainId, relayApi]);
+  }, [sourceChainId, destChainId, chains]);
 
   useEffect(() => {
     loadAssets();
@@ -155,11 +156,12 @@ const TransferPage = () => {
         const recepientIdentityNo = identities[recipientId].identityNo;
         const identityKey = KeyStore.readIdentityKey(recepientIdentityNo) || '';
         const destAddressRaw = addresses[index].address;
-        if (IdentityKey.containsChainId(identityKey, destChainId)) {
+        if (IdentityKey.containsChainId(identityKey, destChainId, relay)) {
           const decryptedAddress = IdentityKey.decryptAddress(
             identityKey,
             destChainId,
-            destAddressRaw
+            destAddressRaw,
+            relay,
           );
           setRecipientAddress(decryptedAddress);
         } else {
@@ -204,7 +206,8 @@ const TransferPage = () => {
       isTeleport(
         sourceChainId,
         destChainId,
-        getFungible(selectedAsset.xcmInteriorKey, isSourceParachain, 0)
+        getFungible(selectedAsset.xcmInteriorKey, isSourceParachain, 0),
+        relay
       )
     ) {
       return true;
@@ -212,7 +215,7 @@ const TransferPage = () => {
 
     const isOriginSupportingLocalXCM = chainsSupportingXcmExecute.findIndex(
       (chain) =>
-        chain.paraId == sourceChainId && chain.relayChain == RELAY_CHAIN
+        chain.paraId == sourceChainId && chain.relayChain == relay
     );
 
     // We only need the origin chain to support XCM for any other type of transfer to
@@ -322,6 +325,7 @@ const TransferPage = () => {
           destApi: await getApi(chains[destChainId].rpc),
           reserveApi: await getApi(chains[reserveChainId].rpc),
         },
+        relay,
         activeSigner
       );
       toastSuccess(`Transfer succeded`);
@@ -464,7 +468,7 @@ const TransferPage = () => {
               {identities.filter(
                 (identity) =>
                   IdentityKey.containsChainId(
-                    KeyStore.readIdentityKey(identity.identityNo) || '', destChainId
+                    KeyStore.readIdentityKey(identity.identityNo) || '', destChainId, relay
                   )).map((identity, index) => (
                     <MenuItem value={index} key={index}>
                       {identity.nickName}

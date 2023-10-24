@@ -17,6 +17,7 @@ import { clipAddress } from '@/utils';
 import IdentityKey from '@/utils/identityKey';
 import KeyStore from '@/utils/keyStore';
 
+import { useRelay } from '@/contexts/RelayApi';
 import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
 import { Address, ChainId } from '@/contracts/types';
@@ -37,6 +38,7 @@ export const AddressCard = ({ data, onEdit }: AddressCardProps) => {
   const { api, activeAccount } = useInkathon();
   const { toastSuccess, toastError } = useToast();
   const { identityNo, chains, contract, fetchAddresses } = useIdentity();
+  const { relay } = useRelay();
 
   const [working, setWorking] = useState(false);
 
@@ -57,7 +59,7 @@ export const AddressCard = ({ data, onEdit }: AddressCardProps) => {
         contract,
         'remove_address',
         {},
-        [chainId]
+        [[chainId, relay]]
       );
 
       toastSuccess('Address is removed successfully.');
@@ -82,11 +84,12 @@ export const AddressCard = ({ data, onEdit }: AddressCardProps) => {
     const identityKey = KeyStore.readIdentityKey(identityNo) || '';
 
     let decryptedAddress = address;
-    if (IdentityKey.containsChainId(identityKey, chainId)) {
+    if (IdentityKey.containsChainId(identityKey, chainId, relay)) {
       decryptedAddress = IdentityKey.decryptAddress(
         identityKey,
         chainId,
-        address
+        address,
+        relay,
       );
 
       return {

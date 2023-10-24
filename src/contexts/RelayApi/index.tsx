@@ -1,9 +1,9 @@
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import jsonrpc from '@polkadot/types/interfaces/jsonrpc';
 import { DefinitionRpcExt } from '@polkadot/types/types';
-import React, { useContext, useEffect, useReducer } from 'react';
+import React, { useContext, useEffect, useReducer, useState } from 'react';
 
-import { RELAY_CHAIN_ENDPOINT } from '@/consts';
+import { getRelayChainApiURL } from '@/consts';
 
 import { useToast } from '../Toast';
 
@@ -11,7 +11,6 @@ import { useToast } from '../Toast';
 // Initial state for `useReducer`
 
 type State = {
-  socket: string;
   jsonrpc: Record<string, Record<string, DefinitionRpcExt>>;
   api: any;
   apiError: any;
@@ -20,7 +19,6 @@ type State = {
 
 const initialState: State = {
   // These are the states
-  socket: RELAY_CHAIN_ENDPOINT,
   jsonrpc: { ...jsonrpc },
   api: null,
   apiError: null,
@@ -48,10 +46,10 @@ const reducer = (state: any, action: any) => {
 ///
 // Connecting to the Substrate node
 
-const connect = (state: any, dispatch: any) => {
-  const { apiState, socket, jsonrpc } = state;
+const connect = (state: any, socket: string, force: boolean, dispatch: any) => {
+  const { apiState, jsonrpc } = state;
   // We only want this function to be performed once
-  if (apiState) return;
+  if (apiState && !force) return;
 
   dispatch({ type: 'CONNECT_INIT' });
 
@@ -72,11 +70,38 @@ const defaultValue = {
   state: initialState,
 };
 
+type Relay = {
+  relay: "polkadot" | "kusama",
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  setRelay(_value: string): void
+}
+
+const DEFAULT_RELAY = "kusama";
+
+const RelayContext = React.createContext(
+  // eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
+  { relay: "polkadot", setRelay: (_value: string) => { } } as Relay
+);
+
+const RelayContextProvider = (props: any) => {
+  const [relay, setRelay]: [relay: "polkadot" | "kusama", setRelay: any] = useState(DEFAULT_RELAY);
+
+  return (
+    <RelayContext.Provider value={{ relay: relay, setRelay: setRelay }}>
+      {props.children}
+    </RelayContext.Provider>
+  );
+}
+
+const useRelay = () => useContext(RelayContext);
+
 const RelayApiContext = React.createContext(defaultValue);
 
 const RelayApiContextProvider = (props: any) => {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const [prevRelay, setPrevRelay] = useState(DEFAULT_RELAY);
   const { toastError, toastSuccess } = useToast();
+  const { relay } = useRelay();
 
   useEffect(() => {
     state.apiError &&
@@ -91,8 +116,10 @@ const RelayApiContextProvider = (props: any) => {
   }, [state.apiState]);
 
   useEffect(() => {
-    connect(state, dispatch);
-  }, [process.env.RELAY_CHAIN_ENDPOINT]);
+    const force = prevRelay !== relay;
+    setPrevRelay(relay);
+    connect(state, getRelayChainApiURL(relay), force, dispatch);
+  }, [relay]);
 
   return (
     <RelayApiContext.Provider value={{ state }}>
@@ -100,6 +127,7 @@ const RelayApiContextProvider = (props: any) => {
     </RelayApiContext.Provider>
   );
 };
+
 const useRelayApi = () => useContext(RelayApiContext);
 
-export { RelayApiContextProvider, useRelayApi };
+export { RelayApiContextProvider, RelayContextProvider, useRelay, useRelayApi };

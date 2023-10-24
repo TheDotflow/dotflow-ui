@@ -30,7 +30,6 @@ export const AddIdentityModal = ({ open, onClose }: AddIdentityModalProps) => {
   const { contract, fetchIdentities } = useAddressBook();
   const { toastError, toastSuccess } = useToast();
 
-  const [identityNo, setIdentityNo] = useState<number | undefined>();
   const [identityKey, setIdentityKey] = useState<string | undefined>();
   const [nickname, setNickname] = useState<string | undefined>();
   const [working, setWorking] = useState(false);
@@ -40,8 +39,11 @@ export const AddIdentityModal = ({ open, onClose }: AddIdentityModalProps) => {
       toastError('Please input identity key.');
       return;
     }
-    if (identityNo === undefined) {
-      toastError('Please input identity no.');
+    const firstColonIndex = identityKey.indexOf(':');
+    const firstSemicolonIndex = identityKey.indexOf(';');
+    const identityNo = Number(identityKey.substring(firstColonIndex + 1, firstSemicolonIndex));
+    if (Number.isNaN(identityNo)) {
+      toastError("Invalid identity key.");
       return;
     }
     if (identityNo === myIdentity) {
@@ -75,10 +77,9 @@ export const AddIdentityModal = ({ open, onClose }: AddIdentityModalProps) => {
       onClose();
     } catch (e: any) {
       toastError(
-        `Failed to add identity. Error: ${
-          e.errorMessage === 'Error'
-            ? 'Please check your balance.'
-            : e.errorMessage
+        `Failed to add identity. Error: ${e.errorMessage === 'Error'
+          ? 'Please check your balance.'
+          : e.errorMessage
         }`
       );
       setWorking(false);
@@ -89,7 +90,6 @@ export const AddIdentityModal = ({ open, onClose }: AddIdentityModalProps) => {
     setNickname(undefined);
     setWorking(false);
     setIdentityKey(undefined);
-    setIdentityNo(undefined);
   }, [open]);
 
   return (
@@ -120,19 +120,6 @@ export const AddIdentityModal = ({ open, onClose }: AddIdentityModalProps) => {
                 <span>Maximum 16 characters</span>
                 <span>{`${(nickname || '').length}/16`}</span>
               </FormHelperText>
-            </FormControl>
-            <FormControl className='form-item'>
-              <FormLabel>Identity No</FormLabel>
-              <TextField
-                placeholder='Enter identity no'
-                type='number'
-                required
-                value={identityNo}
-                onChange={(e) => {
-                  const value = Number(e.target.value);
-                  value >= 0 && setIdentityNo(value);
-                }}
-              />
             </FormControl>
             <FormControl className='form-item'>
               <FormLabel>Identity Key</FormLabel>

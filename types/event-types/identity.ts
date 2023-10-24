@@ -8,19 +8,19 @@ export interface IdentityCreated {
 
 export interface AddressAdded {
 	identityNo: number;
-	chain: number;
+	chain: [number, ReturnTypes.Network];
 	address: Array<number>;
 }
 
 export interface AddressUpdated {
 	identityNo: number;
-	chain: number;
+	chain: [number, ReturnTypes.Network];
 	updatedAddress: Array<number>;
 }
 
 export interface AddressRemoved {
 	identityNo: number;
-	chain: number;
+	chain: [number, ReturnTypes.Network];
 }
 
 export interface IdentityRemoved {
@@ -28,17 +28,17 @@ export interface IdentityRemoved {
 }
 
 export interface ChainAdded {
-	chainId: number;
+	chainId: [number, ReturnTypes.Network];
 	accountType: ReturnTypes.AccountType;
 }
 
 export interface ChainUpdated {
-	chainId: number;
+	chainId: [number, ReturnTypes.Network];
 	accountType: ReturnTypes.AccountType;
 }
 
 export interface ChainRemoved {
-	chainId: number;
+	chainId: [number, ReturnTypes.Network];
 }
 
 export interface RecoveryAccountSet {

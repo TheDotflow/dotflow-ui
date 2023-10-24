@@ -1,5 +1,10 @@
 import type BN from 'bn.js';
 
+export enum Network {
+	polkadot = 'Polkadot',
+	kusama = 'Kusama'
+}
+
 export type AccountId = string | number[]
 
 export enum LangError {
@@ -16,7 +21,7 @@ export enum AccountType {
 }
 
 export type IdentityInfo = {
-	addresses: Array<[(number | string | BN), Array<(number | string | BN)>]>
+	addresses: Array<[[(number | string | BN), Network], Array<(number | string | BN)>]>
 }
 
 export enum Error {

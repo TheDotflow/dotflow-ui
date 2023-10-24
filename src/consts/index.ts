@@ -7,6 +7,10 @@ export const RELAY_CHAIN = (process.env.RELAY_CHAIN || 'polkadot') as RELAY_CHAI
 export const RELAY_CHAIN_ENDPOINT = RELAY_CHAIN_ENDPOINTS[RELAY_CHAIN];
 export const ZERO = BigInt(0);
 
+export const getRelayChainApiURL = (relay: "polkadot" | "kusama"): string => {
+  return RELAY_CHAIN_ENDPOINTS[relay];
+}
+
 // NOTE: we do not need to store the name of these chains, but they are convenient
 // for us while reading to code to see which chains support local XCM execution.
 export const chainsSupportingXcmExecute = [

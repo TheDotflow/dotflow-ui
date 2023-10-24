@@ -17,11 +17,13 @@ import {
 import { contractTx, useInkathon } from '@scio-labs/use-inkathon';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
+import { Network } from 'types/types-arguments/identity';
 
 import { isValidAddress } from '@/utils';
 import IdentityKey from '@/utils/identityKey';
 import KeyStore from '@/utils/keyStore';
 
+import { useRelay } from '@/contexts/RelayApi';
 import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
 import { ChainId } from '@/contracts/types';
@@ -39,6 +41,7 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
   const [chainId, setChainId] = useState<ChainId | undefined>();
   const [chainAddress, setChainAddress] = useState<string | undefined>();
   const [working, setWorking] = useState(false);
+  const { relay } = useRelay();
 
   const onSubmit = async () => {
     if (identityNo === null) {
@@ -69,15 +72,16 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
 
     let identityKey = KeyStore.readIdentityKey(identityNo) || '';
 
-    if (!IdentityKey.containsChainId(identityKey, chainId)) {
-      identityKey = IdentityKey.newCipher(identityKey, chainId);
+    if (!IdentityKey.containsChainId(identityKey, chainId, relay)) {
+      identityKey = IdentityKey.newCipher(identityKey, chainId, relay);
       KeyStore.updateIdentityKey(identityNo, identityKey);
     }
 
     const encryptedAddress = IdentityKey.encryptAddress(
       identityKey,
       chainId,
-      chainAddress
+      chainAddress,
+      relay
     );
 
     try {
@@ -87,7 +91,7 @@ export const AddAddressModal = ({ open, onClose }: AddAddressModalProps) => {
         contract,
         'add_address',
         {},
-        [chainId, encryptedAddress]
+        [[chainId, relay === "polkadot" ? Network.polkadot : Network.kusama], encryptedAddress]
       );
 
       toastSuccess('Successfully added your address.');

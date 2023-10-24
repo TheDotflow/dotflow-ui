@@ -14,7 +14,7 @@ import theme from '@/utils/muiTheme';
 
 import { Layout } from '@/components/Layout';
 
-import { RelayApiContextProvider } from '@/contexts/RelayApi';
+import { RelayApiContextProvider, RelayContextProvider } from '@/contexts/RelayApi';
 import { ToastProvider } from '@/contexts/Toast';
 import { IdentityContractProvider } from '@/contracts';
 import { AddressBookContractProvider } from '@/contracts/addressbook/context';
@@ -31,7 +31,9 @@ interface MyAppProps extends AppProps {
 
 export default function MyApp(props: MyAppProps) {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
-  const getLayout = Component.getLayout ?? ((page) => <Layout>{page}</Layout>);
+  const getLayout = Component.getLayout ?? ((page) =>
+    <Layout>{page}</Layout>
+  );
 
   return (
     <CacheProvider value={emotionCache}>
@@ -43,29 +45,31 @@ export default function MyApp(props: MyAppProps) {
         {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
         <CssBaseline />
         <ToastProvider>
-          <RelayApiContextProvider>
-            <UseInkathonProvider
-              appName='DotFlow UI'
-              connectOnInit={false}
-              defaultChain={{
-                network: 'rocococ-contracts',
-                name: 'Rococo contracts',
-                ss58Prefix: 42,
-                rpcUrls: ['wss://rococo-contracts-rpc.polkadot.io'],
-                explorerUrls: {},
-                testnet: true,
-                faucetUrls: [],
-              }}
-            >
-              <IdentityContractProvider>
-                <AddressBookContractProvider>
-                  <ConfirmProvider>
-                    {getLayout(<Component {...pageProps} />)}
-                  </ConfirmProvider>
-                </AddressBookContractProvider>
-              </IdentityContractProvider>
-            </UseInkathonProvider>
-          </RelayApiContextProvider>
+          <RelayContextProvider>
+            <RelayApiContextProvider>
+              <UseInkathonProvider
+                appName='DotFlow UI'
+                connectOnInit={false}
+                defaultChain={{
+                  network: 'rocococ-contracts',
+                  name: 'Rococo contracts',
+                  ss58Prefix: 42,
+                  rpcUrls: ['wss://rococo-contracts-rpc.polkadot.io'],
+                  explorerUrls: {},
+                  testnet: true,
+                  faucetUrls: [],
+                }}
+              >
+                <IdentityContractProvider>
+                  <AddressBookContractProvider>
+                    <ConfirmProvider>
+                      {getLayout(<Component {...pageProps} />)}
+                    </ConfirmProvider>
+                  </AddressBookContractProvider>
+                </IdentityContractProvider>
+              </UseInkathonProvider>
+            </RelayApiContextProvider>
+          </RelayContextProvider>
         </ToastProvider>
       </ThemeProvider>
     </CacheProvider>
