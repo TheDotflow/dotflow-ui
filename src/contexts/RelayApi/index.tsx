@@ -72,13 +72,15 @@ const defaultValue = {
 
 type Relay = {
   relay: "polkadot" | "kusama",
-  setRelay(value: string): void
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  setRelay(_value: string): void
 }
 
 const DEFAULT_RELAY = "kusama";
 
 const RelayContext = React.createContext(
-  { relay: "polkadot", setRelay: (_: string) => { } } as Relay
+  // eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
+  { relay: "polkadot", setRelay: (_value: string) => { } } as Relay
 );
 
 const RelayContextProvider = (props: any) => {
@@ -128,4 +130,4 @@ const RelayApiContextProvider = (props: any) => {
 
 const useRelayApi = () => useContext(RelayApiContext);
 
-export { RelayApiContextProvider, RelayContextProvider, useRelay,useRelayApi };
+export { RelayApiContextProvider, RelayContextProvider, useRelay, useRelayApi };

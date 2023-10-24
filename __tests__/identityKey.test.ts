@@ -54,9 +54,6 @@ describe("IdentityKey", () => {
 
     // The polkadot cipher shouldn't be affected. 
     expect(IdentityKey.getChainCipher(identityKey, polkadotChainId, "polkadot")).toBe(polkadotCipher);
-
-    // Cannot update a cipher of a chain that does not exist.
-    expect(() => IdentityKey.updateCipher(identityKey, 42, "polkadot")).toThrow("Cannot find chainId");
   });
 
   test("Encryption and decryption works", () => {

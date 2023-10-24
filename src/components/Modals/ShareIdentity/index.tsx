@@ -47,7 +47,7 @@ export const ShareIdentityModal = ({
       setChains(result);
     }
     getChains();
-  }, []);
+  }, [getAllChains, identityNo]);
 
   useEffect(() => {
     if (identityNo === null) return;
@@ -78,7 +78,7 @@ export const ShareIdentityModal = ({
     } catch (e: any) {
       toastError(`Failed to get the identity key. Error: ${e.message}`);
     }
-  }, [checks, identityNo, chains, sharedKey]);
+  }, [checks, identityNo, chains, sharedKey, toastError]);
 
   useEffect(() => setChecks({}), [open]);
 

@@ -30,7 +30,7 @@ import { getTeleportableAssets } from '@/utils/xcmTransfer/teleportableRoutes';
 import { Fungible } from '@/utils/xcmTransfer/types';
 
 import { chainsSupportingXcmExecute } from '@/consts';
-import { RelayContextProvider, useRelay, useRelayApi } from '@/contexts/RelayApi';
+import { useRelay, useRelayApi } from '@/contexts/RelayApi';
 import { useToast } from '@/contexts/Toast';
 import { useIdentity } from '@/contracts';
 import { useAddressBook } from '@/contracts/addressbook/context';
@@ -102,7 +102,6 @@ const TransferPage = () => {
       }
     } else {
       const chaindata = new Chaindata();
-      console.log(relay);
       const chain = await chaindata.getChain(sourceChainId, relay);
 
       const _assets = [];
@@ -110,7 +109,6 @@ const TransferPage = () => {
         const allTokens = (await chaindata.getTokens((chain.id === "kusama" || chain.id === "polkadot") ? null : relay));
         const tokens = allTokens.filter((token) => {
           const prefix = `${chain.id}-${token.data.type}`;
-          console.log(`${chain.id}-${token.data.type}`);
           const isPartOfSourceChain = token.data.id.startsWith(prefix);
           return isPartOfSourceChain;
         });
@@ -136,7 +134,7 @@ const TransferPage = () => {
     }
 
     setLoadingAssets(false);
-  }, [sourceChainId, destChainId, relayApi, relay]);
+  }, [sourceChainId, destChainId, chains]);
 
   useEffect(() => {
     loadAssets();
@@ -515,13 +513,4 @@ const TransferPage = () => {
   );
 };
 
-
-const TransferPageWrapped = () => {
-  return (
-    <RelayContextProvider>
-      <TransferPage />
-    </RelayContextProvider>
-  )
-}
-
-export default TransferPageWrapped;
+export default TransferPage;
